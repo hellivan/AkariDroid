@@ -8,7 +8,7 @@ public class GameFieldModel {
 	/**
 	 * Enumeration that represents all possible states of a game-field-cell
 	 */
-	enum CellState {
+	public enum CellState {
 		/**
 		 * An empty cell
 		 */
