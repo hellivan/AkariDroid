@@ -13,11 +13,14 @@ import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.font.IFont;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.HorizontalAlign;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.TimeoutException;
 
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.util.Log;
 import android.view.Display;
+import at.ac.uibk.akari.testsolver.Akari;
 
 public class MainActivity extends SimpleBaseGameActivity {
 
@@ -29,18 +32,22 @@ public class MainActivity extends SimpleBaseGameActivity {
 	public EngineOptions onCreateEngineOptions() {
 		Log.i(MainActivity.LOG_TAG, "Called create engine-options");
 
-		Display display = getWindowManager().getDefaultDisplay();
+		Display display = this.getWindowManager().getDefaultDisplay();
 		Point screenSize = new Point();
 		display.getSize(screenSize);
 
 		this.gameCamera = new Camera(0, 0, screenSize.x, screenSize.y);
-		return new EngineOptions(true, ScreenOrientation.LANDSCAPE_SENSOR, new RatioResolutionPolicy(screenSize.x, screenSize.y), this.gameCamera);
 
+		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_SENSOR, new RatioResolutionPolicy(screenSize.x, screenSize.y), this.gameCamera);
+		engineOptions.getTouchOptions().setNeedsMultiTouch(true);
+
+		return engineOptions;
 	}
 
 	@Override
 	protected void onCreateResources() {
 		Log.i(MainActivity.LOG_TAG, "Called create resources");
+		TextureLoader.getInstance().init(this.getTextureManager(), this);
 
 	}
 
@@ -49,6 +56,8 @@ public class MainActivity extends SimpleBaseGameActivity {
 		Log.i(MainActivity.LOG_TAG, "Called create scene");
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 		this.gameScene = new Scene();
+		this.gameScene.setOnAreaTouchTraversalFrontToBack();
+		this.gameScene.setTouchAreaBindingOnActionDownEnabled(true);
 
 		IFont pFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 64);
 		pFont.load();
@@ -59,8 +68,26 @@ public class MainActivity extends SimpleBaseGameActivity {
 
 		this.gameScene.attachChild(helloWorld);
 
-		this.gameScene.setBackground(new Background(0.2f, 0.6f, 0.8f, 0.1f));
-		return gameScene;
-	}
+		Lamp lamp = new Lamp(50, 50, 100, 100, this.getVertexBufferObjectManager());
+		this.gameScene.attachChild(lamp);
+		this.gameScene.registerTouchArea(lamp);
 
+		this.gameScene.setBackground(new Background(0.2f, 0.6f, 0.8f, 0.1f));
+		try {
+			System.out.println("Starting  solving");
+			long timeStart = System.currentTimeMillis();
+
+			new Akari();
+			long timeStop = System.currentTimeMillis();
+			float secondsNeeded = ((float) (timeStop - timeStart)) / 1000;
+			System.out.println("Finished solving puzzle  in " + secondsNeeded + " seconds ...");
+		} catch (ContradictionException e) {
+			e.printStackTrace();
+		} catch (TimeoutException e) {
+			e.printStackTrace();
+		}
+
+		return this.gameScene;
+
+	}
 }
