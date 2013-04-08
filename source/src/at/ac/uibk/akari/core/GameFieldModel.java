@@ -141,4 +141,28 @@ public class GameFieldModel {
 	public int getHeight() {
 		return this.cells.length;
 	}
+	
+	/**
+	 * Clears the lamps of the field. After this method is called the model will represent a puzzle without lamps
+	 * 
+	 */
+	public void clearLamps() {
+		for (int posY = 0; posY < this.getHeight(); posY++) {
+			for (int posX = 0; posX < this.getWidth(); posX++) {
+				if (this.getCellState(posX, posY) == CellState.LAMP)
+					this.setCellState(posX, posY, CellState.BLANK);
+			}
+		}
+	}
+	@Override
+	public Object clone()  {
+		GameFieldModel clone = new GameFieldModel(this.getWidth(), this.getHeight());
+
+		for (int i = 0; i < this.getHeight(); i++) {
+			for (int j = 0; j < this.getWidth(); j++) {
+				clone.setCellState(i, j, this.getCellState(i, j));
+			}
+		}
+		return clone;
+	}
 }
