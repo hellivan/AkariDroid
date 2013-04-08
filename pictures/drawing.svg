@@ -7,6 +7,7 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="744.09448819"
@@ -16,7 +17,50 @@
    inkscape:version="0.48.4 r9939"
    sodipodi:docname="drawing.svg">
   <defs
-     id="defs4" />
+     id="defs4">
+    <linearGradient
+       id="linearGradient5331">
+      <stop
+         style="stop-color:#00f1ff;stop-opacity:1;"
+         offset="0"
+         id="stop5333" />
+      <stop
+         style="stop-color:#00f1ff;stop-opacity:0;"
+         offset="1"
+         id="stop5335" />
+    </linearGradient>
+    <linearGradient
+       id="linearGradient5323">
+      <stop
+         style="stop-color:#00eaff;stop-opacity:0.58940399;"
+         offset="0"
+         id="stop5325" />
+      <stop
+         style="stop-color:#1200ff;stop-opacity:0;"
+         offset="1"
+         id="stop5327" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5331"
+       id="radialGradient5337"
+       cx="55"
+       cy="197.36218"
+       fx="55"
+       fy="197.36218"
+       r="25"
+       gradientUnits="userSpaceOnUse" />
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5331"
+       id="radialGradient3192"
+       gradientUnits="userSpaceOnUse"
+       cx="55"
+       cy="197.36218"
+       fx="55"
+       fy="197.36218"
+       r="25" />
+  </defs>
   <sodipodi:namedview
      id="base"
      pagecolor="#ffffff"
@@ -24,9 +68,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8"
-     inkscape:cx="290.39074"
-     inkscape:cy="674.01705"
+     inkscape:zoom="11.506667"
+     inkscape:cx="51.669319"
+     inkscape:cy="902.88431"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -36,7 +80,8 @@
      inkscape:window-height="1021"
      inkscape:window-x="0"
      inkscape:window-y="27"
-     inkscape:window-maximized="1" />
+     inkscape:window-maximized="1"
+     inkscape:object-paths="true" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -62,35 +107,273 @@
        sodipodi:rx="67.175148"
        sodipodi:ry="67.175148"
        d="m 303.04577,214.44064 a 67.175148,67.175148 0 1 1 -134.3503,0 67.175148,67.175148 0 1 1 134.3503,0 z"
-       transform="matrix(0.36941183,0,0,0.36941183,67.866603,282.14527)"
+       transform="matrix(0.36941183,0,0,0.36941183,-32.133397,-46.854728)"
        inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/lamp.png"
        inkscape:export-xdpi="921.42999"
        inkscape:export-ydpi="921.42999" />
     <path
        sodipodi:type="arc"
-       style="fill:#3880ff;fill-opacity:0.56422019;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#3880ff;fill-opacity:0.56422017;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        id="path2985-5"
        sodipodi:cx="235.87062"
        sodipodi:cy="214.44064"
        sodipodi:rx="67.175148"
        sodipodi:ry="67.175148"
        d="m 303.04577,214.44064 a 67.175148,67.175148 0 1 1 -134.3503,0 67.175148,67.175148 0 1 1 134.3503,0 z"
-       transform="matrix(0.36941183,0,0,0.36941183,117.8666,282.14527)"
+       transform="matrix(0.36941183,0,0,0.36941183,17.8666,-46.854728)"
        inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/lamp.png"
        inkscape:export-xdpi="921.42999"
        inkscape:export-ydpi="921.42999" />
     <path
        sodipodi:type="arc"
-       style="fill:#ff0200;fill-opacity:0.56880736;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#ff0200;fill-opacity:0.56880739;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        id="path2985-5-9"
        sodipodi:cx="235.87062"
        sodipodi:cy="214.44064"
        sodipodi:rx="67.175148"
        sodipodi:ry="67.175148"
        d="m 303.04577,214.44064 a 67.175148,67.175148 0 1 1 -134.3503,0 67.175148,67.175148 0 1 1 134.3503,0 z"
-       transform="matrix(0.36941183,0,0,0.36941183,167.8666,282.14527)"
+       transform="matrix(0.36941183,0,0,0.36941183,67.866599,-46.854728)"
        inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/lamp.png"
        inkscape:export-xdpi="921.42999"
        inkscape:export-ydpi="921.42999" />
+    <rect
+       style="fill:#00f1ff;stroke:#000000;stroke-width:0.40000000000000002;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;fill-opacity:0.53636366"
+       id="rect3063-3-7"
+       width="49.599998"
+       height="49.599998"
+       x="30.200001"
+       y="122.56219"
+       inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
+       inkscape:export-xdpi="230.38643"
+       inkscape:export-ydpi="230.38643" />
+    <path
+       sodipodi:type="arc"
+       style="fill:#fff000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       id="path2985-3"
+       sodipodi:cx="235.87062"
+       sodipodi:cy="214.44064"
+       sodipodi:rx="67.175148"
+       sodipodi:ry="67.175148"
+       d="m 303.04577,214.44064 a 67.175148,67.175148 0 1 1 -134.3503,0 67.175148,67.175148 0 1 1 134.3503,0 z"
+       transform="matrix(0.36941183,0,0,0.36941183,-32.133397,68.145272)"
+       inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
+       inkscape:export-xdpi="230.38643"
+       inkscape:export-ydpi="230.38643" />
+    <rect
+       style="fill:#00f1ff;fill-opacity:0.53636367;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect3063"
+       width="49.599998"
+       height="49.599998"
+       x="30.200001"
+       y="172.56218"
+       inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
+       inkscape:export-xdpi="230.38643"
+       inkscape:export-ydpi="230.38643" />
+    <g
+       id="g3109"
+       inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
+       inkscape:export-xdpi="230.38643"
+       inkscape:export-ydpi="230.38643">
+      <rect
+         y="222.56218"
+         x="30.200001"
+         height="49.599998"
+         width="49.599998"
+         id="rect3063-3-7-1-9"
+         style="fill:none;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         transform="matrix(1.4909091,0,0,1.4470588,-31.1,-112.75603)"
+         d="m 66,248.86218 a 8.25,8.5 0 1 1 -16.5,0 8.25,8.5 0 1 1 16.5,0 z"
+         sodipodi:ry="8.5"
+         sodipodi:rx="8.25"
+         sodipodi:cy="248.86218"
+         sodipodi:cx="57.75"
+         id="path5459"
+         style="fill:#ff0003;fill-opacity:0.57272728;stroke:#000000;stroke-width:0.27232775;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         sodipodi:type="arc" />
+    </g>
+    <rect
+       style="fill:#000000;stroke:#000000;stroke-width:0.40000001000000002;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;fill-opacity:1"
+       id="rect3063-3-7-1-9-8"
+       width="49.599998"
+       height="49.599998"
+       x="30.200001"
+       y="272.56219"
+       inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
+       inkscape:export-xdpi="230.38643"
+       inkscape:export-ydpi="230.38643" />
+    <g
+       id="g3121"
+       inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
+       inkscape:export-xdpi="230.38643"
+       inkscape:export-ydpi="230.38643">
+      <rect
+         y="322.56219"
+         x="30.200001"
+         height="49.599998"
+         width="49.599998"
+         id="rect3063-3-7-1-9-8-9"
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text5497"
+         y="364.53244"
+         x="43.081989"
+         style="font-size:47.10632706px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;font-family:'2peas';-inkscape-font-specification:'2peas Medium'"
+         xml:space="preserve"><tspan
+           y="364.53244"
+           x="43.081989"
+           id="tspan5499"
+           sodipodi:role="line">0</tspan></text>
+    </g>
+    <g
+       id="g3126"
+       inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
+       inkscape:export-xdpi="230.38643"
+       inkscape:export-ydpi="230.38643">
+      <rect
+         y="372.56219"
+         x="30.200001"
+         height="49.599998"
+         width="49.599998"
+         id="rect3063-3-7-1-9-8-9-6"
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text5497-6"
+         y="412.96002"
+         x="43.515781"
+         style="font-size:47.55434799px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;font-family:'2peas';-inkscape-font-specification:'2peas Medium'"
+         xml:space="preserve"><tspan
+           y="412.96002"
+           x="43.515781"
+           id="tspan5499-4"
+           sodipodi:role="line">1</tspan></text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:49.61240387px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;font-family:'2peas';-inkscape-font-specification:'2peas Medium'"
+       x="94.980911"
+       y="522.40186"
+       id="text5497-6-0"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         x="94.980911"
+         y="522.40186"
+         id="tspan3080" /></text>
+    <flowRoot
+       xml:space="preserve"
+       id="flowRoot3037"
+       style="fill:black;stroke:none;stroke-opacity:1;stroke-width:1px;stroke-linejoin:miter;stroke-linecap:butt;fill-opacity:1;font-family:Sans;font-style:normal;font-weight:normal;font-size:40px;line-height:125%;letter-spacing:0px;word-spacing:0px"><flowRegion
+         id="flowRegion3039"><rect
+           id="rect3041"
+           width="115.61196"
+           height="71.064232"
+           x="8.1317282"
+           y="427.27979" /></flowRegion><flowPara
+         id="flowPara3043"></flowPara></flowRoot>    <g
+       id="g3131"
+       inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
+       inkscape:export-xdpi="230.38643"
+       inkscape:export-ydpi="230.38643">
+      <rect
+         y="422.56219"
+         x="30.200001"
+         height="49.599998"
+         width="49.599998"
+         id="rect3063-3-7-1-9-8-9-6-7"
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text5497-6-0-7"
+         y="464.31763"
+         x="40.544792"
+         style="font-size:49.50495148px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;font-family:'2peas';-inkscape-font-specification:'2peas Medium'"
+         xml:space="preserve"><tspan
+           y="464.31763"
+           x="40.544792"
+           id="tspan5499-4-1-7"
+           sodipodi:role="line">2</tspan></text>
+    </g>
+    <g
+       id="g3136"
+       inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
+       inkscape:export-xdpi="230.38643"
+       inkscape:export-ydpi="230.38643">
+      <rect
+         y="472.56219"
+         x="30.200001"
+         height="49.599998"
+         width="49.599998"
+         id="rect3063-3-7-1-9-8-9-6-7-04"
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text5497-6-0-4"
+         y="513.48889"
+         x="41.740772"
+         style="font-size:47.35413742px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;font-family:'2peas';-inkscape-font-specification:'2peas Medium'"
+         xml:space="preserve"><tspan
+           y="513.48889"
+           x="41.740772"
+           id="tspan5499-4-1-6"
+           sodipodi:role="line">3</tspan></text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
+       x="39.951534"
+       y="508.59708"
+       id="text3084"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan3086"
+         x="39.951534"
+         y="508.59708" /></text>
+    <g
+       id="g3141"
+       inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
+       inkscape:export-xdpi="230.38643"
+       inkscape:export-ydpi="230.38643">
+      <rect
+         y="522.56219"
+         x="30.200001"
+         height="49.599998"
+         width="49.599998"
+         id="rect3063-3-7-1-9-8-9-6-7-0"
+         style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text5497-6-0-7-1"
+         y="564.28607"
+         x="40.836853"
+         style="font-size:48.01097488px;font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#ffffff;fill-opacity:1;stroke:none;font-family:'2peas';-inkscape-font-specification:'2peas Medium'"
+         xml:space="preserve"><tspan
+           y="564.28607"
+           x="40.836853"
+           id="tspan5499-4-1-7-6"
+           sodipodi:role="line">4</tspan></text>
+    </g>
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect3063-3-7-9"
+       width="49.599998"
+       height="49.599998"
+       x="30.200001"
+       y="72.562187"
+       inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
+       inkscape:export-xdpi="230.38643"
+       inkscape:export-ydpi="230.38643" />
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect3063-3-7-9-0"
+       width="49.599998"
+       height="49.599998"
+       x="177.74553"
+       y="85.627144"
+       inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell_empty.png"
+       inkscape:export-xdpi="921.56201"
+       inkscape:export-ydpi="921.56201" />
   </g>
 </svg>

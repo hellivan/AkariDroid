@@ -16,26 +16,31 @@ import android.content.Context;
 public class TextureLoader {
 
 	public enum TextureType {
-		LAMP("lamp.png", 512, 1536, 3);
+		/**
+		 * Tiled texture for the a animated lamp
+		 */
+		LAMP("lamp.png", 1536, 512, 3, 1),
+		/**
+		 * Tiled texture for a cell
+		 */
+		CELL("cell.png", 128, 1280, 1, 10);
 
 		private String texturePath;
 		private int textureWidth;
 		private int textureHeight;
-		private int textureCount;
+		private int tileColumns;
+		private int tileRows;
 
-		private TextureType(final String texturePath, final int textureWidth, final int textureHeight, final int textureCount) {
+		private TextureType(final String texturePath, final int textureWidth, final int textureHeight, final int tileColumns, final int tileRows) {
 			this.texturePath = texturePath;
 			this.textureWidth = textureWidth;
 			this.textureHeight = textureHeight;
-			this.textureCount = textureCount;
+			this.tileColumns = tileColumns;
+			this.tileRows = tileRows;
 		}
 
 		public String getTexturePath() {
 			return this.texturePath;
-		}
-
-		public int getTextureCount() {
-			return this.textureCount;
 		}
 
 		public int getTextureHeight() {
@@ -46,6 +51,17 @@ public class TextureLoader {
 			return this.textureWidth;
 		}
 
+		public int getTileColumns() {
+			return this.tileColumns;
+		}
+
+		public int getTileRows() {
+			return this.tileRows;
+		}
+
+		public int getTileNumber(final int posX, final int posY) {
+			return this.getTileColumns() * posY + posX;
+		}
 	}
 
 	private Map<TextureType, TiledTextureRegion> texturesCache;
@@ -67,17 +83,17 @@ public class TextureLoader {
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 
 		for (TextureType textureType : TextureType.values()) {
-			BitmapTextureAtlas textureAtlas = new BitmapTextureAtlas(textureManager, textureType.getTextureCount() * textureType.getTextureWidth(), textureType.getTextureHeight(), TextureOptions.BILINEAR);
+			BitmapTextureAtlas textureAtlas = new BitmapTextureAtlas(textureManager, textureType.getTextureWidth(), textureType.getTextureHeight(), TextureOptions.BILINEAR);
 
-			TiledTextureRegion textureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(textureAtlas, context, textureType.getTexturePath(), 0, 0, textureType.getTextureCount(), 1);
+			TiledTextureRegion textureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(textureAtlas, context, textureType.getTexturePath(), 0, 0, textureType.getTileColumns(), textureType.getTileRows());
 			textureAtlas.load();
 			this.texturesCache.put(textureType, textureRegion);
 		}
 
 	}
 
-	public ITextureRegion getTexture(final TextureType textureType, final int textureNumber) {
-		return this.getTextureRegion(textureType).getTextureRegion(textureNumber);
+	public ITextureRegion getTexture(final TextureType textureType, final int posX, final int posY) {
+		return this.getTextureRegion(textureType).getTextureRegion(textureType.getTileNumber(posX, posY));
 	}
 
 	public ITiledTextureRegion getTextureRegion(final TextureType textureType) {

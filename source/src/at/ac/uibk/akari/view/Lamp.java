@@ -11,14 +11,16 @@ import at.ac.uibk.akari.utils.TextureLoader.TextureType;
 public class Lamp extends AnimatedSprite {
 
 	private boolean grabbed;
+	private static TextureType textureType = TextureType.LAMP;
 
 	public Lamp(final PointF location, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager) {
 		this(location.x, location.y, width, height, vertexBufferObjectManager);
 	}
 
 	public Lamp(final float posX, final float posY, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager) {
-		super(posX, posY, width, height, TextureLoader.getInstance().getTextureRegion(TextureType.LAMP), vertexBufferObjectManager);
+		super(posX, posY, width, height, TextureLoader.getInstance().getTextureRegion(Lamp.textureType), vertexBufferObjectManager);
 		this.grabbed = false;
+		this.setCurrentTileIndex(Lamp.textureType.getTileNumber(2, 0));
 	}
 
 	@Override

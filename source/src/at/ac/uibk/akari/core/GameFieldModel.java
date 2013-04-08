@@ -1,5 +1,7 @@
 package at.ac.uibk.akari.core;
 
+import android.graphics.Point;
+
 /**
  * Class that implements the model of an AKARI-game-field
  */
@@ -93,6 +95,17 @@ public class GameFieldModel {
 			throw new RuntimeException("Illegal cell-position " + posX + "," + posY + " for " + this.getWidth() + "x" + this.getHeight() + " game-field");
 		}
 		this.cells[posY][posX] = cellState;
+	}
+
+	/**
+	 * Getting the state of the cell at the given position
+	 * 
+	 * @param location
+	 *            Position of the cell, both coordinates starting from 0
+	 * @return Current state of the cell
+	 */
+	public CellState getCellState(final Point location) {
+		return this.getCellState(location.x, location.y);
 	}
 
 	/**

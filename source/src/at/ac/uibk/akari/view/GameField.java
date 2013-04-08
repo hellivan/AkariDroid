@@ -1,5 +1,8 @@
 package at.ac.uibk.akari.view;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.andengine.entity.primitive.Line;
 import org.andengine.entity.primitive.Rectangle;
 import org.andengine.input.touch.TouchEvent;
@@ -15,6 +18,7 @@ import at.ac.uibk.akari.core.GameFieldModel.CellState;
 import at.ac.uibk.akari.listener.GameFieldListener;
 import at.ac.uibk.akari.listener.GameFieldTouchEvent;
 import at.ac.uibk.akari.utils.ListenersList;
+import at.ac.uibk.akari.view.Cell.State;
 
 public class GameField extends Rectangle {
 
@@ -26,56 +30,106 @@ public class GameField extends Rectangle {
 
 	private VertexBufferObjectManager vertexBufferObjectManager;
 
+	private List<Line> gameFieldLines;
+	private Cell[][] gameFieldCells;
+
 	public GameField(final float posX, final float posY, final int cellCountX, final int cellCountY, final VertexBufferObjectManager vertexBufferObjectManager) {
 		this(posY, posY, new GameFieldModel(cellCountX, cellCountY), vertexBufferObjectManager);
 	}
 
 	public GameField(final float posX, final float posY, final GameFieldModel model, final VertexBufferObjectManager vertexBufferObjectManager) {
 		super(posX, posY, model.getWidth() * GameField.CELL_WIDTH, model.getHeight() * GameField.CELL_HEIGHT, vertexBufferObjectManager, DrawType.STATIC);
+		this.vertexBufferObjectManager = vertexBufferObjectManager;
 		this.listenerList = new ListenersList();
+		this.gameFieldLines = new ArrayList<Line>();
 		this.model = model;
-		this.inifField(vertexBufferObjectManager);
+		this.initfField();
+		this.adaptFieldToModel();
 	}
 
-	private void inifField(final VertexBufferObjectManager vertexBufferObjectManager) {
+	private void initfField() {
 		this.setColor(1, 1, 1, 0.85f);
-		Color linesColor = new Color(0, 0, 0, 0.8f);
-		this.addFieldLines(vertexBufferObjectManager, linesColor);
+		Color gridColor = new Color(0.5f, 0.5f, 0.5f, 1.0f);
+		Color borderColor = new Color(0.0f, 0.0f, 0.0f, 1.0f);
+
+		this.addFieldCells();
+		this.addFieldLines(borderColor, gridColor, 5, 3);
 
 	}
 
-	private void addFieldLines(final VertexBufferObjectManager vertexBufferObjectManager, final Color linesColor) {
+	public GameFieldModel getModel() {
+		return this.model;
+	}
+
+	private void addFieldCells() {
+		// remove old cells if there were any before
+		if (this.gameFieldCells != null) {
+			for (int posY = 0; posY < this.gameFieldCells.length; posY++) {
+				for (int posX = 0; posX < this.gameFieldCells[0].length; posX++) {
+					this.gameFieldCells[posY][posX] = new Cell(posX * GameField.CELL_WIDTH, posY * GameField.CELL_HEIGHT, GameField.CELL_WIDTH, GameField.CELL_HEIGHT, this.vertexBufferObjectManager);
+					this.attachChild(this.gameFieldCells[posY][posX]);
+				}
+			}
+		}
+
+		// adding new cells
+		this.gameFieldCells = new Cell[this.getModel().getHeight()][this.getModel().getWidth()];
+
+		for (int posY = 0; posY < this.getModel().getHeight(); posY++) {
+			for (int posX = 0; posX < this.getModel().getWidth(); posX++) {
+				this.gameFieldCells[posY][posX] = new Cell(posX * GameField.CELL_WIDTH, posY * GameField.CELL_HEIGHT, GameField.CELL_WIDTH, GameField.CELL_HEIGHT, this.vertexBufferObjectManager);
+				this.attachChild(this.gameFieldCells[posY][posX]);
+			}
+		}
+
+	}
+
+	private void addFieldLines(final Color borderColor, final Color gridColor, final int borderWidth, final int gridWidth) {
+		// Remove old lines if there were any before
+		for (Line line : this.gameFieldLines) {
+			this.detachChild(line);
+		}
+
 		// add vertical lines
-		Line firstLineVertical = new Line(0, 0, 0, this.getHeight(), vertexBufferObjectManager);
-		firstLineVertical.setColor(linesColor);
-		firstLineVertical.setLineWidth(5);
-		this.attachChild(firstLineVertical);
-		for (int cellX = 1; cellX < this.model.getWidth(); cellX++) {
-			Line line = new Line(cellX * GameField.CELL_WIDTH, 0, cellX * GameField.CELL_WIDTH, this.getHeight(), vertexBufferObjectManager);
-			line.setColor(linesColor);
-			line.setLineWidth(3);
+		for (int cellX = 1; cellX < this.getModel().getWidth(); cellX++) {
+			Line line = new Line(cellX * GameField.CELL_WIDTH, 0, cellX * GameField.CELL_WIDTH, this.getHeight(), this.vertexBufferObjectManager);
+			line.setColor(gridColor);
+			line.setLineWidth(gridWidth);
+			this.gameFieldLines.add(line);
 			this.attachChild(line);
 		}
-		Line lastLineVertical = new Line(this.model.getWidth() * GameField.CELL_WIDTH, 0, this.model.getWidth() * GameField.CELL_WIDTH, this.getHeight(), vertexBufferObjectManager);
-		lastLineVertical.setColor(linesColor);
-		lastLineVertical.setLineWidth(5);
-		this.attachChild(lastLineVertical);
 
 		// add horizontal lines
-		Line firstLineHorizontal = new Line(0, 0, this.getWidth(), 0, vertexBufferObjectManager);
-		firstLineHorizontal.setColor(linesColor);
-		firstLineHorizontal.setLineWidth(5);
-		this.attachChild(firstLineHorizontal);
-		for (int cellY = 1; cellY < this.model.getHeight(); cellY++) {
-			Line line = new Line(0, cellY * GameField.CELL_HEIGHT, this.getWidth(), cellY * GameField.CELL_HEIGHT, vertexBufferObjectManager);
-			line.setColor(linesColor);
-			line.setLineWidth(3);
+		for (int cellY = 1; cellY < this.getModel().getHeight(); cellY++) {
+			Line line = new Line(0, cellY * GameField.CELL_HEIGHT, this.getWidth(), cellY * GameField.CELL_HEIGHT, this.vertexBufferObjectManager);
+			line.setColor(gridColor);
+			line.setLineWidth(gridWidth);
+			this.gameFieldLines.add(line);
 			this.attachChild(line);
 		}
-		Line lastLineHorizontal = new Line(0, this.model.getHeight() * GameField.CELL_HEIGHT, this.getWidth(), this.model.getHeight() * GameField.CELL_HEIGHT, vertexBufferObjectManager);
-		lastLineHorizontal.setColor(linesColor);
-		lastLineHorizontal.setLineWidth(5);
+
+		// Adding border for the game-field
+		Line firstLineVertical = new Line(0, 0, 0, this.getHeight(), this.vertexBufferObjectManager);
+		firstLineVertical.setColor(borderColor);
+		firstLineVertical.setLineWidth(borderWidth);
+		this.gameFieldLines.add(firstLineVertical);
+		this.attachChild(firstLineVertical);
+		Line lastLineVertical = new Line(this.getModel().getWidth() * GameField.CELL_WIDTH, 0, this.getModel().getWidth() * GameField.CELL_WIDTH, this.getHeight(), this.vertexBufferObjectManager);
+		lastLineVertical.setColor(borderColor);
+		lastLineVertical.setLineWidth(borderWidth);
+		this.gameFieldLines.add(lastLineVertical);
+		this.attachChild(lastLineVertical);
+		Line firstLineHorizontal = new Line(0, 0, this.getWidth(), 0, this.vertexBufferObjectManager);
+		firstLineHorizontal.setColor(borderColor);
+		firstLineHorizontal.setLineWidth(borderWidth);
+		this.gameFieldLines.add(firstLineHorizontal);
+		this.attachChild(firstLineHorizontal);
+		Line lastLineHorizontal = new Line(0, this.getModel().getHeight() * GameField.CELL_HEIGHT, this.getWidth(), this.getModel().getHeight() * GameField.CELL_HEIGHT, this.vertexBufferObjectManager);
+		lastLineHorizontal.setColor(borderColor);
+		lastLineHorizontal.setLineWidth(borderWidth);
+		this.gameFieldLines.add(lastLineHorizontal);
 		this.attachChild(lastLineHorizontal);
+
 	}
 
 	@Override
@@ -91,8 +145,8 @@ public class GameField extends Rectangle {
 	public Point positionToCell(final float posX, final float posY) {
 		int cellX = Math.max(0, (int) (posX / GameField.CELL_WIDTH));
 		int cellY = Math.max(0, (int) (posY / GameField.CELL_HEIGHT));
-		cellX = Math.min(this.model.getWidth() - 1, cellX);
-		cellY = Math.min(this.model.getHeight() - 1, cellY);
+		cellX = Math.min(this.getModel().getWidth() - 1, cellX);
+		cellY = Math.min(this.getModel().getHeight() - 1, cellY);
 		return new Point(cellX, cellY);
 	}
 
@@ -117,16 +171,91 @@ public class GameField extends Rectangle {
 		}
 	}
 
-	public boolean setLampAt(final Point location) {
-		return this.setLampAt(location.x, location.y);
+	public void adaptFieldToModel() {
+		for (int posY = 0; posY < this.getModel().getHeight(); posY++) {
+			for (int posX = 0; posX < this.getModel().getWidth(); posX++) {
+				switch (this.getModel().getCellState(posX, posY)) {
+				case BARRIER:
+					this.setGameFieldState(posX, posY, State.BARRIER);
+					break;
+				case BLANK:
+					this.setGameFieldState(posX, posY, State.BLANK);
+					break;
+				case BLOCK0:
+					this.setGameFieldState(posX, posY, State.BLOCK0);
+					break;
+				case BLOCK1:
+					this.setGameFieldState(posX, posY, State.BLOCK1);
+					break;
+				case BLOCK2:
+					this.setGameFieldState(posX, posY, State.BLOCK2);
+					break;
+				case BLOCK3:
+					this.setGameFieldState(posX, posY, State.BLOCK3);
+					break;
+				case BLOCK4:
+					this.setGameFieldState(posX, posY, State.BLOCK4);
+					break;
+				case LAMP:
+					this.setGameFieldState(posX, posY, State.LAMP);
+					this.lightCellsWithLamp(posX, posY);
+					break;
+				default:
+					break;
+				}
+			}
+		}
+
+		for (int posY = 0; posY < this.getModel().getHeight(); posY++) {
+			for (int posX = 0; posX < this.getModel().getWidth(); posX++) {
+				if (this.model.getCellState(posX, posY).equals(CellState.LAMP)) {
+					this.lightCellsWithLamp(posX, posY);
+				}
+			}
+		}
+
 	}
 
-	public boolean setLampAt(final int posX, final int posY) {
-		if (this.model.getCellState(posX, posY).equals(CellState.BLANK)) {
-			this.model.setCellState(posX, posY, CellState.LAMP);
-			this.attachChild(new Lamp(this.cellToPosition(posX, posY), GameField.CELL_WIDTH, GameField.CELL_HEIGHT, this.vertexBufferObjectManager));
-			return true;
+	private void lightCellsWithLamp(final int posX, final int posY) {
+		for (int lightX = posX + 1; lightX < this.getModel().getWidth(); lightX++) {
+			Log.d(this.getClass().getName(), "Cellstate at " + lightX + "x" + posY + " " + this.getModel().getCellState(lightX, posY));
+			if (!this.getModel().getCellState(lightX, posY).equals(CellState.BLANK)) {
+				break;
+			}
+			this.setGameFieldState(lightX, posY, State.LIGHTED);
 		}
-		return false;
+		for (int lightX = posX - 1; lightX >= 0; lightX--) {
+			if (!this.getModel().getCellState(lightX, posY).equals(CellState.BLANK)) {
+				break;
+			}
+			this.setGameFieldState(lightX, posY, State.LIGHTED);
+		}
+
+		for (int lightY = posY + 1; lightY < this.getModel().getHeight(); lightY++) {
+			if (!this.getModel().getCellState(posX, lightY).equals(CellState.BLANK)) {
+				break;
+			}
+			this.setGameFieldState(posX, lightY, State.LIGHTED);
+		}
+		for (int lightY = posY - 1; lightY >= 0; lightY--) {
+			if (!this.getModel().getCellState(posX, lightY).equals(CellState.BLANK)) {
+				break;
+			}
+			this.setGameFieldState(posX, lightY, State.LIGHTED);
+		}
+	}
+
+	public void setLampAt(final Point location) {
+		this.getModel().setCellState(location.x, location.y, CellState.LAMP);
+		this.adaptFieldToModel();
+	}
+
+	private void setGameFieldState(final int posX, final int posy, final State cellState) {
+		this.gameFieldCells[posy][posX].setCellState(cellState);
+	}
+
+	public void removeLampAt(final Point location) {
+		this.getModel().setCellState(location.x, location.y, CellState.BLANK);
+		this.adaptFieldToModel();
 	}
 }

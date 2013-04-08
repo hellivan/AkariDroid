@@ -5,7 +5,7 @@ import at.ac.uibk.akari.listener.GameFieldListener;
 import at.ac.uibk.akari.listener.GameFieldTouchEvent;
 import at.ac.uibk.akari.view.GameField;
 
-public class GameFieldController implements GameFieldListener {
+public class GameFieldController extends AbstractController implements GameFieldListener {
 
 	private GameField gameField;
 
@@ -22,11 +22,28 @@ public class GameFieldController implements GameFieldListener {
 	public void gameFieldTouched(final GameFieldTouchEvent event) {
 		if (event.getSource().equals(this.gameField)) {
 			Log.d(this.getClass().toString(), "GameField touched at " + event.getCellPosition().x + "x" + event.getCellPosition().y);
-			this.gameField.setLampAt(event.getCellPosition());
+
+			switch (this.gameField.getModel().getCellState(event.getCellPosition())) {
+			case BLANK:
+				this.gameField.setLampAt(event.getCellPosition());
+				break;
+			case LAMP:
+				this.gameField.removeLampAt(event.getCellPosition());
+				break;
+			}
+
 		}
 	}
 
-	public void start() {
+	@Override
+	public boolean start() {
 		this.gameField.addGameFieldListener(this);
+		return true;
+	}
+
+	@Override
+	public boolean stop() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }
