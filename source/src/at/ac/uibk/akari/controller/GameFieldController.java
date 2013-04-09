@@ -1,9 +1,15 @@
 package at.ac.uibk.akari.controller;
 
+import java.util.List;
+
+import org.sat4j.specs.TimeoutException;
+
+
 import android.graphics.Point;
 import android.util.Log;
 import at.ac.uibk.akari.listener.GameFieldListener;
 import at.ac.uibk.akari.listener.GameFieldTouchEvent;
+import at.ac.uibk.akari.solver.AkariSolver;
 import at.ac.uibk.akari.view.GameField;
 
 public class GameFieldController extends AbstractController implements GameFieldListener {
@@ -12,7 +18,6 @@ public class GameFieldController extends AbstractController implements GameField
 
 	public GameFieldController(final GameField gameField) {
 		this.gameField = gameField;
-
 	}
 
 	public void setGameField(final GameField gameField) {
@@ -31,6 +36,7 @@ public class GameFieldController extends AbstractController implements GameField
 			} else {
 				this.gameField.setLampAt(event.getCellPosition());
 			}
+			
 		}
 	}
 

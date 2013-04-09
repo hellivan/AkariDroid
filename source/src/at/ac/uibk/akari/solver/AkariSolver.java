@@ -339,6 +339,7 @@ public class AkariSolver {
 		if (this.solver.isSatisfiable(new VecInt(AkariSolver.toIntArray(this.lampPosTrueList)))) {
 			return null;
 		} else {
+
 			IVecInt errors = this.solver.unsatExplanation();
 
 			if (errors == null) {
@@ -459,6 +460,30 @@ public class AkariSolver {
 			return clone;
 		} else {
 			return null;
+		}
+
+	}
+
+	/**
+	 * Inserts the solution of the puzzle in the current model.
+	 * 
+	 * @throws TimeoutException
+	 *             Timeout expired
+	 */
+	public void setSolutionToModel() throws TimeoutException {
+
+		if (this.solver.isSatisfiable(new VecInt())) {
+
+			int[] model = this.solver.model();
+
+			for (int i = 0; i < model.length; i++) {
+				Point p = this.reverseLampAt(model[i]);
+
+				if (p != null) {
+					this.model.setLampAt(p);
+				}
+			}
+
 		}
 
 	}

@@ -41,6 +41,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 	private Scene gameScene;
 
 	private List<GameFieldModel> levels;
+	private AkariSolver solver;
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
@@ -118,8 +119,12 @@ public class MainActivity extends SimpleBaseGameActivity {
 
 			GameFieldModel gameFieldModel = this.levels.get(5);
 			try {
-				AkariSolver solver = new AkariSolver(gameFieldModel, 10000);
-				gameFieldModel = solver.getSolutionModel();
+				System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+				solver = new AkariSolver(gameFieldModel, 10000);
+				System.out.println(""+solver.isSatisfiableWithCurrentLamps());
+				solver.setSolutionToModel();
+				System.out.println(""+solver.isSatisfiableWithCurrentLamps());
+				
 
 			} catch (ContradictionException e) {
 				e.printStackTrace();
