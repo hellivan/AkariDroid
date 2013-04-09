@@ -31,7 +31,9 @@ public class AkariSolver {
 	private ArrayList<Integer> lampPosTrueList;
 
 	private ArrayList<Integer> lampPosTrueAndOtherFalseList;
-
+	
+	
+	
 	/**
 	 * Initializes a new Instance of a Akari solver
 	 * 
@@ -40,8 +42,7 @@ public class AkariSolver {
 	 * @param timeout
 	 *            timeout of the solve process
 	 * @throws ContradictionException
-	 *             Is thrown when a gamefield is not solvable even if no lamps
-	 *             are placed
+	 *             Is thrown when a gamefield is not solvable even if no lamps are placed
 	 */
 	public AkariSolver(final GameFieldModel model, final int timeout) throws ContradictionException {
 
@@ -279,8 +280,7 @@ public class AkariSolver {
 	}
 
 	/**
-	 * Returns true when the Akari game is solved with the lamps currently
-	 * placed on the gamefield.
+	 * Returns true when the Akari game is solved with the lamps currently placed on the gamefield.
 	 * 
 	 * @return true when the Akari game is solved otherwise false;
 	 * @throws TimeoutException
@@ -295,8 +295,7 @@ public class AkariSolver {
 	}
 
 	/**
-	 * Returns true when the Akari puzzle is solvable (without the currently
-	 * placed lamps)
+	 * Returns true when the Akari puzzle is solvable (without the currently placed lamps)
 	 * 
 	 * @return true when the Akari game is solvable otherwise false;
 	 * @throws TimeoutException
@@ -309,8 +308,7 @@ public class AkariSolver {
 	}
 
 	/**
-	 * Returns true when the Akari puzzle is solvable (with the currently placed
-	 * lamps)
+	 * Returns true when the Akari puzzle is solvable (with the currently placed lamps)
 	 * 
 	 * @return true when the Akari game is solvable otherwise false;
 	 * @throws TimeoutException
@@ -338,7 +336,8 @@ public class AkariSolver {
 
 		if (this.solver.isSatisfiable(new VecInt(AkariSolver.toIntArray(this.lampPosTrueList)))) {
 			return null;
-		} else {
+		}else {
+
 			IVecInt errors = this.solver.unsatExplanation();
 
 			if (errors == null) {
@@ -401,11 +400,9 @@ public class AkariSolver {
 	}
 
 	/**
-	 * Returns an arbitrary combination of lamps which are needed to complete
-	 * the complete puzzle
+	 * Returns an arbitrary combination of lamps which are needed to complete the complete puzzle
 	 * 
-	 * @return an arbitrary combination of lamps which are needed to complete
-	 *         the complete puzzle
+	 * @return an arbitrary combination of lamps which are needed to complete the complete puzzle
 	 * @throws TimeoutException
 	 *             Timeout expired
 	 */
@@ -432,11 +429,9 @@ public class AkariSolver {
 	}
 
 	/**
-	 * Returns an arbitrary model which is needed to complete the complete
-	 * puzzle
+	 * Returns an arbitrary model which is needed to complete the complete puzzle
 	 * 
-	 * @return an arbitrary model which is needed to complete the complete
-	 *         puzzle
+	 * @return an arbitrary model which is needed to complete the complete puzzle
 	 * @throws TimeoutException
 	 *             Timeout expired
 	 */
@@ -459,6 +454,31 @@ public class AkariSolver {
 			return clone;
 		} else {
 			return null;
+		}
+
+	}
+	
+	
+	/**
+	 * Inserts the solution of the puzzle in the current model.
+	 * @throws TimeoutException
+	 *             Timeout expired
+	 */
+	public void setSolutionToModel() throws TimeoutException {
+
+
+		if (this.solver.isSatisfiable(new VecInt())) {
+
+			int[] model = this.solver.model();
+
+			for (int i = 0; i < model.length; i++) {
+				Point p = this.reverseLampAt(model[i]);
+
+				if (p != null) {
+					this.model.setCellState(p.x, p.y, CellState.LAMP);
+				}
+			}
+
 		}
 
 	}

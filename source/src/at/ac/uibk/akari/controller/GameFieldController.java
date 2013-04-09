@@ -1,20 +1,28 @@
 package at.ac.uibk.akari.controller;
 
+import java.util.List;
+
+import org.sat4j.specs.TimeoutException;
+
+import android.graphics.Point;
 import android.util.Log;
 import at.ac.uibk.akari.listener.GameFieldListener;
 import at.ac.uibk.akari.listener.GameFieldTouchEvent;
+import at.ac.uibk.akari.solver.AkariSolver;
 import at.ac.uibk.akari.view.GameField;
 
 public class GameFieldController extends AbstractController implements GameFieldListener {
 
 	private GameField gameField;
+	private AkariSolver solver;
 
-	public GameFieldController(final GameField gameField) {
+	public GameFieldController(final GameField gameField,AkariSolver solver) {
 		this.gameField = gameField;
+		this.solver = solver;
 
 	}
 
-	public void setGameField(final GameField gameField) {
+	public void setGameField(final GameField gameField,AkariSolver solver) {
 		this.gameField = gameField;
 	}
 
@@ -30,6 +38,19 @@ public class GameFieldController extends AbstractController implements GameField
 			case LAMP:
 				this.gameField.removeLampAt(event.getCellPosition());
 				break;
+			}
+			
+			try {
+				List<Point> list = solver.getWrongPlacedLamps();
+				
+				if(list!=null)
+				for(Point p :list)
+				{
+					gameField.removeLampAt(p);
+				}
+			} catch (TimeoutException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 
 		}
