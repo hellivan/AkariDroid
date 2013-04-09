@@ -118,7 +118,7 @@ public class GameFieldModel {
 	 * @return Current state of the cell
 	 */
 	public CellState getCellState(final int posX, final int posY) {
-		if (posX < 0 || posY < 0 || posX > this.getWidth() || posY > this.getHeight()) {
+		if (posX < 0 || posY < 0 || posX > this.getWidth() - 1 || posY > this.getHeight() - 1) {
 			throw new RuntimeException("Illegal cell-position " + posX + "," + posY + " for " + this.getWidth() + "x" + this.getHeight() + " game-field");
 		}
 		return this.cells[posY][posX];
@@ -141,26 +141,28 @@ public class GameFieldModel {
 	public int getHeight() {
 		return this.cells.length;
 	}
-	
+
 	/**
-	 * Clears the lamps of the field. After this method is called the model will represent a puzzle without lamps
+	 * Clears the lamps of the field. After this method is called the model will
+	 * represent a puzzle without lamps
 	 * 
 	 */
 	public void clearLamps() {
 		for (int posY = 0; posY < this.getHeight(); posY++) {
 			for (int posX = 0; posX < this.getWidth(); posX++) {
-				if (this.getCellState(posX, posY) == CellState.LAMP)
+				if (this.getCellState(posX, posY) == CellState.LAMP) {
 					this.setCellState(posX, posY, CellState.BLANK);
+				}
 			}
 		}
 	}
-	@Override
-	public Object clone()  {
-		GameFieldModel clone = new GameFieldModel(this.getWidth(), this.getHeight());
 
-		for (int i = 0; i < this.getHeight(); i++) {
-			for (int j = 0; j < this.getWidth(); j++) {
-				clone.setCellState(i, j, this.getCellState(i, j));
+	@Override
+	public Object clone() {
+		GameFieldModel clone = new GameFieldModel(this.getWidth(), this.getHeight());
+		for (int posX = 0; posX < this.getWidth(); posX++) {
+			for (int posY = 0; posY < this.getHeight(); posY++) {
+				clone.setCellState(posX, posY, this.getCellState(posX, posY));
 			}
 		}
 		return clone;

@@ -218,7 +218,6 @@ public class GameField extends Rectangle {
 
 	private void lightCellsWithLamp(final int posX, final int posY) {
 		for (int lightX = posX + 1; lightX < this.getModel().getWidth(); lightX++) {
-			Log.d(this.getClass().getName(), "Cellstate at " + lightX + "x" + posY + " " + this.getModel().getCellState(lightX, posY));
 			if (!this.getModel().getCellState(lightX, posY).equals(CellState.BLANK)) {
 				break;
 			}

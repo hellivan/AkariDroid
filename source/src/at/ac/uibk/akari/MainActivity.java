@@ -1,5 +1,7 @@
 package at.ac.uibk.akari;
 
+import java.util.List;
+
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
@@ -22,10 +24,13 @@ import android.view.Display;
 import at.ac.uibk.akari.controller.GameFieldController;
 import at.ac.uibk.akari.core.GameFieldModel;
 import at.ac.uibk.akari.core.GameFieldModel.CellState;
+import at.ac.uibk.akari.solver.AkariSolver;
 import at.ac.uibk.akari.testsolver.Akari;
+import at.ac.uibk.akari.utils.LevelLoader;
 import at.ac.uibk.akari.utils.TextureLoader;
 import at.ac.uibk.akari.view.GameField;
 import at.ac.uibk.akari.view.Lamp;
+import browser.Browser;
 
 public class MainActivity extends SimpleBaseGameActivity {
 
@@ -34,6 +39,8 @@ public class MainActivity extends SimpleBaseGameActivity {
 
 	private Camera gameCamera;
 	private Scene gameScene;
+
+	private List<GameFieldModel> levels;
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
@@ -73,6 +80,20 @@ public class MainActivity extends SimpleBaseGameActivity {
 		Log.d(this.getClass().toString(), "Called create resources");
 		TextureLoader.getInstance().init(this.getTextureManager(), this);
 
+		try {
+			Browser borwser = new Browser(10000, 10000);
+
+			this.levels = LevelLoader.readLevelsFromFile(this.getFilesDir().getAbsolutePath());
+			if (this.levels.size() < 31) {
+				this.levels = LevelLoader.fetchLevels(borwser);
+				LevelLoader.writeToFiles(this.levels, this.getFilesDir().getAbsolutePath());
+			}
+
+			Log.i(this.getClass().toString(), "Loaded " + this.levels.size() + " levels...");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -95,7 +116,18 @@ public class MainActivity extends SimpleBaseGameActivity {
 		}
 		{
 
-			GameField gameField = new GameField(150, 20, this.generateLevel(), this.getVertexBufferObjectManager());
+			GameFieldModel gameFieldModel = this.levels.get(5);
+			try {
+				AkariSolver solver = new AkariSolver(gameFieldModel, 10000);
+				gameFieldModel = solver.getSolutionModel();
+
+			} catch (ContradictionException e) {
+				e.printStackTrace();
+			} catch (TimeoutException e) {
+				e.printStackTrace();
+			}
+
+			GameField gameField = new GameField(150, 20, gameFieldModel, this.getVertexBufferObjectManager());
 
 			GameFieldController controller = new GameFieldController(gameField);
 			controller.start();

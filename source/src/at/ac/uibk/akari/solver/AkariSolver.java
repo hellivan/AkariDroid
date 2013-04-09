@@ -40,204 +40,224 @@ public class AkariSolver {
 	 * @param timeout
 	 *            timeout of the solve process
 	 * @throws ContradictionException
-	 *             Is thrown when a gamefield is not solvable even if no lamps are placed
+	 *             Is thrown when a gamefield is not solvable even if no lamps
+	 *             are placed
 	 */
-	public AkariSolver(GameFieldModel model, int timeout) throws ContradictionException {
+	public AkariSolver(final GameFieldModel model, final int timeout) throws ContradictionException {
 
 		this.model = model;
-		MAXVAR = lightAt(model.getWidth() - 1, model.getHeight() - 1) + 1;
-		NBCLAUSES = 50000;
+		this.MAXVAR = this.lightAt(model.getWidth() - 1, model.getHeight() - 1) + 1;
+		this.NBCLAUSES = 50000;
 
-		solver = SolverFactory.newDefault();
+		this.solver = SolverFactory.newDefault();
 
-		solver.setTimeout(timeout);
+		this.solver.setTimeout(timeout);
 
-		solver.newVar(MAXVAR);
-		solver.setExpectedNumberOfClauses(NBCLAUSES);
-		solver.setDBSimplificationAllowed(true);
-		solver.setKeepSolverHot(true);
-		solver.setVerbose(true);
+		this.solver.newVar(this.MAXVAR);
+		this.solver.setExpectedNumberOfClauses(this.NBCLAUSES);
+		this.solver.setDBSimplificationAllowed(true);
+		this.solver.setKeepSolverHot(true);
+		this.solver.setVerbose(true);
 
-		lampPosTrueList = new ArrayList<Integer>();
+		this.lampPosTrueList = new ArrayList<Integer>();
 
-		updateLamps();
+		this.updateLamps();
 
-		createModel();
+		this.createModel();
 	}
 
 	private void updateLamps() {
-		for (int i = 0; i < model.getHeight(); i++) {
-			for (int j = 0; j < model.getWidth(); j++) {
-				if (model.getCellState(i, j) == CellState.LAMP)
-					lampPosTrueList.add(lampAt(i, j));
+		for (int i = 0; i < this.model.getWidth(); i++) {
+			for (int j = 0; j < this.model.getHeight(); j++) {
+				if (this.model.getCellState(i, j) == CellState.LAMP) {
+					this.lampPosTrueList.add(this.lampAt(i, j));
+				}
 			}
 		}
 
-		lampPosTrueAndOtherFalseList = new ArrayList<Integer>();
+		this.lampPosTrueAndOtherFalseList = new ArrayList<Integer>();
 
-		for (int i = 0; i < model.getHeight(); i++) {
-			for (int j = 0; j < model.getWidth(); j++) {
-				if (model.getCellState(i, j) == CellState.LAMP)
-					lampPosTrueAndOtherFalseList.add(lampAt(i, j));
-				else
-					lampPosTrueAndOtherFalseList.add(-lampAt(i, j));
+		for (int i = 0; i < this.model.getWidth(); i++) {
+			for (int j = 0; j < this.model.getHeight(); j++) {
+				if (this.model.getCellState(i, j) == CellState.LAMP) {
+					this.lampPosTrueAndOtherFalseList.add(this.lampAt(i, j));
+				} else {
+					this.lampPosTrueAndOtherFalseList.add(-this.lampAt(i, j));
+				}
 			}
 		}
 	}
 
-	private Point reverseLampAt(int pos) {
+	private Point reverseLampAt(final int pos) {
 
-		if (pos > lampAt(model.getWidth() - 1, model.getHeight() - 1))
+		if (pos > this.lampAt(this.model.getWidth() - 1, this.model.getHeight() - 1) || pos < 1) {
 			return null;
+		}
 
-		Point res = new Point((pos - 1) % model.getWidth(), (pos - 1) / model.getWidth());
+		Point res = new Point((pos - 1) % this.model.getWidth(), (pos - 1) / this.model.getWidth());
 
 		return res;
 
 	}
 
-	private int lampAt(int x, int y) {
+	private int lampAt(final int x, final int y) {
 		return x + y * this.model.getWidth() + 1;
 	}
 
-	private int lightAt(int x, int y) {
+	private int lightAt(final int x, final int y) {
 
-		if (x >= this.model.getWidth() || y >= this.model.getWidth() || x < 0 || y < 0)
+		if (x >= this.model.getWidth() || y >= this.model.getWidth() || x < 0 || y < 0) {
 			System.out.println("Error" + x + " " + y);
+		}
 
-		return lampAt(this.model.getWidth() - 1, model.getHeight() - 1) + x + y * this.model.getWidth() + 1000;
+		return this.lampAt(this.model.getWidth() - 1, this.model.getHeight() - 1) + x + y * this.model.getWidth() + 1000;
 
 	}
 
 	private void createModel() throws ContradictionException {
-		for (int i = 0; i < model.getHeight(); i++) {
-			for (int j = 0; j < model.getWidth(); j++) {
+		for (int i = 0; i < this.model.getWidth(); i++) {
+			for (int j = 0; j < this.model.getHeight(); j++) {
 
-				switch (model.getCellState(i, j)) {
+				switch (this.model.getCellState(i, j)) {
 
 				case LAMP:
 					// solver.addClause(new VecInt(new int[] { lampAt(i, j) }));
 				case BLANK:
-					// win condition: every model.getCellState( lighted or a lamp
-					solver.addClause(new VecInt(new int[] { lampAt(i, j), lightAt(i, j) }));
+					// win condition: every model.getCellState( lighted or a
+					// lamp
+					this.solver.addClause(new VecInt(new int[] { this.lampAt(i, j), this.lightAt(i, j) }));
 
 					// win condition: not both: lighted and a lamp
-					solver.addClause(new VecInt(new int[] { -lampAt(i, j), -lightAt(i, j) }));
+					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), -this.lightAt(i, j) }));
 
 					ArrayList<Integer> list = new ArrayList<Integer>();
-					list.add(-lightAt(i, j));
+					list.add(-this.lightAt(i, j));
 
 					int k = j + 1;
-					while (k >= 0 && k < model.getHeight() && (model.getCellState(i, k) == CellState.BLANK || model.getCellState(i, k) == CellState.LAMP)) {
-						solver.addClause(new VecInt(new int[] { -lampAt(i, j), lightAt(i, k) }));
+					while (k >= 0 && k < this.model.getHeight() && (this.model.getCellState(i, k) == CellState.BLANK || this.model.getCellState(i, k) == CellState.LAMP)) {
+						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(i, k) }));
 
-						list.add(lampAt(i, k));
+						list.add(this.lampAt(i, k));
 						k++;
 					}
 
 					k = j - 1;
-					while (k >= 0 && k < model.getHeight() && (model.getCellState(i, k) == CellState.BLANK || model.getCellState(i, k) == CellState.LAMP)) {
-						solver.addClause(new VecInt(new int[] { -lampAt(i, j), lightAt(i, k) }));
-						list.add(lampAt(i, k));
+					while (k >= 0 && k < this.model.getHeight() && (this.model.getCellState(i, k) == CellState.BLANK || this.model.getCellState(i, k) == CellState.LAMP)) {
+						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(i, k) }));
+						list.add(this.lampAt(i, k));
 						k--;
 					}
 
 					k = i + 1;
-					while (k >= 0 && k < model.getWidth() && (model.getCellState(k, j) == CellState.BLANK || model.getCellState(k, j) == CellState.LAMP)) {
-						solver.addClause(new VecInt(new int[] { -lampAt(i, j), lightAt(k, j) }));
-						list.add(lampAt(k, j));
+					while (k >= 0 && k < this.model.getWidth() && (this.model.getCellState(k, j) == CellState.BLANK || this.model.getCellState(k, j) == CellState.LAMP)) {
+						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(k, j) }));
+						list.add(this.lampAt(k, j));
 						k++;
 					}
 
 					k = i - 1;
-					while (k >= 0 && k < model.getWidth() && (model.getCellState(k, j) == CellState.BLANK || model.getCellState(k, j) == CellState.LAMP)) {
+					while (k >= 0 && k < this.model.getWidth() && (this.model.getCellState(k, j) == CellState.BLANK || this.model.getCellState(k, j) == CellState.LAMP)) {
 
-						solver.addClause(new VecInt(new int[] { -lampAt(i, j), lightAt(k, j) }));
-						list.add(lampAt(k, j));
+						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(k, j) }));
+						list.add(this.lampAt(k, j));
 						k--;
 					}
 
-					solver.addClause(new VecInt(toIntArray(list)));
+					this.solver.addClause(new VecInt(AkariSolver.toIntArray(list)));
 
 					break;
 
 				case BLOCK0:
-					solver.addClause(new VecInt(new int[] { -lampAt(i + 1, j) }));
-					solver.addClause(new VecInt(new int[] { -lampAt(i, j + 1) }));
-					solver.addClause(new VecInt(new int[] { -lampAt(i - 1, j) }));
-					solver.addClause(new VecInt(new int[] { -lampAt(i, j - 1) }));
+					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j) }));
+					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j + 1) }));
+					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i - 1, j) }));
+					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j - 1) }));
 					break;
 
 				case BLOCK4:
-					solver.addClause(new VecInt(new int[] { lampAt(i + 1, j) }));
-					solver.addClause(new VecInt(new int[] { lampAt(i, j + 1) }));
-					solver.addClause(new VecInt(new int[] { lampAt(i - 1, j) }));
-					solver.addClause(new VecInt(new int[] { lampAt(i, j - 1) }));
+					this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j) }));
+					this.solver.addClause(new VecInt(new int[] { this.lampAt(i, j + 1) }));
+					this.solver.addClause(new VecInt(new int[] { this.lampAt(i - 1, j) }));
+					this.solver.addClause(new VecInt(new int[] { this.lampAt(i, j - 1) }));
 					break;
 
 				case BLOCK1:
-					solver.addClause(new VecInt(new int[] { lampAt(i + 1, j), lampAt(i - 1, j), lampAt(i, j + 1), lampAt(i, j - 1) }));
+					this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i - 1, j), this.lampAt(i, j + 1), this.lampAt(i, j - 1) }));
 
-					solver.addClause(new VecInt(new int[] { -lampAt(i + 1, j), -lampAt(i - 1, j) }));
-					solver.addClause(new VecInt(new int[] { -lampAt(i + 1, j), -lampAt(i, j + 1) }));
-					solver.addClause(new VecInt(new int[] { -lampAt(i + 1, j), -lampAt(i, j - 1) }));
+					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i - 1, j) }));
+					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i, j + 1) }));
+					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i, j - 1) }));
 
-					// solver.addClause(new VecInt(new int[] { -lampAt(i - 1, j), -lampAt(i + 1, j) }));
-					solver.addClause(new VecInt(new int[] { -lampAt(i - 1, j), -lampAt(i, j + 1) }));
-					solver.addClause(new VecInt(new int[] { -lampAt(i - 1, j), -lampAt(i, j - 1) }));
+					// solver.addClause(new VecInt(new int[] { -lampAt(i - 1,
+					// j), -lampAt(i + 1, j) }));
+					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i - 1, j), -this.lampAt(i, j + 1) }));
+					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i - 1, j), -this.lampAt(i, j - 1) }));
 
-					// solver.addClause(new VecInt(new int[] { -lampAt(i, j + 1), -lampAt(i + 1, j) }));
-					// solver.addClause(new VecInt(new int[] { -lampAt(i, j + 1), -lampAt(i - 1, j) }));
-					solver.addClause(new VecInt(new int[] { -lampAt(i, j + 1), -lampAt(i, j - 1) }));
+					// solver.addClause(new VecInt(new int[] { -lampAt(i, j +
+					// 1), -lampAt(i + 1, j) }));
+					// solver.addClause(new VecInt(new int[] { -lampAt(i, j +
+					// 1), -lampAt(i - 1, j) }));
+					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j + 1), -this.lampAt(i, j - 1) }));
 
-					// solver.addClause(new VecInt(new int[] { -lampAt(i, j - 1), -lampAt(i + 1, j) }));
-					// solver.addClause(new VecInt(new int[] { -lampAt(i, j - 1), -lampAt(i - 1, j) }));
-					// solver.addClause(new VecInt(new int[] { -lampAt(i, j - 1), -lampAt(i, j + 1) }));
+					// solver.addClause(new VecInt(new int[] { -lampAt(i, j -
+					// 1), -lampAt(i + 1, j) }));
+					// solver.addClause(new VecInt(new int[] { -lampAt(i, j -
+					// 1), -lampAt(i - 1, j) }));
+					// solver.addClause(new VecInt(new int[] { -lampAt(i, j -
+					// 1), -lampAt(i, j + 1) }));
 
 					break;
 
 				case BLOCK3:
-					solver.addClause(new VecInt(new int[] { -lampAt(i + 1, j), -lampAt(i - 1, j), -lampAt(i, j + 1), -lampAt(i, j - 1) }));
+					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i - 1, j), -this.lampAt(i, j + 1), -this.lampAt(i, j - 1) }));
 
-					solver.addClause(new VecInt(new int[] { lampAt(i + 1, j), lampAt(i - 1, j) }));
-					solver.addClause(new VecInt(new int[] { lampAt(i + 1, j), lampAt(i, j + 1) }));
-					solver.addClause(new VecInt(new int[] { lampAt(i + 1, j), lampAt(i, j - 1) }));
+					this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i - 1, j) }));
+					this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i, j + 1) }));
+					this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i, j - 1) }));
 
-					// solver.addClause(new VecInt(new int[] { lampAt(i - 1, j), lampAt(i + 1, j) }));
-					solver.addClause(new VecInt(new int[] { lampAt(i - 1, j), lampAt(i, j + 1) }));
-					solver.addClause(new VecInt(new int[] { lampAt(i - 1, j), lampAt(i, j - 1) }));
+					// solver.addClause(new VecInt(new int[] { lampAt(i - 1, j),
+					// lampAt(i + 1, j) }));
+					this.solver.addClause(new VecInt(new int[] { this.lampAt(i - 1, j), this.lampAt(i, j + 1) }));
+					this.solver.addClause(new VecInt(new int[] { this.lampAt(i - 1, j), this.lampAt(i, j - 1) }));
 
-					// solver.addClause(new VecInt(new int[] { lampAt(i, j + 1), lampAt(i + 1, j) }));
-					// solver.addClause(new VecInt(new int[] { lampAt(i, j + 1), lampAt(i - 1, j) }));
-					solver.addClause(new VecInt(new int[] { lampAt(i, j + 1), lampAt(i, j - 1) }));
+					// solver.addClause(new VecInt(new int[] { lampAt(i, j + 1),
+					// lampAt(i + 1, j) }));
+					// solver.addClause(new VecInt(new int[] { lampAt(i, j + 1),
+					// lampAt(i - 1, j) }));
+					this.solver.addClause(new VecInt(new int[] { this.lampAt(i, j + 1), this.lampAt(i, j - 1) }));
 
-					// solver.addClause(new VecInt(new int[] { lampAt(i, j - 1), lampAt(i + 1, j) }));
-					// solver.addClause(new VecInt(new int[] { lampAt(i, j - 1), lampAt(i - 1, j) }));
-					// solver.addClause(new VecInt(new int[] { lampAt(i, j - 1), lampAt(i, j + 1) }));
+					// solver.addClause(new VecInt(new int[] { lampAt(i, j - 1),
+					// lampAt(i + 1, j) }));
+					// solver.addClause(new VecInt(new int[] { lampAt(i, j - 1),
+					// lampAt(i - 1, j) }));
+					// solver.addClause(new VecInt(new int[] { lampAt(i, j - 1),
+					// lampAt(i, j + 1) }));
 
 					break;
 
 				case BLOCK2:
-					// ( a + b + c ) * ( a + b + d ) * ( a + c + d ) * ( b + c + d ) *
-					// ( !a + !b + !c ) *( !a + !b + !d ) * ( !a + !c + !d ) * ( !b + !c + !d )
+					// ( a + b + c ) * ( a + b + d ) * ( a + c + d ) * ( b + c +
+					// d ) *
+					// ( !a + !b + !c ) *( !a + !b + !d ) * ( !a + !c + !d ) * (
+					// !b + !c + !d )
 
 					// ( a + b + c )
-					solver.addClause(new VecInt(new int[] { lampAt(i + 1, j), lampAt(i - 1, j), lampAt(i, j + 1) }));
+					this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i - 1, j), this.lampAt(i, j + 1) }));
 					// ( a + b + d )
-					solver.addClause(new VecInt(new int[] { lampAt(i + 1, j), lampAt(i - 1, j), lampAt(i, j - 1) }));
+					this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i - 1, j), this.lampAt(i, j - 1) }));
 					// ( a + c + d )
-					solver.addClause(new VecInt(new int[] { lampAt(i + 1, j), lampAt(i, j + 1), lampAt(i, j - 1) }));
+					this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i, j + 1), this.lampAt(i, j - 1) }));
 					// ( b + c + d )
-					solver.addClause(new VecInt(new int[] { lampAt(i - 1, j), lampAt(i, j + 1), lampAt(i, j - 1) }));
+					this.solver.addClause(new VecInt(new int[] { this.lampAt(i - 1, j), this.lampAt(i, j + 1), this.lampAt(i, j - 1) }));
 
 					// ( !a + !b + !c )
-					solver.addClause(new VecInt(new int[] { -lampAt(i + 1, j), -lampAt(i - 1, j), -lampAt(i, j + 1) }));
+					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i - 1, j), -this.lampAt(i, j + 1) }));
 					// ( !a + !b + !d )
-					solver.addClause(new VecInt(new int[] { -lampAt(i + 1, j), -lampAt(i - 1, j), -lampAt(i, j - 1) }));
+					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i - 1, j), -this.lampAt(i, j - 1) }));
 					// ( !a + !c + !d )
-					solver.addClause(new VecInt(new int[] { -lampAt(i + 1, j), -lampAt(i, j + 1), -lampAt(i, j - 1) }));
+					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i, j + 1), -this.lampAt(i, j - 1) }));
 					// ( !b + !c + !d )
-					solver.addClause(new VecInt(new int[] { -lampAt(i - 1, j), -lampAt(i, j + 1), -lampAt(i, j - 1) }));
+					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i - 1, j), -this.lampAt(i, j + 1), -this.lampAt(i, j - 1) }));
 
 					break;
 
@@ -245,11 +265,11 @@ public class AkariSolver {
 					break;
 				}
 
-				if (model.getCellState(i, j) != CellState.BLANK && model.getCellState(i, j) != CellState.LAMP) {
+				if (this.model.getCellState(i, j) != CellState.BLANK && this.model.getCellState(i, j) != CellState.LAMP) {
 					// blocks cannot be lighted
-					solver.addClause(new VecInt(new int[] { -lampAt(i, j) }));
+					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j) }));
 					// blocks cannot be lighted
-					solver.addClause(new VecInt(new int[] { -lightAt(i, j) }));
+					this.solver.addClause(new VecInt(new int[] { -this.lightAt(i, j) }));
 				}
 
 			}
@@ -259,7 +279,8 @@ public class AkariSolver {
 	}
 
 	/**
-	 * Returns true when the Akari game is solved with the lamps currently placed on the gamefield.
+	 * Returns true when the Akari game is solved with the lamps currently
+	 * placed on the gamefield.
 	 * 
 	 * @return true when the Akari game is solved otherwise false;
 	 * @throws TimeoutException
@@ -267,14 +288,15 @@ public class AkariSolver {
 	 */
 	public boolean isSolved() throws TimeoutException {
 
-		updateLamps();
+		this.updateLamps();
 
-		return solver.isSatisfiable(new VecInt(toIntArray(this.lampPosTrueAndOtherFalseList)));
+		return this.solver.isSatisfiable(new VecInt(AkariSolver.toIntArray(this.lampPosTrueAndOtherFalseList)));
 
 	}
 
 	/**
-	 * Returns true when the Akari puzzle is solvable (without the currently placed lamps)
+	 * Returns true when the Akari puzzle is solvable (without the currently
+	 * placed lamps)
 	 * 
 	 * @return true when the Akari game is solvable otherwise false;
 	 * @throws TimeoutException
@@ -282,12 +304,13 @@ public class AkariSolver {
 	 */
 	public boolean isSatisfiable() throws TimeoutException {
 
-		return solver.isSatisfiable();
+		return this.solver.isSatisfiable();
 
 	}
 
 	/**
-	 * Returns true when the Akari puzzle is solvable (with the currently placed lamps)
+	 * Returns true when the Akari puzzle is solvable (with the currently placed
+	 * lamps)
 	 * 
 	 * @return true when the Akari game is solvable otherwise false;
 	 * @throws TimeoutException
@@ -295,8 +318,8 @@ public class AkariSolver {
 	 */
 	public boolean isSatisfiableWithCurrentLamps() throws TimeoutException {
 
-		updateLamps();
-		return solver.isSatisfiable(new VecInt(toIntArray(lampPosTrueAndOtherFalseList)));
+		this.updateLamps();
+		return this.solver.isSatisfiable(new VecInt(AkariSolver.toIntArray(this.lampPosTrueAndOtherFalseList)));
 
 	}
 
@@ -309,25 +332,27 @@ public class AkariSolver {
 	 */
 	public LinkedList<Point> getWrongPlacedLamps() throws TimeoutException {
 
-		updateLamps();
+		this.updateLamps();
 
 		LinkedList<Point> list = null;
 
-		if (solver.isSatisfiable(new VecInt(toIntArray(lampPosTrueList))))
+		if (this.solver.isSatisfiable(new VecInt(AkariSolver.toIntArray(this.lampPosTrueList)))) {
 			return null;
-		else {
-			IVecInt errors = solver.unsatExplanation();
+		} else {
+			IVecInt errors = this.solver.unsatExplanation();
 
-			if (errors == null)
+			if (errors == null) {
 				return null;
+			}
 
 			list = new LinkedList<Point>();
 
 			for (int i = 0; i < errors.size(); i++) {
-				Point p = reverseLampAt(errors.get(i));
+				Point p = this.reverseLampAt(errors.get(i));
 
-				if (p != null)
+				if (p != null) {
 					list.add(p);
+				}
 			}
 		}
 
@@ -337,7 +362,7 @@ public class AkariSolver {
 
 	public boolean hasWrongPlacedLamps() throws TimeoutException {
 
-		List<Point> list = getWrongPlacedLamps();
+		List<Point> list = this.getWrongPlacedLamps();
 
 		return list != null && list.size() > 0;
 	}
@@ -351,87 +376,94 @@ public class AkariSolver {
 	 */
 	public LinkedList<Point> getHints() throws TimeoutException {
 
-		updateLamps();
+		this.updateLamps();
 
-		if (solver.isSatisfiable(new VecInt(toIntArray(lampPosTrueList)))) {
+		if (this.solver.isSatisfiable(new VecInt(AkariSolver.toIntArray(this.lampPosTrueList)))) {
 
 			LinkedList<Point> list = new LinkedList<Point>();
-			int[] model = solver.model();
+			int[] model = this.solver.model();
 
 			for (int i = 0; i < model.length; i++) {
-				Point p = reverseLampAt(model[i]);
+				Point p = this.reverseLampAt(model[i]);
 
 				if (p != null) {
-					if (this.model.getCellState(p.x, p.y) != CellState.LAMP)
+					if (this.model.getCellState(p.x, p.y) != CellState.LAMP) {
 						list.add(p);
+					}
 				}
 			}
 
 			return list;
-		} else
+		} else {
 			return null;
+		}
 
 	}
-	
+
 	/**
-	 * Returns an arbitrary combination of lamps which are needed to complete the complete puzzle
+	 * Returns an arbitrary combination of lamps which are needed to complete
+	 * the complete puzzle
 	 * 
-	 * @return an arbitrary combination of lamps which are needed to complete the complete puzzle
+	 * @return an arbitrary combination of lamps which are needed to complete
+	 *         the complete puzzle
 	 * @throws TimeoutException
 	 *             Timeout expired
 	 */
 	public LinkedList<Point> getSolution() throws TimeoutException {
 
-
-		if (solver.isSatisfiable()) {
+		if (this.solver.isSatisfiable()) {
 
 			LinkedList<Point> list = new LinkedList<Point>();
-			int[] model = solver.model();
+			int[] model = this.solver.model();
 
 			for (int i = 0; i < model.length; i++) {
-				Point p = reverseLampAt(model[i]);
+				Point p = this.reverseLampAt(model[i]);
 
 				if (p != null) {
-						list.add(p);
+					list.add(p);
 				}
 			}
 
 			return list;
-		} else
+		} else {
 			return null;
+		}
 
 	}
-	
+
 	/**
-	 * Returns an arbitrary model which is needed to complete the complete puzzle
+	 * Returns an arbitrary model which is needed to complete the complete
+	 * puzzle
 	 * 
-	 * @return an arbitrary model which is needed to complete the complete puzzle
+	 * @return an arbitrary model which is needed to complete the complete
+	 *         puzzle
 	 * @throws TimeoutException
 	 *             Timeout expired
 	 */
 	public GameFieldModel getSolutionModel() throws TimeoutException {
-		
-		GameFieldModel clone = (GameFieldModel) model.clone();
 
-		if (solver.isSatisfiable(new VecInt())) {
+		GameFieldModel clone = (GameFieldModel) this.model.clone();
 
-			int[] model = solver.model();
+		if (this.solver.isSatisfiable(new VecInt())) {
+
+			int[] model = this.solver.model();
 
 			for (int i = 0; i < model.length; i++) {
-				Point p = reverseLampAt(model[i]);
+				Point p = this.reverseLampAt(model[i]);
 
 				if (p != null) {
-						clone.setCellState(p.x, p.y, CellState.LAMP);
+					clone.setCellState(p.x, p.y, CellState.LAMP);
 				}
 			}
 
 			return clone;
-		} else
+		} else {
 			return null;
+		}
 
 	}
 
-	private static int[] toIntArray(List<Integer> integerList) {
+	private static int[] toIntArray(final List<Integer> integerList) {
 		int[] intArray = new int[integerList.size()];
 		for (int i = 0; i < integerList.size(); i++) {
 			intArray[i] = integerList.get(i);
