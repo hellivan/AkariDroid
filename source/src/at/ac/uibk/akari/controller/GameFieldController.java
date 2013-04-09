@@ -1,5 +1,6 @@
 package at.ac.uibk.akari.controller;
 
+import android.graphics.Point;
 import android.util.Log;
 import at.ac.uibk.akari.listener.GameFieldListener;
 import at.ac.uibk.akari.listener.GameFieldTouchEvent;
@@ -21,17 +22,15 @@ public class GameFieldController extends AbstractController implements GameField
 	@Override
 	public void gameFieldTouched(final GameFieldTouchEvent event) {
 		if (event.getSource().equals(this.gameField)) {
-			Log.d(this.getClass().toString(), "GameField touched at " + event.getCellPosition().x + "x" + event.getCellPosition().y);
+			Point cellPosition = event.getCellPosition();
 
-			switch (this.gameField.getModel().getCellState(event.getCellPosition())) {
-			case BLANK:
+			Log.d(this.getClass().toString(), "GameField touched at " + cellPosition.x + "x" + cellPosition.y);
+
+			if (this.gameField.isLampAt(cellPosition)) {
+				this.gameField.removeLampAt(cellPosition);
+			} else {
 				this.gameField.setLampAt(event.getCellPosition());
-				break;
-			case LAMP:
-				this.gameField.removeLampAt(event.getCellPosition());
-				break;
 			}
-
 		}
 	}
 

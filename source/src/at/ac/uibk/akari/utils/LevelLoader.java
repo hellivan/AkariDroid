@@ -2,7 +2,6 @@ package at.ac.uibk.akari.utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
@@ -15,35 +14,33 @@ import java.util.regex.Pattern;
 
 import at.ac.uibk.akari.core.GameFieldModel;
 import at.ac.uibk.akari.core.GameFieldModel.CellState;
+import at.ac.uibk.akari.core.JsonTools;
 import browser.Browser;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 
 public class LevelLoader {
 
-	public static void writeToFiles(final List<GameFieldModel> levels, final String path) throws IOException {
+	public static void saveGameLevels(final List<GameFieldModel> levels, final String path) throws IOException {
 		File levelsDir = new File(path);
 		if (!levelsDir.exists()) {
 			levelsDir.mkdirs();
 		}
-		Gson gson = new Gson();
 		int levelNumber = 0;
 		for (GameFieldModel level : levels) {
 			String number = String.format(Locale.GERMANY, "%05d", levelNumber++);
 			FileWriter write = new FileWriter(levelsDir.getAbsolutePath() + File.separator + "level_" + number + ".json");
-			write.write(gson.toJson(level));
+			write.write(JsonTools.getInstance().toJson(level, true));
 			write.close();
 		}
 	}
 
-	public static List<GameFieldModel> readLevelsFromFile(final String levelPath) throws JsonSyntaxException, JsonIOException, FileNotFoundException {
+	public static List<GameFieldModel> readGameLevels(final String levelPath) throws JsonSyntaxException, JsonIOException, FileNotFoundException {
 		List<GameFieldModel> levels = new ArrayList<GameFieldModel>();
 		File levelDir = new File(levelPath);
-		Gson parser = new Gson();
 		for (File levelFile : levelDir.listFiles()) {
-			levels.add(parser.fromJson(new FileReader(levelFile), GameFieldModel.class));
+			levels.add(JsonTools.getInstance().fromJson(GameFieldModel.class, levelFile));
 		}
 		return levels;
 	}
@@ -82,17 +79,11 @@ public class LevelLoader {
 			String dataString = new URI(new String(browser.getDownloadedData())).getPath();
 
 			Pattern levelPattern = Pattern.compile("dataquestion=(.*?)&", Pattern.MULTILINE | Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-			Pattern solutionPattern = Pattern.compile("datasolution=(.*?)&", Pattern.MULTILINE | Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
 			Matcher levelMatcher = levelPattern.matcher(dataString);
-			Matcher solutionMatcher = solutionPattern.matcher(dataString);
 
-			if (levelMatcher.find() && solutionMatcher.find()) {
-
-				LevelLoader.parseLevel(solutionMatcher.group(1));
-
+			if (levelMatcher.find()) {
 				return LevelLoader.parseLevel(levelMatcher.group(1));
-
 			}
 		}
 		return null;
@@ -108,9 +99,6 @@ public class LevelLoader {
 		for (int posY = 0; posY < model.getHeight(); posY++) {
 			for (int posX = 0; posX < model.getWidth(); posX++) {
 				switch (levelLines[posY].charAt(posX)) {
-				case '@':
-					model.setCellState(posX, posY, CellState.LAMP);
-					break;
 				case '-':
 					model.setCellState(posX, posY, CellState.BLANK);
 					break;

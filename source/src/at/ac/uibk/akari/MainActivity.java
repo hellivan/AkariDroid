@@ -83,10 +83,10 @@ public class MainActivity extends SimpleBaseGameActivity {
 		try {
 			Browser borwser = new Browser(10000, 10000);
 
-			this.levels = LevelLoader.readLevelsFromFile(this.getFilesDir().getAbsolutePath());
+			this.levels = LevelLoader.readGameLevels(this.getFilesDir().getAbsolutePath());
 			if (this.levels.size() < 31) {
 				this.levels = LevelLoader.fetchLevels(borwser);
-				LevelLoader.writeToFiles(this.levels, this.getFilesDir().getAbsolutePath());
+				LevelLoader.saveGameLevels(this.levels, this.getFilesDir().getAbsolutePath());
 			}
 
 			Log.i(this.getClass().toString(), "Loaded " + this.levels.size() + " levels...");

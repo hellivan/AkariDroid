@@ -196,10 +196,6 @@ public class GameField extends Rectangle {
 				case BLOCK4:
 					this.setGameFieldState(posX, posY, State.BLOCK4);
 					break;
-				case LAMP:
-					this.setGameFieldState(posX, posY, State.LAMP);
-					this.lightCellsWithLamp(posX, posY);
-					break;
 				default:
 					break;
 				}
@@ -208,7 +204,8 @@ public class GameField extends Rectangle {
 
 		for (int posY = 0; posY < this.getModel().getHeight(); posY++) {
 			for (int posX = 0; posX < this.getModel().getWidth(); posX++) {
-				if (this.model.getCellState(posX, posY).equals(CellState.LAMP)) {
+				if (this.isLampAt(posX, posY)) {
+					this.setGameFieldState(posX, posY, State.LAMP);
 					this.lightCellsWithLamp(posX, posY);
 				}
 			}
@@ -218,26 +215,26 @@ public class GameField extends Rectangle {
 
 	private void lightCellsWithLamp(final int posX, final int posY) {
 		for (int lightX = posX + 1; lightX < this.getModel().getWidth(); lightX++) {
-			if (!this.getModel().getCellState(lightX, posY).equals(CellState.BLANK)) {
+			if (!this.getModel().getCellState(lightX, posY).equals(CellState.BLANK) || this.getModel().isLampAt(lightX, posY)) {
 				break;
 			}
 			this.setGameFieldState(lightX, posY, State.LIGHTED);
 		}
 		for (int lightX = posX - 1; lightX >= 0; lightX--) {
-			if (!this.getModel().getCellState(lightX, posY).equals(CellState.BLANK)) {
+			if (!this.getModel().getCellState(lightX, posY).equals(CellState.BLANK) || this.getModel().isLampAt(lightX, posY)) {
 				break;
 			}
 			this.setGameFieldState(lightX, posY, State.LIGHTED);
 		}
 
 		for (int lightY = posY + 1; lightY < this.getModel().getHeight(); lightY++) {
-			if (!this.getModel().getCellState(posX, lightY).equals(CellState.BLANK)) {
+			if (!this.getModel().getCellState(posX, lightY).equals(CellState.BLANK) || this.getModel().isLampAt(posX, lightY)) {
 				break;
 			}
 			this.setGameFieldState(posX, lightY, State.LIGHTED);
 		}
 		for (int lightY = posY - 1; lightY >= 0; lightY--) {
-			if (!this.getModel().getCellState(posX, lightY).equals(CellState.BLANK)) {
+			if (!this.getModel().getCellState(posX, lightY).equals(CellState.BLANK) || this.getModel().isLampAt(posX, lightY)) {
 				break;
 			}
 			this.setGameFieldState(posX, lightY, State.LIGHTED);
@@ -245,16 +242,28 @@ public class GameField extends Rectangle {
 	}
 
 	public void setLampAt(final Point location) {
-		this.getModel().setCellState(location.x, location.y, CellState.LAMP);
+		this.model.setLampAt(location);
 		this.adaptFieldToModel();
 	}
 
-	private void setGameFieldState(final int posX, final int posy, final State cellState) {
-		this.gameFieldCells[posy][posX].setCellState(cellState);
+	private void setGameFieldState(final int posX, final int posY, final State cellState) {
+		this.gameFieldCells[posY][posX].setCellState(cellState);
 	}
 
-	public void removeLampAt(final Point location) {
-		this.getModel().setCellState(location.x, location.y, CellState.BLANK);
-		this.adaptFieldToModel();
+	public boolean removeLampAt(final Point location) {
+		boolean removed = false;
+		if (removed = this.getModel().removeLampAt(location)) {
+			this.adaptFieldToModel();
+		}
+		return removed;
+	}
+
+	public boolean isLampAt(final int posX, final int posY) {
+		return this.model.isLampAt(posX, posY);
+
+	}
+
+	public boolean isLampAt(final Point location) {
+		return this.isLampAt(location.x, location.y);
 	}
 }

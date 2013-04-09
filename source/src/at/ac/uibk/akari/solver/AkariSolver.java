@@ -60,6 +60,7 @@ public class AkariSolver {
 		this.solver.setVerbose(true);
 
 		this.lampPosTrueList = new ArrayList<Integer>();
+		this.lampPosTrueAndOtherFalseList = new ArrayList<Integer>();
 
 		this.updateLamps();
 
@@ -67,21 +68,18 @@ public class AkariSolver {
 	}
 
 	private void updateLamps() {
-		for (int i = 0; i < this.model.getWidth(); i++) {
-			for (int j = 0; j < this.model.getHeight(); j++) {
-				if (this.model.getCellState(i, j) == CellState.LAMP) {
-					this.lampPosTrueList.add(this.lampAt(i, j));
-				}
-			}
+
+		this.lampPosTrueList.clear();
+		this.lampPosTrueAndOtherFalseList.clear();
+
+		for (Point point : this.model.getLamps()) {
+			this.lampPosTrueList.add(this.lampAt(point));
+			this.lampPosTrueAndOtherFalseList.add(this.lampAt(point));
 		}
 
-		this.lampPosTrueAndOtherFalseList = new ArrayList<Integer>();
-
 		for (int i = 0; i < this.model.getWidth(); i++) {
 			for (int j = 0; j < this.model.getHeight(); j++) {
-				if (this.model.getCellState(i, j) == CellState.LAMP) {
-					this.lampPosTrueAndOtherFalseList.add(this.lampAt(i, j));
-				} else {
+				if (!this.lampPosTrueList.contains(this.lampAt(i, j))) {
 					this.lampPosTrueAndOtherFalseList.add(-this.lampAt(i, j));
 				}
 			}
@@ -98,6 +96,10 @@ public class AkariSolver {
 
 		return res;
 
+	}
+
+	private int lampAt(final Point location) {
+		return this.lampAt(location.x, location.y);
 	}
 
 	private int lampAt(final int x, final int y) {
@@ -120,8 +122,6 @@ public class AkariSolver {
 
 				switch (this.model.getCellState(i, j)) {
 
-				case LAMP:
-					// solver.addClause(new VecInt(new int[] { lampAt(i, j) }));
 				case BLANK:
 					// win condition: every model.getCellState( lighted or a
 					// lamp
@@ -134,7 +134,7 @@ public class AkariSolver {
 					list.add(-this.lightAt(i, j));
 
 					int k = j + 1;
-					while (k >= 0 && k < this.model.getHeight() && (this.model.getCellState(i, k) == CellState.BLANK || this.model.getCellState(i, k) == CellState.LAMP)) {
+					while (k >= 0 && k < this.model.getHeight() && (this.model.getCellState(i, k) == CellState.BLANK)) {
 						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(i, k) }));
 
 						list.add(this.lampAt(i, k));
@@ -142,21 +142,21 @@ public class AkariSolver {
 					}
 
 					k = j - 1;
-					while (k >= 0 && k < this.model.getHeight() && (this.model.getCellState(i, k) == CellState.BLANK || this.model.getCellState(i, k) == CellState.LAMP)) {
+					while (k >= 0 && k < this.model.getHeight() && (this.model.getCellState(i, k) == CellState.BLANK)) {
 						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(i, k) }));
 						list.add(this.lampAt(i, k));
 						k--;
 					}
 
 					k = i + 1;
-					while (k >= 0 && k < this.model.getWidth() && (this.model.getCellState(k, j) == CellState.BLANK || this.model.getCellState(k, j) == CellState.LAMP)) {
+					while (k >= 0 && k < this.model.getWidth() && (this.model.getCellState(k, j) == CellState.BLANK)) {
 						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(k, j) }));
 						list.add(this.lampAt(k, j));
 						k++;
 					}
 
 					k = i - 1;
-					while (k >= 0 && k < this.model.getWidth() && (this.model.getCellState(k, j) == CellState.BLANK || this.model.getCellState(k, j) == CellState.LAMP)) {
+					while (k >= 0 && k < this.model.getWidth() && (this.model.getCellState(k, j) == CellState.BLANK)) {
 
 						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(k, j) }));
 						list.add(this.lampAt(k, j));
@@ -265,7 +265,7 @@ public class AkariSolver {
 					break;
 				}
 
-				if (this.model.getCellState(i, j) != CellState.BLANK && this.model.getCellState(i, j) != CellState.LAMP) {
+				if (this.model.getCellState(i, j) != CellState.BLANK) {
 					// blocks cannot be lighted
 					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j) }));
 					// blocks cannot be lighted
@@ -387,7 +387,7 @@ public class AkariSolver {
 				Point p = this.reverseLampAt(model[i]);
 
 				if (p != null) {
-					if (this.model.getCellState(p.x, p.y) != CellState.LAMP) {
+					if (this.model.isLampAt(p)) {
 						list.add(p);
 					}
 				}
@@ -452,7 +452,7 @@ public class AkariSolver {
 				Point p = this.reverseLampAt(model[i]);
 
 				if (p != null) {
-					clone.setCellState(p.x, p.y, CellState.LAMP);
+					clone.setLampAt(p);
 				}
 			}
 
