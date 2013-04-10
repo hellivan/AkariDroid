@@ -251,9 +251,11 @@ public class GameFieldModel {
 		if (!this.isFieldValid(posX, posY)) {
 			throw new RuntimeException("Illegal cell-position " + posX + "," + posY + " for " + this.getWidth() + "x" + this.getHeight() + " game-field");
 		}
-		for (Point lamp : this.lamps) {
-			if (lamp.x == posX && lamp.y == posY) {
-				return true;
+		if (this.lamps != null) {
+			for (Point lamp : this.lamps) {
+				if (lamp.x == posX && lamp.y == posY) {
+					return true;
+				}
 			}
 		}
 		return false;
@@ -295,6 +297,9 @@ public class GameFieldModel {
 		}
 
 		if (!this.isLampAt(posX, posY)) {
+			if (this.lamps == null) {
+				this.lamps = new ArrayList<Point>();
+			}
 			this.lamps.add(new Point(posX, posY));
 		}
 		return true;
@@ -318,6 +323,9 @@ public class GameFieldModel {
 	}
 
 	public synchronized boolean removeLampAt(final Point location) {
+		if (this.lamps == null) {
+			return false;
+		}
 		return this.lamps.remove(location);
 	}
 }

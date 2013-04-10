@@ -16,9 +16,9 @@ import android.util.Log;
 import at.ac.uibk.akari.core.GameFieldModel;
 import at.ac.uibk.akari.core.GameFieldModel.CellState;
 import at.ac.uibk.akari.listener.GameFieldDragEvent;
-import at.ac.uibk.akari.listener.GameFieldListener;
+import at.ac.uibk.akari.listener.GameFieldInputListener;
 import at.ac.uibk.akari.listener.GameFieldTouchEvent;
-import at.ac.uibk.akari.utils.ListenersList;
+import at.ac.uibk.akari.utils.ListenerList;
 import at.ac.uibk.akari.view.Cell.State;
 
 public class GameField extends Rectangle {
@@ -26,8 +26,8 @@ public class GameField extends Rectangle {
 	private static final int CELL_WIDTH = 50;
 	private static final int CELL_HEIGHT = 50;
 
-	private GameFieldModel model;
-	private ListenersList listenerList;
+	private GameFieldModel puzzle;
+	private ListenerList listenerList;
 
 	private VertexBufferObjectManager vertexBufferObjectManager;
 
@@ -40,16 +40,20 @@ public class GameField extends Rectangle {
 	private Point provisionLamp;
 
 	public GameField(final float posX, final float posY, final int cellCountX, final int cellCountY, final VertexBufferObjectManager vertexBufferObjectManager) {
-		this(posY, posY, new GameFieldModel(cellCountX, cellCountY), vertexBufferObjectManager);
+		this(posY, posY, vertexBufferObjectManager);
 	}
 
-	public GameField(final float posX, final float posY, final GameFieldModel model, final VertexBufferObjectManager vertexBufferObjectManager) {
-		super(posX, posY, model.getWidth() * GameField.CELL_WIDTH, model.getHeight() * GameField.CELL_HEIGHT, vertexBufferObjectManager, DrawType.STATIC);
+	public GameField(final float posX, final float posY, final VertexBufferObjectManager vertexBufferObjectManager) {
+		super(posX, posY, 0, 0, vertexBufferObjectManager, DrawType.STATIC);
 		this.vertexBufferObjectManager = vertexBufferObjectManager;
-		this.listenerList = new ListenersList();
+		this.listenerList = new ListenerList();
 		this.gameFieldLines = new ArrayList<Line>();
-		this.lastMultiTouched = System.currentTimeMillis();
-		this.model = model;
+	}
+
+	public void setPuzzle(final GameFieldModel puzzle) {
+		this.puzzle = puzzle;
+		this.setSize(this.puzzle.getWidth() * GameField.CELL_WIDTH, this.puzzle.getHeight() * GameField.CELL_HEIGHT);
+		this.lastMultiTouched = 0;
 		this.initfField();
 		this.adaptFieldToModel();
 	}
@@ -65,7 +69,7 @@ public class GameField extends Rectangle {
 	}
 
 	public GameFieldModel getModel() {
-		return this.model;
+		return this.puzzle;
 	}
 
 	private void addFieldCells() {
@@ -73,8 +77,7 @@ public class GameField extends Rectangle {
 		if (this.gameFieldCells != null) {
 			for (int posY = 0; posY < this.gameFieldCells.length; posY++) {
 				for (int posX = 0; posX < this.gameFieldCells[0].length; posX++) {
-					this.gameFieldCells[posY][posX] = new Cell(posX * GameField.CELL_WIDTH, posY * GameField.CELL_HEIGHT, GameField.CELL_WIDTH, GameField.CELL_HEIGHT, this.vertexBufferObjectManager);
-					this.attachChild(this.gameFieldCells[posY][posX]);
+					this.detachChild(this.gameFieldCells[posY][posX]);
 				}
 			}
 		}
@@ -188,24 +191,24 @@ public class GameField extends Rectangle {
 		return new PointF(posX, posY);
 	}
 
-	public void addGameFieldListener(final GameFieldListener listener) {
-		this.listenerList.addListener(GameFieldListener.class, listener);
+	public void addGameFieldInputListener(final GameFieldInputListener listener) {
+		this.listenerList.addListener(GameFieldInputListener.class, listener);
 	}
 
-	public void removeGameFieldListener(final GameFieldListener listener) {
-		this.listenerList.removeListener(GameFieldListener.class, listener);
+	public void removeGameFieldInputListener(final GameFieldInputListener listener) {
+		this.listenerList.removeListener(GameFieldInputListener.class, listener);
 	}
 
 	private void fireGameFieldTouched(final float posX, final float posY) {
 		GameFieldTouchEvent event = new GameFieldTouchEvent(this, this.positionToCell(posX, posY), new PointF(posX, posY));
-		for (GameFieldListener listener : this.listenerList.getListeners(GameFieldListener.class)) {
+		for (GameFieldInputListener listener : this.listenerList.getListeners(GameFieldInputListener.class)) {
 			listener.gameFieldTouched(event);
 		}
 	}
 
 	private void fireGameFieldDragged(final Point currentCell, final Point previousCell) {
 		GameFieldDragEvent event = new GameFieldDragEvent(this, previousCell, currentCell);
-		for (GameFieldListener listener : this.listenerList.getListeners(GameFieldListener.class)) {
+		for (GameFieldInputListener listener : this.listenerList.getListeners(GameFieldInputListener.class)) {
 			listener.gameFieldDragged(event);
 		}
 	}
@@ -280,9 +283,12 @@ public class GameField extends Rectangle {
 		}
 	}
 
-	public void setLampAt(final Point location) {
-		this.model.setLampAt(location);
-		this.adaptFieldToModel();
+	public boolean setLampAt(final Point location) {
+		boolean placed = false;
+		if (placed = this.puzzle.setLampAt(location)) {
+			this.adaptFieldToModel();
+		}
+		return placed;
 	}
 
 	private void setGameFieldState(final int posX, final int posY, final State cellState) {
@@ -298,7 +304,7 @@ public class GameField extends Rectangle {
 	}
 
 	public boolean isLampAt(final int posX, final int posY) {
-		return this.model.isLampAt(posX, posY);
+		return this.puzzle.isLampAt(posX, posY);
 
 	}
 

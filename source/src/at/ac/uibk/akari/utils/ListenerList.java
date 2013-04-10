@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
 
-public class ListenersList {
+public class ListenerList {
 
 	private Object[] listeners;
 
-	public ListenersList() {
+	public ListenerList() {
 		this.listeners = new Object[0];
 	}
 

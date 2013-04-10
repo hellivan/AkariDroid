@@ -3,20 +3,21 @@ package at.ac.uibk.akari.controller;
 import android.graphics.Point;
 import android.util.Log;
 import at.ac.uibk.akari.listener.GameFieldDragEvent;
+import at.ac.uibk.akari.listener.GameFieldInputListener;
 import at.ac.uibk.akari.listener.GameFieldListener;
 import at.ac.uibk.akari.listener.GameFieldTouchEvent;
+import at.ac.uibk.akari.utils.ListenerList;
 import at.ac.uibk.akari.view.GameField;
 
-public class GameFieldController extends AbstractController implements GameFieldListener {
+public class GameFieldController extends AbstractController implements GameFieldInputListener {
 
 	private GameField gameField;
 
+	private ListenerList listenerList;
+
 	public GameFieldController(final GameField gameField) {
 		this.gameField = gameField;
-	}
-
-	public void setGameField(final GameField gameField) {
-		this.gameField = gameField;
+		this.listenerList = new ListenerList();
 	}
 
 	@Override
@@ -26,9 +27,13 @@ public class GameFieldController extends AbstractController implements GameField
 
 			Log.d(this.getClass().toString(), "GameField touched at " + cellPosition.toString());
 			if (this.gameField.isLampAt(cellPosition)) {
-				this.gameField.removeLampAt(cellPosition);
+				if (this.gameField.removeLampAt(cellPosition)) {
+					this.fireLampRemoved(cellPosition);
+				}
 			} else {
-				this.gameField.setLampAt(cellPosition);
+				if (this.gameField.setLampAt(cellPosition)) {
+					this.fireLampPlaced(cellPosition);
+				}
 			}
 
 		}
@@ -36,14 +41,14 @@ public class GameFieldController extends AbstractController implements GameField
 
 	@Override
 	public boolean start() {
-		this.gameField.addGameFieldListener(this);
+		this.gameField.addGameFieldInputListener(this);
 		return true;
 	}
 
 	@Override
 	public boolean stop() {
-		// TODO Auto-generated method stub
-		return false;
+		this.gameField.removeGameFieldInputListener(this);
+		return true;
 	}
 
 	@Override
@@ -56,6 +61,26 @@ public class GameFieldController extends AbstractController implements GameField
 			// this.gameField.removeLampAt(lastCell);
 			// this.gameField.setLampAt(currentCell);
 		}
-
 	}
+
+	private void fireLampPlaced(final Point location) {
+		for (GameFieldListener listener : this.listenerList.getListeners(GameFieldListener.class)) {
+			listener.lampPlaced(this, location);
+		}
+	}
+
+	private void fireLampRemoved(final Point location) {
+		for (GameFieldListener listener : this.listenerList.getListeners(GameFieldListener.class)) {
+			listener.lampRemoved(this, location);
+		}
+	}
+
+	public void addGameFieldListener(final GameFieldListener listener) {
+		this.listenerList.addListener(GameFieldListener.class, listener);
+	}
+
+	public void removeGameFieldListener(final GameFieldListener listener) {
+		this.listenerList.removeListener(GameFieldListener.class, listener);
+	}
+
 }

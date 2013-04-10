@@ -23,15 +23,15 @@ import org.sat4j.specs.TimeoutException;
 
 import android.util.Log;
 import android.view.Display;
-import at.ac.uibk.akari.controller.GameFieldController;
+import android.widget.Toast;
+import at.ac.uibk.akari.controller.GameController;
 import at.ac.uibk.akari.core.GameFieldModel;
-import at.ac.uibk.akari.solver.AkariSolver;
+import at.ac.uibk.akari.listener.GameListener;
 import at.ac.uibk.akari.testsolver.Akari;
 import at.ac.uibk.akari.utils.PuzzleLoader;
 import at.ac.uibk.akari.utils.TextureLoader;
-import at.ac.uibk.akari.view.GameField;
 
-public class MainActivity extends SimpleBaseGameActivity implements IOnSceneTouchListener, IScrollDetectorListener, IPinchZoomDetectorListener {
+public class MainActivity extends SimpleBaseGameActivity implements GameListener, IOnSceneTouchListener, IScrollDetectorListener, IPinchZoomDetectorListener {
 
 	private static int SCREEN_WIDTH = 800;
 	private static int SCREEN_HEIGHT = 480;
@@ -41,13 +41,16 @@ public class MainActivity extends SimpleBaseGameActivity implements IOnSceneTouc
 	private ZoomCamera gameCamera;
 	private Scene gameScene;
 
-	private List<GameFieldModel> levels;
-	private AkariSolver solver;
+	private List<GameFieldModel> puzzles;
 
 	private float mPinchZoomStartedCameraZoomFactor;
 
 	private PinchZoomDetector mPinchZoomDetector;
 	private SurfaceScrollDetector mScrollDetector;
+
+	private GameController gameController;
+
+	private int currentPuzzle;
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
@@ -94,9 +97,9 @@ public class MainActivity extends SimpleBaseGameActivity implements IOnSceneTouc
 			int syncedPuzzles = PuzzleLoader.synchronizePuzzleList("http://helama.us.to/akari/", this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
 			Log.i(this.getClass().getName(), "Synchronized " + syncedPuzzles + " puzzles");
 
-			this.levels = PuzzleLoader.loadPuzzles(this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
+			this.puzzles = PuzzleLoader.loadPuzzles(this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
 
-			Log.i(this.getClass().getName(), "Loaded " + this.levels.size() + " levels...");
+			Log.i(this.getClass().getName(), "Loaded " + this.puzzles.size() + " levels...");
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -117,29 +120,14 @@ public class MainActivity extends SimpleBaseGameActivity implements IOnSceneTouc
 
 		this.gameScene.setOnSceneTouchListener(this);
 
-		{
-
-			GameFieldModel gameFieldModel = this.levels.get(63);
-			try {
-				Log.d(this.getClass().getName(), "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-				this.solver = new AkariSolver(gameFieldModel, 10000);
-				Log.d(this.getClass().getName(), "" + this.solver.isSatisfiableWithCurrentLamps());
-				this.solver.setSolutionToModel();
-				Log.d(this.getClass().getName(), "" + this.solver.isSatisfiableWithCurrentLamps());
-
-			} catch (ContradictionException e) {
-				e.printStackTrace();
-			} catch (TimeoutException e) {
-				e.printStackTrace();
-			}
-
-			GameField gameField = new GameField(10, 10, gameFieldModel, this.getVertexBufferObjectManager());
-
-			GameFieldController controller = new GameFieldController(gameField);
-			controller.start();
-
-			this.gameScene.attachChild(gameField);
-			this.gameScene.registerTouchArea(gameField);
+		this.currentPuzzle = 0;
+		this.gameController = new GameController(this.gameScene, this.getVertexBufferObjectManager());
+		this.gameController.addGameListener(this);
+		try {
+			this.gameController.setPuzzle(this.puzzles.get(this.currentPuzzle++));
+			this.gameController.start();
+		} catch (ContradictionException e) {
+			e.printStackTrace();
 		}
 
 		return this.gameScene;
@@ -216,4 +204,27 @@ public class MainActivity extends SimpleBaseGameActivity implements IOnSceneTouc
 		this.gameCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
 	}
 
+	@Override
+	public void puzzleSolved(final GameController source, final long timeMs) {
+		if (source.equals(this.gameController)) {
+			this.gameController.stop();
+			try {
+				this.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						Toast.makeText(MainActivity.this, "Solved level", Toast.LENGTH_LONG).show();
+					}
+				});
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				this.gameController.setPuzzle(this.puzzles.get(this.currentPuzzle++));
+				this.gameController.start();
+			} catch (ContradictionException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }

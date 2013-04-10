@@ -10,6 +10,9 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -185,10 +188,24 @@ public class PuzzleLoader {
 	public static List<GameFieldModel> loadPuzzles(final String puzzlesPath) throws JsonSyntaxException, JsonIOException, FileNotFoundException {
 		List<GameFieldModel> levels = new ArrayList<GameFieldModel>();
 		File levelDir = new File(puzzlesPath);
-		for (File levelFile : levelDir.listFiles()) {
+		for (File levelFile : PuzzleLoader.sortFiles(levelDir.listFiles())) {
+
 			levels.add(JsonTools.getInstance().fromJson(GameFieldModel.class, levelFile));
 		}
 		return levels;
+	}
+
+	private static List<File> sortFiles(final File[] files) {
+		List<File> sortedFiles = Arrays.asList(files);
+
+		Collections.sort(sortedFiles, new Comparator<File>() {
+
+			@Override
+			public int compare(final File lhs, final File rhs) {
+				return lhs.getName().compareTo(rhs.getName());
+			}
+		});
+		return sortedFiles;
 	}
 
 }
