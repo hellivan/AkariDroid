@@ -3,23 +3,24 @@ package at.ac.uibk.akari;
 import java.io.File;
 import java.util.List;
 
-import org.andengine.engine.camera.Camera;
+import org.andengine.engine.camera.ZoomCamera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
+import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
-import org.andengine.entity.text.Text;
-import org.andengine.entity.text.TextOptions;
 import org.andengine.entity.util.FPSLogger;
-import org.andengine.opengl.font.FontFactory;
-import org.andengine.opengl.font.IFont;
+import org.andengine.input.touch.TouchEvent;
+import org.andengine.input.touch.detector.PinchZoomDetector;
+import org.andengine.input.touch.detector.PinchZoomDetector.IPinchZoomDetectorListener;
+import org.andengine.input.touch.detector.ScrollDetector;
+import org.andengine.input.touch.detector.ScrollDetector.IScrollDetectorListener;
+import org.andengine.input.touch.detector.SurfaceScrollDetector;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
-import org.andengine.util.HorizontalAlign;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.TimeoutException;
 
-import android.graphics.Typeface;
 import android.util.Log;
 import android.view.Display;
 import at.ac.uibk.akari.controller.GameFieldController;
@@ -29,20 +30,24 @@ import at.ac.uibk.akari.testsolver.Akari;
 import at.ac.uibk.akari.utils.PuzzleLoader;
 import at.ac.uibk.akari.utils.TextureLoader;
 import at.ac.uibk.akari.view.GameField;
-import at.ac.uibk.akari.view.Lamp;
 
-public class MainActivity extends SimpleBaseGameActivity {
+public class MainActivity extends SimpleBaseGameActivity implements IOnSceneTouchListener, IScrollDetectorListener, IPinchZoomDetectorListener {
 
 	private static int SCREEN_WIDTH = 800;
 	private static int SCREEN_HEIGHT = 480;
 
 	private static String puzzlesDir = "puzzles";
 
-	private Camera gameCamera;
+	private ZoomCamera gameCamera;
 	private Scene gameScene;
 
 	private List<GameFieldModel> levels;
 	private AkariSolver solver;
+
+	private float mPinchZoomStartedCameraZoomFactor;
+
+	private PinchZoomDetector mPinchZoomDetector;
+	private SurfaceScrollDetector mScrollDetector;
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
@@ -68,7 +73,10 @@ public class MainActivity extends SimpleBaseGameActivity {
 		MainActivity.SCREEN_WIDTH = (int) (MainActivity.SCREEN_HEIGHT * screenAspect);
 		Log.i(this.getClass().getName(), "Got screen aspect of " + screenAspect);
 
-		this.gameCamera = new Camera(0, 0, MainActivity.SCREEN_WIDTH, MainActivity.SCREEN_HEIGHT);
+		// this.gameCamera = new Camera(0, 0, MainActivity.SCREEN_WIDTH,
+		// MainActivity.SCREEN_HEIGHT);
+		this.gameCamera = new ZoomCamera(0, 0, MainActivity.SCREEN_WIDTH, MainActivity.SCREEN_HEIGHT);
+
 		Log.i(this.getClass().getName(), "Got camera resolution " + MainActivity.SCREEN_WIDTH + "x" + MainActivity.SCREEN_HEIGHT);
 
 		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_SENSOR, new RatioResolutionPolicy(realScreenWidth, realScreenHeight), this.gameCamera);
@@ -104,24 +112,20 @@ public class MainActivity extends SimpleBaseGameActivity {
 		this.gameScene.setTouchAreaBindingOnActionDownEnabled(true);
 		this.gameScene.setBackground(new Background(0.2f, 0.6f, 0.8f, 0.1f));
 
-		{
-			IFont pFont = FontFactory.create(this.getFontManager(), this.getTextureManager(), 256, 256, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 64);
-			pFont.load();
-			Text helloWorld = new Text(0, 0, pFont, "Hello Akari!", new TextOptions(HorizontalAlign.CENTER), this.getVertexBufferObjectManager());
-			helloWorld.setPosition((this.gameCamera.getWidth() - helloWorld.getLineWidthMaximum()) / 2, (this.gameCamera.getHeight() - pFont.getLineHeight()) / 2);
-			helloWorld.setRotation(45);
+		this.mScrollDetector = new SurfaceScrollDetector(this);
+		this.mPinchZoomDetector = new PinchZoomDetector(this);
 
-			this.gameScene.attachChild(helloWorld);
-		}
+		this.gameScene.setOnSceneTouchListener(this);
+
 		{
 
 			GameFieldModel gameFieldModel = this.levels.get(63);
 			try {
-				System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+				Log.d(this.getClass().getName(), "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 				this.solver = new AkariSolver(gameFieldModel, 10000);
-				System.out.println("" + this.solver.isSatisfiableWithCurrentLamps());
+				Log.d(this.getClass().getName(), "" + this.solver.isSatisfiableWithCurrentLamps());
 				this.solver.setSolutionToModel();
-				System.out.println("" + this.solver.isSatisfiableWithCurrentLamps());
+				Log.d(this.getClass().getName(), "" + this.solver.isSatisfiableWithCurrentLamps());
 
 			} catch (ContradictionException e) {
 				e.printStackTrace();
@@ -129,19 +133,13 @@ public class MainActivity extends SimpleBaseGameActivity {
 				e.printStackTrace();
 			}
 
-			GameField gameField = new GameField(150, 20, gameFieldModel, this.getVertexBufferObjectManager());
+			GameField gameField = new GameField(10, 10, gameFieldModel, this.getVertexBufferObjectManager());
 
 			GameFieldController controller = new GameFieldController(gameField);
 			controller.start();
 
 			this.gameScene.attachChild(gameField);
 			this.gameScene.registerTouchArea(gameField);
-		}
-		{
-			Lamp lamp = new Lamp(50, 50, 50, 50, this.getVertexBufferObjectManager());
-			// lamp.animate(120);
-			this.gameScene.attachChild(lamp);
-			this.gameScene.registerTouchArea(lamp);
 		}
 
 		return this.gameScene;
@@ -163,6 +161,59 @@ public class MainActivity extends SimpleBaseGameActivity {
 			e.printStackTrace();
 		}
 
+	}
+
+	@Override
+	public boolean onSceneTouchEvent(final Scene scene, final TouchEvent pSceneTouchEvent) {
+		Log.d(this.getClass().getName(), "MainActivity.onSceneTouchEvent()");
+		if (pSceneTouchEvent.getMotionEvent().getPointerCount() == 2) {
+			this.mPinchZoomDetector.onTouchEvent(pSceneTouchEvent);
+			this.mScrollDetector.onTouchEvent(pSceneTouchEvent);
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void onPinchZoom(final PinchZoomDetector arg0, final TouchEvent arg1, final float pZoomFactor) {
+		Log.d(this.getClass().getName(), "MainActivity.onPinchZoom()");
+		this.gameCamera.setZoomFactor(this.mPinchZoomStartedCameraZoomFactor * pZoomFactor);
+
+	}
+
+	@Override
+	public void onPinchZoomFinished(final PinchZoomDetector arg0, final TouchEvent arg1, final float pZoomFactor) {
+		Log.d(this.getClass().getName(), "MainActivity.onPinchZoomFinished()");
+		this.gameCamera.setZoomFactor(this.mPinchZoomStartedCameraZoomFactor * pZoomFactor);
+
+	}
+
+	@Override
+	public void onPinchZoomStarted(final PinchZoomDetector arg0, final TouchEvent arg1) {
+		Log.d(this.getClass().getName(), "MainActivity.onPinchZoomStarted()");
+		this.mPinchZoomStartedCameraZoomFactor = this.gameCamera.getZoomFactor();
+
+	}
+
+	@Override
+	public void onScroll(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
+		Log.d(this.getClass().getName(), "MainActivity.onScroll()");
+		final float zoomFactor = this.gameCamera.getZoomFactor();
+		this.gameCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
+	}
+
+	@Override
+	public void onScrollFinished(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
+		Log.d(this.getClass().getName(), "MainActivity.onScrollFinished()");
+		final float zoomFactor = this.gameCamera.getZoomFactor();
+		this.gameCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
+	}
+
+	@Override
+	public void onScrollStarted(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
+		Log.d(this.getClass().getName(), "MainActivity.onScrollStarted()");
+		final float zoomFactor = this.gameCamera.getZoomFactor();
+		this.gameCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
 	}
 
 }
