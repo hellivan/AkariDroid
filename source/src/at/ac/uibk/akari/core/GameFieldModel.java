@@ -180,9 +180,44 @@ public class GameFieldModel {
 				if (!this.isFieldValid(point.x, point.y)) {
 					throw new RuntimeException("Illegal cell-position " + point.x + "," + point.y + " for " + this.getWidth() + "x" + this.getHeight() + " game-field");
 				}
+				if (!this.getCellState(point).equals(CellState.BLANK)) {
+					throw new RuntimeException("Cant't set lamp at cell-position " + point.x + "," + point.y + " because the cell is not empty");
+				}
 			}
 			this.lamps = lamps;
 		}
+	}
+
+	/**
+	 * Setting a lamp at the given cell-position of the game-field. If it is not
+	 * possible to place a lamp at the given position (cell-state was not
+	 * BLANK), the method will return false. This condition does not affect
+	 * cells, that already contain a lamp. In this case the method will return
+	 * true
+	 * 
+	 * @param posX
+	 *            Horizontal position of the cell, starting from 0
+	 * @param posY
+	 *            Vertical position of the cell, starting from 0
+	 * 
+	 * @return True if it was possible to place the lamp at the given position,
+	 *         otherwise false
+	 */
+	public synchronized boolean setLampAt(final int posX, final int posY) {
+		if (!this.isFieldValid(posX, posY)) {
+			throw new RuntimeException("Illegal cell-position " + posX + "," + posY + " for " + this.getWidth() + "x" + this.getHeight() + " game-field");
+		}
+		if (!this.getCellState(posX, posY).equals(CellState.BLANK)) {
+			return false;
+		}
+
+		if (!this.isLampAt(posX, posY)) {
+			if (this.lamps == null) {
+				this.lamps = new ArrayList<Point>();
+			}
+			this.lamps.add(new Point(posX, posY));
+		}
+		return true;
 	}
 
 	/**
@@ -271,38 +306,6 @@ public class GameFieldModel {
 		}
 		clone.setLamps(this.getLamps());
 		return clone;
-	}
-
-	/**
-	 * Setting a lamp at the given cell-position of the game-field. If it is not
-	 * possible to place a lamp at the given position (cell-state was not
-	 * BLANK), the method will return false. This condition does not affect
-	 * cells, that already contain a lamp. In this case the method will return
-	 * true
-	 * 
-	 * @param posX
-	 *            Horizontal position of the cell, starting from 0
-	 * @param posY
-	 *            Vertical position of the cell, starting from 0
-	 * 
-	 * @return True if it was possible to place the lamp at the given position,
-	 *         otherwise false
-	 */
-	public synchronized boolean setLampAt(final int posX, final int posY) {
-		if (!this.isFieldValid(posX, posY)) {
-			throw new RuntimeException("Illegal cell-position " + posX + "," + posY + " for " + this.getWidth() + "x" + this.getHeight() + " game-field");
-		}
-		if (!this.getCellState(posX, posY).equals(CellState.BLANK)) {
-			return false;
-		}
-
-		if (!this.isLampAt(posX, posY)) {
-			if (this.lamps == null) {
-				this.lamps = new ArrayList<Point>();
-			}
-			this.lamps.add(new Point(posX, posY));
-		}
-		return true;
 	}
 
 	/**
