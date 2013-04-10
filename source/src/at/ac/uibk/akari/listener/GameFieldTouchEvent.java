@@ -7,17 +7,17 @@ import at.ac.uibk.akari.view.GameField;
 public class GameFieldTouchEvent {
 
 	private GameField source;
-	private Point cellPosition;
+	private Point touchCell;
 	private PointF touchPosition;
 
-	public GameFieldTouchEvent(final GameField source, final Point cellPosition, final PointF touchPosition) {
+	public GameFieldTouchEvent(final GameField source, final Point touchCell, final PointF touchPosition) {
 		this.source = source;
-		this.cellPosition = cellPosition;
+		this.touchCell = touchCell;
 		this.touchPosition = touchPosition;
 	}
 
-	public Point getCellPosition() {
-		return this.cellPosition;
+	public Point getTouchCell() {
+		return this.touchCell;
 	}
 
 	public PointF getTouchPosition() {

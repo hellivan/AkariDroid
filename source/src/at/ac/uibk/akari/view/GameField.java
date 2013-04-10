@@ -15,6 +15,7 @@ import android.graphics.PointF;
 import android.util.Log;
 import at.ac.uibk.akari.core.GameFieldModel;
 import at.ac.uibk.akari.core.GameFieldModel.CellState;
+import at.ac.uibk.akari.listener.GameFieldDragEvent;
 import at.ac.uibk.akari.listener.GameFieldListener;
 import at.ac.uibk.akari.listener.GameFieldTouchEvent;
 import at.ac.uibk.akari.utils.ListenersList;
@@ -33,6 +34,11 @@ public class GameField extends Rectangle {
 	private List<Line> gameFieldLines;
 	private Cell[][] gameFieldCells;
 
+	private long lastMultiTouched;
+	private Point lastDragPoint;
+
+	private Point provisionLamp;
+
 	public GameField(final float posX, final float posY, final int cellCountX, final int cellCountY, final VertexBufferObjectManager vertexBufferObjectManager) {
 		this(posY, posY, new GameFieldModel(cellCountX, cellCountY), vertexBufferObjectManager);
 	}
@@ -42,6 +48,7 @@ public class GameField extends Rectangle {
 		this.vertexBufferObjectManager = vertexBufferObjectManager;
 		this.listenerList = new ListenersList();
 		this.gameFieldLines = new ArrayList<Line>();
+		this.lastMultiTouched = System.currentTimeMillis();
 		this.model = model;
 		this.initfField();
 		this.adaptFieldToModel();
@@ -134,9 +141,34 @@ public class GameField extends Rectangle {
 
 	@Override
 	public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+		if (pSceneTouchEvent.getMotionEvent().getPointerCount() > 1) {
+			this.lastMultiTouched = System.currentTimeMillis();
+		}
+
+		int moutiTouchTolleranceMs = 200;
+
+		if (System.currentTimeMillis() - this.lastMultiTouched < moutiTouchTolleranceMs) {
+			return false;
+		}
+
 		Point touchedCell = this.positionToCell(pTouchAreaLocalX, pTouchAreaLocalY);
-		Log.d(this.getClass().toString(), "Touched game-field at " + touchedCell.x + "x" + touchedCell.y + " with action " + pSceneTouchEvent.getAction());
-		if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_UP) {
+		Log.d(this.getClass().getName(), "Touched game-field at " + touchedCell.toString() + " with action " + pSceneTouchEvent.getAction());
+
+		if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_MOVE) {
+			Point newDragCell = this.positionToCell(pTouchAreaLocalX, pTouchAreaLocalY);
+			Point oldDragCell = this.lastDragPoint;
+
+			if (oldDragCell == null || !oldDragCell.equals(newDragCell)) {
+				if (oldDragCell == null) {
+					oldDragCell = newDragCell;
+				}
+				this.fireGameFieldDragged(newDragCell, oldDragCell);
+				this.lastDragPoint = newDragCell;
+			}
+		}
+
+		if (pSceneTouchEvent.getMotionEvent().getPointerCount() < 2 && pSceneTouchEvent.getAction() == TouchEvent.ACTION_UP) {
+			this.lastDragPoint = null;
 			this.fireGameFieldTouched(pTouchAreaLocalX, pTouchAreaLocalY);
 		}
 		return true;
@@ -168,6 +200,13 @@ public class GameField extends Rectangle {
 		GameFieldTouchEvent event = new GameFieldTouchEvent(this, this.positionToCell(posX, posY), new PointF(posX, posY));
 		for (GameFieldListener listener : this.listenerList.getListeners(GameFieldListener.class)) {
 			listener.gameFieldTouched(event);
+		}
+	}
+
+	private void fireGameFieldDragged(final Point currentCell, final Point previousCell) {
+		GameFieldDragEvent event = new GameFieldDragEvent(this, previousCell, currentCell);
+		for (GameFieldListener listener : this.listenerList.getListeners(GameFieldListener.class)) {
+			listener.gameFieldDragged(event);
 		}
 	}
 

@@ -6,4 +6,6 @@ public interface GameFieldListener extends EventListener {
 
 	public void gameFieldTouched(GameFieldTouchEvent event);
 
+	public void gameFieldDragged(GameFieldDragEvent event);
+
 }
