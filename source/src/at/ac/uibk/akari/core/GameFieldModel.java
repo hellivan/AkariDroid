@@ -121,7 +121,7 @@ public class GameFieldModel {
 		}
 		this.cells[posY][posX] = cellState;
 	}
-	
+
 	/**
 	 * Setting the state of the cell at the given position
 	 * 
@@ -131,8 +131,6 @@ public class GameFieldModel {
 	public synchronized void setCellState(Point p, final CellState cellState) {
 		setCellState(p.x, p.y, cellState);
 	}
-	
-	
 
 	/**
 	 * Getting the state of the cell at the given position. Important is that this method only returns the basic-cell-state, which means that lamps are ignored (in this case the method returns BLANK)
@@ -201,9 +199,40 @@ public class GameFieldModel {
 				if (!this.isFieldValid(point.x, point.y)) {
 					throw new RuntimeException("Illegal cell-position " + point.x + "," + point.y + " for " + this.getWidth() + "x" + this.getHeight() + " game-field");
 				}
+				if (!this.getCellState(point).equals(CellState.BLANK)) {
+					throw new RuntimeException("Cant't set lamp at cell-position " + point.x + "," + point.y + " because the cell is not empty");
+				}
 			}
 			this.lamps = lamps;
 		}
+	}
+
+	/**
+	 * Setting a lamp at the given cell-position of the game-field. If it is not possible to place a lamp at the given position (cell-state was not BLANK), the method will return false. This condition does not affect cells, that already contain a
+	 * lamp. In this case the method will return true
+	 * 
+	 * @param posX
+	 *            Horizontal position of the cell, starting from 0
+	 * @param posY
+	 *            Vertical position of the cell, starting from 0
+	 * 
+	 * @return True if it was possible to place the lamp at the given position, otherwise false
+	 */
+	public synchronized boolean setLampAt(final int posX, final int posY) {
+		if (!this.isFieldValid(posX, posY)) {
+			throw new RuntimeException("Illegal cell-position " + posX + "," + posY + " for " + this.getWidth() + "x" + this.getHeight() + " game-field");
+		}
+		if (!this.getCellState(posX, posY).equals(CellState.BLANK)) {
+			return false;
+		}
+
+		if (!this.isLampAt(posX, posY)) {
+			if (this.lamps == null) {
+				this.lamps = new ArrayList<Point>();
+			}
+			this.lamps.add(new Point(posX, posY));
+		}
+		return true;
 	}
 
 	/**
@@ -266,9 +295,11 @@ public class GameFieldModel {
 		if (!this.isFieldValid(posX, posY)) {
 			throw new RuntimeException("Illegal cell-position " + posX + "," + posY + " for " + this.getWidth() + "x" + this.getHeight() + " game-field");
 		}
-		for (Point lamp : this.lamps) {
-			if (lamp.x == posX && lamp.y == posY) {
-				return true;
+		if (this.lamps != null) {
+			for (Point lamp : this.lamps) {
+				if (lamp.x == posX && lamp.y == posY) {
+					return true;
+				}
 			}
 		}
 		return false;
@@ -286,31 +317,6 @@ public class GameFieldModel {
 		return clone;
 	}
 
-	/**
-	 * Setting a lamp at the given cell-position of the game-field. If it is not possible to place a lamp at the given position (cell-state was not BLANK), the method will return false. This condition does not affect cells, that already contain a
-	 * lamp. In this case the method will return true
-	 * 
-	 * @param posX
-	 *            Horizontal position of the cell, starting from 0
-	 * @param posY
-	 *            Vertical position of the cell, starting from 0
-	 * 
-	 * @return True if it was possible to place the lamp at the given position, otherwise false
-	 */
-	public synchronized boolean setLampAt(final int posX, final int posY) {
-		if (!this.isFieldValid(posX, posY)) {
-			throw new RuntimeException("Illegal cell-position " + posX + "," + posY + " for " + this.getWidth() + "x" + this.getHeight() + " game-field");
-		}
-		if (!this.getCellState(posX, posY).equals(CellState.BLANK)) {
-			return false;
-		}
-
-		if (!this.isLampAt(posX, posY)) {
-			this.lamps.add(new Point(posX, posY));
-		}
-		return true;
-	}
-
 	public ArrayList<Point> getNeightbors(Point p, CellState state) {
 		ArrayList<Point> list = new ArrayList<Point>(4);
 
@@ -323,7 +329,7 @@ public class GameFieldModel {
 		if ((p.y + 1) < this.getHeight() && (getCellState(p.x, p.y + 1).equals(state) || state == null))
 			list.add(new Point(p.x, p.y + 1));
 
-		if ((p.y - 1) >= 0 && (getCellState(p.x , p.y - 1).equals(state) || state == null))
+		if ((p.y - 1) >= 0 && (getCellState(p.x, p.y - 1).equals(state) || state == null))
 			list.add(new Point(p.x, p.y - 1));
 
 		return list;
@@ -333,7 +339,6 @@ public class GameFieldModel {
 	public ArrayList<Point> getLampNeightbors(Point p) {
 		ArrayList<Point> list = new ArrayList<Point>(4);
 
-		
 		if ((p.x + 1) < this.getWidth() && isLampAt(p.x + 1, p.y))
 			list.add(new Point(p.x + 1, p.y));
 
@@ -364,6 +369,9 @@ public class GameFieldModel {
 	}
 
 	public synchronized boolean removeLampAt(final Point location) {
+		if (this.lamps == null) {
+			return false;
+		}
 		return this.lamps.remove(location);
 	}
 }
