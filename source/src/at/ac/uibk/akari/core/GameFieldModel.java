@@ -204,29 +204,6 @@ public class GameFieldModel {
 		return gamefieldClone;
 	}
 
-	public ArrayList<Point> getNeightbors(final Point location, final CellState state) {
-		ArrayList<Point> list = new ArrayList<Point>(4);
-
-		if ((location.x + 1) < this.getWidth() && (this.getPuzzleCellState(location.x + 1, location.y).equals(state) || state == null)) {
-			list.add(new Point(location.x + 1, location.y));
-		}
-
-		if ((location.x - 1) >= 0 && (this.getPuzzleCellState(location.x - 1, location.y).equals(state) || state == null)) {
-			list.add(new Point(location.x - 1, location.y));
-		}
-
-		if ((location.y + 1) < this.getHeight() && (this.getPuzzleCellState(location.x, location.y + 1).equals(state) || state == null)) {
-			list.add(new Point(location.x, location.y + 1));
-		}
-
-		if ((location.y - 1) >= 0 && (this.getPuzzleCellState(location.x, location.y - 1).equals(state) || state == null)) {
-			list.add(new Point(location.x, location.y - 1));
-		}
-
-		return list;
-
-	}
-
 	public ArrayList<Point> getLampNeightbors(final Point location) {
 		ArrayList<Point> list = new ArrayList<Point>(4);
 
