@@ -53,7 +53,6 @@ public class AkariSolver {
 
 		this.model = model;
 		this.MAXVAR = this.falseVar() + 1;
-
 		this.NBCLAUSES = 50000;
 
 		this.solver = SolverFactory.newDefault();
@@ -145,15 +144,16 @@ public class AkariSolver {
 		for (int i = 0; i < this.model.getWidth(); i++) {
 			for (int j = 0; j < this.model.getHeight(); j++) {
 
-				if (!this.model.isCellEmpty(i, j, true)) {
+				if (this.model.getPuzzleCellState(i, j) != CellState.BLANK) {
 					// blocks cannot be lighted
 					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j) }));
 					// blocks cannot be lighted
 					this.solver.addClause(new VecInt(new int[] { -this.lightAt(i, j) }));
 				}
 
-				// Current position is empty or a lamp
-				if (this.model.isCellEmpty(i, j, true)) {
+				switch (this.model.getPuzzleCellState(i, j)) {
+
+				case BLANK:
 					// win condition: every model.getCellState( lighted or a
 					// lamp
 					this.solver.addClause(new VecInt(new int[] { this.lampAt(i, j), this.lightAt(i, j) }));
@@ -165,7 +165,7 @@ public class AkariSolver {
 					list.add(-this.lightAt(i, j));
 
 					int k = j + 1;
-					while (k >= 0 && k < this.model.getHeight() && (this.model.isCellEmpty(i, k, true))) {
+					while (k >= 0 && k < this.model.getHeight() && (this.model.getPuzzleCellState(i, k) == CellState.BLANK)) {
 						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(i, k) }));
 
 						list.add(this.lampAt(i, k));
@@ -173,21 +173,21 @@ public class AkariSolver {
 					}
 
 					k = j - 1;
-					while (k >= 0 && k < this.model.getHeight() && (this.model.isCellEmpty(i, k, true))) {
+					while (k >= 0 && k < this.model.getHeight() && (this.model.getPuzzleCellState(i, k) == CellState.BLANK)) {
 						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(i, k) }));
 						list.add(this.lampAt(i, k));
 						k--;
 					}
 
 					k = i + 1;
-					while (k >= 0 && k < this.model.getWidth() && (this.model.isCellEmpty(k, j, true))) {
+					while (k >= 0 && k < this.model.getWidth() && (this.model.getPuzzleCellState(k, j) == CellState.BLANK)) {
 						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(k, j) }));
 						list.add(this.lampAt(k, j));
 						k++;
 					}
 
 					k = i - 1;
-					while (k >= 0 && k < this.model.getWidth() && (this.model.isCellEmpty(k, j, true))) {
+					while (k >= 0 && k < this.model.getWidth() && (this.model.getPuzzleCellState(k, j) == CellState.BLANK)) {
 
 						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(k, j) }));
 						list.add(this.lampAt(k, j));
@@ -196,10 +196,17 @@ public class AkariSolver {
 
 					this.solver.addClause(new VecInt(AkariSolver.toIntArray(list)));
 
-				} else {
+					break;
 
-					this.addBlockDefinition(i, j, this.model);
+				case BLOCK0:
+				case BLOCK1:
+				case BLOCK2:
+				case BLOCK3:
+				case BLOCK4:
+					this.addBlockDefinition(i, j, this.model.getPuzzleCellState(i, j));
 
+				default:
+					break;
 				}
 
 			}
@@ -208,27 +215,24 @@ public class AkariSolver {
 
 	}
 
-	public LinkedList<IConstr> addBlockDefinition(final int i, final int j, final GameFieldModel model) throws ContradictionException {
+	public LinkedList<IConstr> addBlockDefinition(final int i, final int j, final CellState state) throws ContradictionException {
 		LinkedList<IConstr> constr = new LinkedList<IConstr>();
-
-		// Current position is a 0 block
-		if (model.isBlock0At(i, j)) {
+		switch (state) {
+		case BLOCK0:
 			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j) })));
 			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j + 1) })));
 			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i - 1, j) })));
 			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j - 1) })));
-		}
+			break;
 
-		// Current position is a 4 block
-		else if (model.isBlock4At(i, j)) {
+		case BLOCK4:
 			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j) })));
 			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i, j + 1) })));
 			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i - 1, j) })));
 			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i, j - 1) })));
-		}
+			break;
 
-		// Current position is a 1 block
-		else if (model.isBlock1At(i, j)) {
+		case BLOCK1:
 			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i - 1, j), this.lampAt(i, j + 1), this.lampAt(i, j - 1) })));
 
 			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i - 1, j) })));
@@ -252,10 +256,10 @@ public class AkariSolver {
 			// 1), -lampAt(i - 1, j) }));
 			// solver.addClause(new VecInt(new int[] { -lampAt(i, j -
 			// 1), -lampAt(i, j + 1) }));
-		}
 
-		// Current position is a 3 block
-		else if (model.isBlock3At(i, j)) {
+			break;
+
+		case BLOCK3:
 			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i - 1, j), -this.lampAt(i, j + 1), -this.lampAt(i, j - 1) })));
 
 			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i - 1, j) })));
@@ -280,10 +284,9 @@ public class AkariSolver {
 			// solver.addClause(new VecInt(new int[] { lampAt(i, j - 1),
 			// lampAt(i, j + 1) }));
 
-		}
+			break;
 
-		// Current position is a 2 block
-		else if (model.isBlock2At(i, j)) {
+		case BLOCK2:
 			// ( a + b + c ) * ( a + b + d ) * ( a + c + d ) * ( b + c +
 			// d ) *
 			// ( !a + !b + !c ) *( !a + !b + !d ) * ( !a + !c + !d ) * (
@@ -307,6 +310,10 @@ public class AkariSolver {
 			// ( !b + !c + !d )
 			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i - 1, j), -this.lampAt(i, j + 1), -this.lampAt(i, j - 1) })));
 
+			break;
+
+		default:
+			break;
 		}
 
 		return constr;
@@ -584,7 +591,7 @@ public class AkariSolver {
 	public static Puzzle generateRandomBlockModel(final int width, final int height) {
 
 		Random r = new Random();
-		Puzzle puzzle = new Puzzle(width, height);
+		Puzzle model = new Puzzle(width, height);
 
 		int count = (width + height) + (r.nextInt((width * height - (width + height)) / 3));
 
@@ -592,21 +599,20 @@ public class AkariSolver {
 			int x = r.nextInt(width);
 			int y = r.nextInt(height);
 
-			if (puzzle.getCellState(x, y) == CellState.BARRIER) {
+			if (model.getCellState(x, y) == CellState.BARRIER) {
 				i--;
 			} else {
-				puzzle.setCellState(x, y, CellState.BARRIER);
+				model.setCellState(x, y, CellState.BARRIER);
 			}
 		}
 
-		return puzzle;
+		return model;
 
 	}
 
 	public static GameFieldModel generatePuzzle(final int width, final int height) {
 
 		Puzzle puzzle = AkariSolver.generateRandomBlockModel(width, height);
-
 		GameFieldModel model = new GameFieldModel(puzzle);
 		Random r = new Random();
 
@@ -618,7 +624,7 @@ public class AkariSolver {
 			for (int i = 0; i < lamps.size(); i++) {
 				if (r.nextBoolean()) {
 
-					List<Point> barriers = model.getNeightbors(lamps.get(i), CellState.BARRIER);
+					List<Point> barriers = puzzle.getNeightbors(lamps.get(i), CellState.BARRIER);
 
 					if (barriers.size() == 0) {
 						continue;
@@ -628,7 +634,7 @@ public class AkariSolver {
 
 					puzzle.setCellState(barrier, CellState.getBlockByNumber(model.getLampNeightbors(barrier).size()));
 
-					LinkedList<IConstr> constr = solver.addBlockDefinition(barrier.x, barrier.y, model);
+					LinkedList<IConstr> constr = solver.addBlockDefinition(barrier.x, barrier.y, puzzle.getCellState(barrier));
 
 					if (!solver.isSatisfiable()) {
 						System.out.println("!satisfiable after first steps....");
@@ -679,10 +685,10 @@ public class AkariSolver {
 						if (p != null) {
 							System.out.println("Fixing:" + p);
 
-							List<Point> points = model.getNeightbors(p, CellState.BARRIER);
+							List<Point> points = puzzle.getNeightbors(p, CellState.BARRIER);
 
 							if (points.size() == 0) {
-								points = model.getNeightbors(p, CellState.BLANK);
+								points = puzzle.getNeightbors(p, CellState.BLANK);
 							}
 
 							if (points.size() == 0) {
@@ -693,7 +699,7 @@ public class AkariSolver {
 
 							puzzle.setCellState(barrier, CellState.getBlockByNumber(model.getLampNeightbors(barrier).size()));
 
-							LinkedList<IConstr> constr1 = solver.addBlockDefinition(barrier.x, barrier.y, model);
+							LinkedList<IConstr> constr1 = solver.addBlockDefinition(barrier.x, barrier.y, puzzle.getCellState(barrier));
 
 							if (!solver.isSatisfiable()) {
 								System.out.println("!satisfiable after first steps....");

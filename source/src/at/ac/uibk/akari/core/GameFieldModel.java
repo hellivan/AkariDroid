@@ -204,46 +204,46 @@ public class GameFieldModel {
 		return gamefieldClone;
 	}
 
-	public ArrayList<Point> getNeightbors(final Point p, final CellState state) {
+	public ArrayList<Point> getNeightbors(final Point location, final CellState state) {
 		ArrayList<Point> list = new ArrayList<Point>(4);
 
-		if ((p.x + 1) < this.getWidth() && (this.puzzle.getCellState(p.x + 1, p.y).equals(state) || state == null)) {
-			list.add(new Point(p.x + 1, p.y));
+		if ((location.x + 1) < this.getWidth() && (this.getPuzzleCellState(location.x + 1, location.y).equals(state) || state == null)) {
+			list.add(new Point(location.x + 1, location.y));
 		}
 
-		if ((p.x - 1) >= 0 && (this.puzzle.getCellState(p.x - 1, p.y).equals(state) || state == null)) {
-			list.add(new Point(p.x - 1, p.y));
+		if ((location.x - 1) >= 0 && (this.getPuzzleCellState(location.x - 1, location.y).equals(state) || state == null)) {
+			list.add(new Point(location.x - 1, location.y));
 		}
 
-		if ((p.y + 1) < this.getHeight() && (this.puzzle.getCellState(p.x, p.y + 1).equals(state) || state == null)) {
-			list.add(new Point(p.x, p.y + 1));
+		if ((location.y + 1) < this.getHeight() && (this.getPuzzleCellState(location.x, location.y + 1).equals(state) || state == null)) {
+			list.add(new Point(location.x, location.y + 1));
 		}
 
-		if ((p.y - 1) >= 0 && (this.puzzle.getCellState(p.x, p.y - 1).equals(state) || state == null)) {
-			list.add(new Point(p.x, p.y - 1));
+		if ((location.y - 1) >= 0 && (this.getPuzzleCellState(location.x, location.y - 1).equals(state) || state == null)) {
+			list.add(new Point(location.x, location.y - 1));
 		}
 
 		return list;
 
 	}
 
-	public ArrayList<Point> getLampNeightbors(final Point p) {
+	public ArrayList<Point> getLampNeightbors(final Point location) {
 		ArrayList<Point> list = new ArrayList<Point>(4);
 
-		if ((p.x + 1) < this.getWidth() && this.isLampAt(p.x + 1, p.y)) {
-			list.add(new Point(p.x + 1, p.y));
+		if ((location.x + 1) < this.getWidth() && this.isLampAt(location.x + 1, location.y)) {
+			list.add(new Point(location.x + 1, location.y));
 		}
 
-		if ((p.x - 1) >= 0 && this.isLampAt(p.x - 1, p.y)) {
-			list.add(new Point(p.x - 1, p.y));
+		if ((location.x - 1) >= 0 && this.isLampAt(location.x - 1, location.y)) {
+			list.add(new Point(location.x - 1, location.y));
 		}
 
-		if ((p.y + 1) < this.getHeight() && this.isLampAt(p.x, p.y + 1)) {
-			list.add(new Point(p.x, p.y + 1));
+		if ((location.y + 1) < this.getHeight() && this.isLampAt(location.x, location.y + 1)) {
+			list.add(new Point(location.x, location.y + 1));
 		}
 
-		if ((p.y - 1) >= 0 && this.isLampAt(p.x, p.y - 1)) {
-			list.add(new Point(p.x, p.y - 1));
+		if ((location.y - 1) >= 0 && this.isLampAt(location.x, location.y - 1)) {
+			list.add(new Point(location.x, location.y - 1));
 		}
 
 		return list;
@@ -286,36 +286,44 @@ public class GameFieldModel {
 
 	public boolean isCellEmpty(final int posX, final int posY, final boolean ignoreLamps) {
 		if (ignoreLamps) {
-			return this.puzzle.getCellState(posX, posY).equals(CellState.BLANK);
+			return this.getPuzzleCellState(posX, posY).equals(CellState.BLANK);
 		}
-		return this.puzzle.getCellState(posX, posY).equals(CellState.BLANK) && !this.isLampAt(posX, posY);
+		return this.getPuzzleCellState(posX, posY).equals(CellState.BLANK) && !this.isLampAt(posX, posY);
 	}
 
 	public boolean isCellEmpty(final Point location, final boolean ignoreLamps) {
 		return this.isCellEmpty(location.x, location.y, ignoreLamps);
 	}
 
+	public CellState getPuzzleCellState(final Point location) {
+		return this.getPuzzleCellState(location.x, location.y);
+	}
+
+	public CellState getPuzzleCellState(final int posX, final int posY) {
+		return this.puzzle.getCellState(posX, posY);
+	}
+
 	public boolean isBarrierAt(final int posX, final int posY) {
-		return this.puzzle.getCellState(posX, posY).equals(CellState.BARRIER);
+		return this.getPuzzleCellState(posX, posY).equals(CellState.BARRIER);
 	}
 
 	public boolean isBlock0At(final int posX, final int posY) {
-		return this.puzzle.getCellState(posX, posY).equals(CellState.BLOCK0);
+		return this.getPuzzleCellState(posX, posY).equals(CellState.BLOCK0);
 	}
 
 	public boolean isBlock1At(final int posX, final int posY) {
-		return this.puzzle.getCellState(posX, posY).equals(CellState.BLOCK1);
+		return this.getPuzzleCellState(posX, posY).equals(CellState.BLOCK1);
 	}
 
 	public boolean isBlock2At(final int posX, final int posY) {
-		return this.puzzle.getCellState(posX, posY).equals(CellState.BLOCK2);
+		return this.getPuzzleCellState(posX, posY).equals(CellState.BLOCK2);
 	}
 
 	public boolean isBlock3At(final int posX, final int posY) {
-		return this.puzzle.getCellState(posX, posY).equals(CellState.BLOCK3);
+		return this.getPuzzleCellState(posX, posY).equals(CellState.BLOCK3);
 	}
 
 	public boolean isBlock4At(final int posX, final int posY) {
-		return this.puzzle.getCellState(posX, posY).equals(CellState.BLOCK4);
+		return this.getPuzzleCellState(posX, posY).equals(CellState.BLOCK4);
 	}
 }

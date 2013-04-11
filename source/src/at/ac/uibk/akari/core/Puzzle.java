@@ -1,5 +1,7 @@
 package at.ac.uibk.akari.core;
 
+import java.util.ArrayList;
+
 import android.graphics.Point;
 
 /**
@@ -216,4 +218,26 @@ public class Puzzle {
 		return clone;
 	}
 
+	public ArrayList<Point> getNeightbors(final Point location, final CellState state) {
+		ArrayList<Point> list = new ArrayList<Point>(4);
+
+		if ((location.x + 1) < this.getWidth() && (this.getCellState(location.x + 1, location.y).equals(state) || state == null)) {
+			list.add(new Point(location.x + 1, location.y));
+		}
+
+		if ((location.x - 1) >= 0 && (this.getCellState(location.x - 1, location.y).equals(state) || state == null)) {
+			list.add(new Point(location.x - 1, location.y));
+		}
+
+		if ((location.y + 1) < this.getHeight() && (this.getCellState(location.x, location.y + 1).equals(state) || state == null)) {
+			list.add(new Point(location.x, location.y + 1));
+		}
+
+		if ((location.y - 1) >= 0 && (this.getCellState(location.x, location.y - 1).equals(state) || state == null)) {
+			list.add(new Point(location.x, location.y - 1));
+		}
+
+		return list;
+
+	}
 }
