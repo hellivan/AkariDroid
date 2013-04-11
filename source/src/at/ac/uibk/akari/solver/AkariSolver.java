@@ -1,18 +1,25 @@
 package at.ac.uibk.akari.solver;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 import org.sat4j.core.VecInt;
 import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IConstr;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.TimeoutException;
+import org.sat4j.tools.SingleSolutionDetector;
 
 import android.graphics.Point;
 import at.ac.uibk.akari.core.GameFieldModel;
+import at.ac.uibk.akari.core.Puzzle;
+import at.ac.uibk.akari.core.Puzzle.CellState;
 
 /**
  * Solver for Akari puzzles
@@ -42,15 +49,16 @@ public class AkariSolver {
 	 *             Is thrown when a gamefield is not solvable even if no lamps
 	 *             are placed
 	 */
-	public AkariSolver(final GameFieldModel model, final int timeout) throws ContradictionException {
+	public AkariSolver(final GameFieldModel model) throws ContradictionException {
 
 		this.model = model;
 		this.MAXVAR = this.falseVar() + 1;
+
 		this.NBCLAUSES = 50000;
 
 		this.solver = SolverFactory.newDefault();
 
-		this.solver.setTimeout(timeout);
+		// this.solver.setTimeout(100000);
 
 		this.solver.newVar(this.MAXVAR);
 		this.solver.setExpectedNumberOfClauses(this.NBCLAUSES);
@@ -63,7 +71,7 @@ public class AkariSolver {
 
 		this.updateLamps();
 
-		this.createModel();
+		this.setModel(model);
 	}
 
 	private void updateLamps() {
@@ -123,7 +131,14 @@ public class AkariSolver {
 
 	}
 
-	private void createModel() throws ContradictionException {
+	private void updateModel() throws ContradictionException {
+		this.setModel(this.model);
+	}
+
+	private void setModel(final GameFieldModel model) throws ContradictionException {
+
+		this.model = model;
+		this.solver.clearLearntClauses();
 
 		this.solver.addClause(new VecInt(new int[] { -this.falseVar() }));
 
@@ -181,109 +196,128 @@ public class AkariSolver {
 
 					this.solver.addClause(new VecInt(AkariSolver.toIntArray(list)));
 
-				}
+				} else {
 
-				// Current position is a 0 block
-				else if (this.model.isBlock0At(i, j)) {
-					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j) }));
-					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j + 1) }));
-					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i - 1, j) }));
-					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j - 1) }));
-				}
+					this.addBlockDefinition(i, j, this.model);
 
-				// Current position is a 4 block
-				else if (this.model.isBlock4At(i, j)) {
-					this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j) }));
-					this.solver.addClause(new VecInt(new int[] { this.lampAt(i, j + 1) }));
-					this.solver.addClause(new VecInt(new int[] { this.lampAt(i - 1, j) }));
-					this.solver.addClause(new VecInt(new int[] { this.lampAt(i, j - 1) }));
-				}
-
-				// Current position is a 1 block
-				else if (this.model.isBlock1At(i, j)) {
-					this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i - 1, j), this.lampAt(i, j + 1), this.lampAt(i, j - 1) }));
-
-					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i - 1, j) }));
-					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i, j + 1) }));
-					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i, j - 1) }));
-
-					// solver.addClause(new VecInt(new int[] { -lampAt(i - 1,
-					// j), -lampAt(i + 1, j) }));
-					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i - 1, j), -this.lampAt(i, j + 1) }));
-					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i - 1, j), -this.lampAt(i, j - 1) }));
-
-					// solver.addClause(new VecInt(new int[] { -lampAt(i, j +
-					// 1), -lampAt(i + 1, j) }));
-					// solver.addClause(new VecInt(new int[] { -lampAt(i, j +
-					// 1), -lampAt(i - 1, j) }));
-					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j + 1), -this.lampAt(i, j - 1) }));
-
-					// solver.addClause(new VecInt(new int[] { -lampAt(i, j -
-					// 1), -lampAt(i + 1, j) }));
-					// solver.addClause(new VecInt(new int[] { -lampAt(i, j -
-					// 1), -lampAt(i - 1, j) }));
-					// solver.addClause(new VecInt(new int[] { -lampAt(i, j -
-					// 1), -lampAt(i, j + 1) }));
-				}
-
-				// Current position is a 3 block
-				else if (this.model.isBlock3At(i, j)) {
-					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i - 1, j), -this.lampAt(i, j + 1), -this.lampAt(i, j - 1) }));
-
-					this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i - 1, j) }));
-					this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i, j + 1) }));
-					this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i, j - 1) }));
-
-					// solver.addClause(new VecInt(new int[] { lampAt(i - 1, j),
-					// lampAt(i + 1, j) }));
-					this.solver.addClause(new VecInt(new int[] { this.lampAt(i - 1, j), this.lampAt(i, j + 1) }));
-					this.solver.addClause(new VecInt(new int[] { this.lampAt(i - 1, j), this.lampAt(i, j - 1) }));
-
-					// solver.addClause(new VecInt(new int[] { lampAt(i, j + 1),
-					// lampAt(i + 1, j) }));
-					// solver.addClause(new VecInt(new int[] { lampAt(i, j + 1),
-					// lampAt(i - 1, j) }));
-					this.solver.addClause(new VecInt(new int[] { this.lampAt(i, j + 1), this.lampAt(i, j - 1) }));
-
-					// solver.addClause(new VecInt(new int[] { lampAt(i, j - 1),
-					// lampAt(i + 1, j) }));
-					// solver.addClause(new VecInt(new int[] { lampAt(i, j - 1),
-					// lampAt(i - 1, j) }));
-					// solver.addClause(new VecInt(new int[] { lampAt(i, j - 1),
-					// lampAt(i, j + 1) }));
-
-				}
-
-				// Current position is a 2 block
-				else if (this.model.isBlock2At(i, j)) {
-					// ( a + b + c ) * ( a + b + d ) * ( a + c + d ) * ( b + c +
-					// d ) *
-					// ( !a + !b + !c ) *( !a + !b + !d ) * ( !a + !c + !d ) * (
-					// !b + !c + !d )
-
-					// ( a + b + c )
-					this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i - 1, j), this.lampAt(i, j + 1) }));
-					// ( a + b + d )
-					this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i - 1, j), this.lampAt(i, j - 1) }));
-					// ( a + c + d )
-					this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i, j + 1), this.lampAt(i, j - 1) }));
-					// ( b + c + d )
-					this.solver.addClause(new VecInt(new int[] { this.lampAt(i - 1, j), this.lampAt(i, j + 1), this.lampAt(i, j - 1) }));
-
-					// ( !a + !b + !c )
-					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i - 1, j), -this.lampAt(i, j + 1) }));
-					// ( !a + !b + !d )
-					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i - 1, j), -this.lampAt(i, j - 1) }));
-					// ( !a + !c + !d )
-					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i, j + 1), -this.lampAt(i, j - 1) }));
-					// ( !b + !c + !d )
-					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i - 1, j), -this.lampAt(i, j + 1), -this.lampAt(i, j - 1) }));
 				}
 
 			}
 
 		}
 
+	}
+
+	public LinkedList<IConstr> addBlockDefinition(final int i, final int j, final GameFieldModel model) throws ContradictionException {
+		LinkedList<IConstr> constr = new LinkedList<IConstr>();
+
+		// Current position is a 0 block
+		if (model.isBlock0At(i, j)) {
+			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j) })));
+			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j + 1) })));
+			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i - 1, j) })));
+			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j - 1) })));
+		}
+
+		// Current position is a 4 block
+		else if (model.isBlock4At(i, j)) {
+			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j) })));
+			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i, j + 1) })));
+			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i - 1, j) })));
+			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i, j - 1) })));
+		}
+
+		// Current position is a 1 block
+		else if (model.isBlock1At(i, j)) {
+			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i - 1, j), this.lampAt(i, j + 1), this.lampAt(i, j - 1) })));
+
+			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i - 1, j) })));
+			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i, j + 1) })));
+			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i, j - 1) })));
+
+			// solver.addClause(new VecInt(new int[] { -lampAt(i - 1,
+			// j), -lampAt(i + 1, j) }));
+			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i - 1, j), -this.lampAt(i, j + 1) })));
+			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i - 1, j), -this.lampAt(i, j - 1) })));
+
+			// solver.addClause(new VecInt(new int[] { -lampAt(i, j +
+			// 1), -lampAt(i + 1, j) }));
+			// solver.addClause(new VecInt(new int[] { -lampAt(i, j +
+			// 1), -lampAt(i - 1, j) }));
+			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j + 1), -this.lampAt(i, j - 1) })));
+
+			// solver.addClause(new VecInt(new int[] { -lampAt(i, j -
+			// 1), -lampAt(i + 1, j) }));
+			// solver.addClause(new VecInt(new int[] { -lampAt(i, j -
+			// 1), -lampAt(i - 1, j) }));
+			// solver.addClause(new VecInt(new int[] { -lampAt(i, j -
+			// 1), -lampAt(i, j + 1) }));
+		}
+
+		// Current position is a 3 block
+		else if (model.isBlock3At(i, j)) {
+			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i - 1, j), -this.lampAt(i, j + 1), -this.lampAt(i, j - 1) })));
+
+			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i - 1, j) })));
+			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i, j + 1) })));
+			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i, j - 1) })));
+
+			// solver.addClause(new VecInt(new int[] { lampAt(i - 1, j),
+			// lampAt(i + 1, j) }));
+			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i - 1, j), this.lampAt(i, j + 1) })));
+			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i - 1, j), this.lampAt(i, j - 1) })));
+
+			// solver.addClause(new VecInt(new int[] { lampAt(i, j + 1),
+			// lampAt(i + 1, j) }));
+			// solver.addClause(new VecInt(new int[] { lampAt(i, j + 1),
+			// lampAt(i - 1, j) }));
+			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i, j + 1), this.lampAt(i, j - 1) })));
+
+			// solver.addClause(new VecInt(new int[] { lampAt(i, j - 1),
+			// lampAt(i + 1, j) }));
+			// solver.addClause(new VecInt(new int[] { lampAt(i, j - 1),
+			// lampAt(i - 1, j) }));
+			// solver.addClause(new VecInt(new int[] { lampAt(i, j - 1),
+			// lampAt(i, j + 1) }));
+
+		}
+
+		// Current position is a 2 block
+		else if (model.isBlock2At(i, j)) {
+			// ( a + b + c ) * ( a + b + d ) * ( a + c + d ) * ( b + c +
+			// d ) *
+			// ( !a + !b + !c ) *( !a + !b + !d ) * ( !a + !c + !d ) * (
+			// !b + !c + !d )
+
+			// ( a + b + c )
+			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i - 1, j), this.lampAt(i, j + 1) })));
+			// ( a + b + d )
+			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i - 1, j), this.lampAt(i, j - 1) })));
+			// ( a + c + d )
+			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i, j + 1), this.lampAt(i, j - 1) })));
+			// ( b + c + d )
+			constr.add(this.solver.addClause(new VecInt(new int[] { this.lampAt(i - 1, j), this.lampAt(i, j + 1), this.lampAt(i, j - 1) })));
+
+			// ( !a + !b + !c )
+			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i - 1, j), -this.lampAt(i, j + 1) })));
+			// ( !a + !b + !d )
+			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i - 1, j), -this.lampAt(i, j - 1) })));
+			// ( !a + !c + !d )
+			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i, j + 1), -this.lampAt(i, j - 1) })));
+			// ( !b + !c + !d )
+			constr.add(this.solver.addClause(new VecInt(new int[] { -this.lampAt(i - 1, j), -this.lampAt(i, j + 1), -this.lampAt(i, j - 1) })));
+
+		}
+
+		return constr;
+
+	}
+
+	public void removeDefinition(final LinkedList<IConstr> constr) {
+
+		for (IConstr c : constr) {
+			this.solver.removeConstr(c);
+		}
 	}
 
 	/**
@@ -523,7 +557,7 @@ public class AkariSolver {
 	 */
 	public void setSolutionToModel() throws TimeoutException {
 
-		if (this.solver.isSatisfiable(new VecInt())) {
+		if (this.solver.isSatisfiable()) {
 
 			int[] model = this.solver.model();
 
@@ -545,6 +579,151 @@ public class AkariSolver {
 			intArray[i] = integerList.get(i);
 		}
 		return intArray;
+	}
+
+	public static Puzzle generateRandomBlockModel(final int width, final int height) {
+
+		Random r = new Random();
+		Puzzle puzzle = new Puzzle(width, height);
+
+		int count = (width + height) + (r.nextInt((width * height - (width + height)) / 3));
+
+		for (int i = 0; i < count; i++) {
+			int x = r.nextInt(width);
+			int y = r.nextInt(height);
+
+			if (puzzle.getCellState(x, y) == CellState.BARRIER) {
+				i--;
+			} else {
+				puzzle.setCellState(x, y, CellState.BARRIER);
+			}
+		}
+
+		return puzzle;
+
+	}
+
+	public static GameFieldModel generatePuzzle(final int width, final int height) {
+
+		Puzzle puzzle = AkariSolver.generateRandomBlockModel(width, height);
+
+		GameFieldModel model = new GameFieldModel(puzzle);
+		Random r = new Random();
+
+		try {
+			AkariSolver solver = new AkariSolver(model);
+			solver.setSolutionToModel();
+
+			List<Point> lamps = solver.getModel().getLamps();
+			for (int i = 0; i < lamps.size(); i++) {
+				if (r.nextBoolean()) {
+
+					List<Point> barriers = model.getNeightbors(lamps.get(i), CellState.BARRIER);
+
+					if (barriers.size() == 0) {
+						continue;
+					}
+
+					Point barrier = barriers.get(r.nextInt(barriers.size()));
+
+					puzzle.setCellState(barrier, CellState.getBlockByNumber(model.getLampNeightbors(barrier).size()));
+
+					LinkedList<IConstr> constr = solver.addBlockDefinition(barrier.x, barrier.y, model);
+
+					if (!solver.isSatisfiable()) {
+						System.out.println("!satisfiable after first steps....");
+						solver.removeDefinition(constr);
+						puzzle.setCellState(barrier, CellState.BARRIER);
+					}
+
+				}
+			}
+
+			SingleSolutionDetector ssd = new SingleSolutionDetector(solver.solver);
+
+			if (solver.isSatisfiable()) {
+
+				while (!ssd.hasASingleSolution()) {
+
+					System.out.println("satisfiable");
+					solver.updateModel();
+
+					int[] model1 = solver.solver.model();
+
+					VecInt a = new VecInt();
+					for (int i = 0; i < model1.length; i++) {
+						a.push(-model1[i]);
+					}
+
+					IConstr added = solver.solver.addClause(a);
+
+					int[] model2 = solver.solver.model();
+
+					solver.solver.removeConstr(added);
+
+					LinkedList<Integer> intersectModel = new LinkedList<Integer>();
+					Collections.shuffle(intersectModel);
+
+					for (int i = 0; i < 1; i++) {
+						if (model1[i] > 0 && !Arrays.asList(model2).contains(model1[i])) {
+							intersectModel.add(model1[i]);
+						}
+					}
+
+					System.out.println(intersectModel.size());
+
+					for (int i = 0; i < intersectModel.size(); i++) {
+
+						Point p = solver.reverseLampAt(intersectModel.get(i));
+
+						if (p != null) {
+							System.out.println("Fixing:" + p);
+
+							List<Point> points = model.getNeightbors(p, CellState.BARRIER);
+
+							if (points.size() == 0) {
+								points = model.getNeightbors(p, CellState.BLANK);
+							}
+
+							if (points.size() == 0) {
+								continue;
+							}
+
+							Point barrier = points.get(r.nextInt(points.size()));
+
+							puzzle.setCellState(barrier, CellState.getBlockByNumber(model.getLampNeightbors(barrier).size()));
+
+							LinkedList<IConstr> constr1 = solver.addBlockDefinition(barrier.x, barrier.y, model);
+
+							if (!solver.isSatisfiable()) {
+								System.out.println("!satisfiable after first steps....");
+								solver.removeDefinition(constr1);
+								puzzle.setCellState(barrier, CellState.BARRIER);
+
+							}
+						}
+
+					}
+
+					solver.updateModel();
+
+				}
+			}
+
+		} catch (ContradictionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return model;
+
+	}
+
+	public GameFieldModel getModel() {
+		return this.model;
 	}
 
 }

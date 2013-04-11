@@ -133,6 +133,7 @@ public class GameFieldModel {
 		}
 		if (this.isLampAt(posX, posY)) {
 			return true;
+
 		}
 		return false;
 	}
@@ -201,6 +202,52 @@ public class GameFieldModel {
 		GameFieldModel gamefieldClone = new GameFieldModel(puzzleClone);
 		gamefieldClone.setLamps(this.getLamps());
 		return gamefieldClone;
+	}
+
+	public ArrayList<Point> getNeightbors(final Point p, final CellState state) {
+		ArrayList<Point> list = new ArrayList<Point>(4);
+
+		if ((p.x + 1) < this.getWidth() && (this.puzzle.getCellState(p.x + 1, p.y).equals(state) || state == null)) {
+			list.add(new Point(p.x + 1, p.y));
+		}
+
+		if ((p.x - 1) >= 0 && (this.puzzle.getCellState(p.x - 1, p.y).equals(state) || state == null)) {
+			list.add(new Point(p.x - 1, p.y));
+		}
+
+		if ((p.y + 1) < this.getHeight() && (this.puzzle.getCellState(p.x, p.y + 1).equals(state) || state == null)) {
+			list.add(new Point(p.x, p.y + 1));
+		}
+
+		if ((p.y - 1) >= 0 && (this.puzzle.getCellState(p.x, p.y - 1).equals(state) || state == null)) {
+			list.add(new Point(p.x, p.y - 1));
+		}
+
+		return list;
+
+	}
+
+	public ArrayList<Point> getLampNeightbors(final Point p) {
+		ArrayList<Point> list = new ArrayList<Point>(4);
+
+		if ((p.x + 1) < this.getWidth() && this.isLampAt(p.x + 1, p.y)) {
+			list.add(new Point(p.x + 1, p.y));
+		}
+
+		if ((p.x - 1) >= 0 && this.isLampAt(p.x - 1, p.y)) {
+			list.add(new Point(p.x - 1, p.y));
+		}
+
+		if ((p.y + 1) < this.getHeight() && this.isLampAt(p.x, p.y + 1)) {
+			list.add(new Point(p.x, p.y + 1));
+		}
+
+		if ((p.y - 1) >= 0 && this.isLampAt(p.x, p.y - 1)) {
+			list.add(new Point(p.x, p.y - 1));
+		}
+
+		return list;
+
 	}
 
 	/**

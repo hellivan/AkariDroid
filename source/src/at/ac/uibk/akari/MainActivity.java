@@ -18,6 +18,8 @@ import org.andengine.input.touch.detector.ScrollDetector;
 import org.andengine.input.touch.detector.ScrollDetector.IScrollDetectorListener;
 import org.andengine.input.touch.detector.SurfaceScrollDetector;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
+import org.andengine.util.HorizontalAlign;
+import org.andengine.util.level.LevelLoader;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.TimeoutException;
 
@@ -119,6 +121,7 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 		this.mPinchZoomDetector = new PinchZoomDetector(this);
 
 		this.gameScene.setOnSceneTouchListener(this);
+
 
 		this.currentPuzzle = 0;
 		this.gameController = new GameController(this.gameScene, this.getVertexBufferObjectManager());

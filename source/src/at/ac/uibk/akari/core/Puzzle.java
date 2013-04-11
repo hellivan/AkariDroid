@@ -39,7 +39,26 @@ public class Puzzle {
 		/**
 		 * A cell that must have 4 lamp around
 		 */
-		BLOCK4,
+		BLOCK4;
+
+		public static CellState getBlockByNumber(final int number) {
+			switch (number) {
+			case 0:
+				return BLOCK0;
+			case 1:
+				return BLOCK1;
+			case 2:
+				return BLOCK2;
+			case 3:
+				return BLOCK3;
+			case 4:
+				return BLOCK4;
+
+			default:
+				break;
+			}
+			return null;
+		}
 	}
 
 	/**

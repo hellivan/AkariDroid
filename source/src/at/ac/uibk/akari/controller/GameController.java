@@ -44,9 +44,8 @@ public class GameController extends AbstractController implements GameFieldListe
 
 	public void setPuzzle(final Puzzle puzzle) throws ContradictionException {
 		this.puzzle = new GameFieldModel(puzzle);
-		this.solver = new AkariSolver(this.puzzle, 10000);
+		this.solver = new AkariSolver(this.puzzle);
 		this.gameField.setPuzzle(this.puzzle);
-
 	}
 
 	@Override
