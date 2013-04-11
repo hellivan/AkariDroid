@@ -16,6 +16,7 @@ import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.font.IFont;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.HorizontalAlign;
+import org.andengine.util.level.LevelLoader;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.TimeoutException;
 
@@ -115,13 +116,12 @@ public class MainActivity extends SimpleBaseGameActivity {
 		}
 		{
 
-			GameFieldModel gameFieldModel = this.levels.get(63);
+			GameFieldModel gameFieldModel = levels.get(0);
+			gameFieldModel.clearLamps();
 			try {
-				System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-				this.solver = new AkariSolver(gameFieldModel, 10000);
-				System.out.println("" + this.solver.isSatisfiableWithCurrentLamps());
+				this.solver = new AkariSolver(gameFieldModel);
+				System.out.println("" + this.solver.isSatisfiable());
 				this.solver.setSolutionToModel();
-				System.out.println("" + this.solver.isSatisfiableWithCurrentLamps());
 
 			} catch (ContradictionException e) {
 				e.printStackTrace();
