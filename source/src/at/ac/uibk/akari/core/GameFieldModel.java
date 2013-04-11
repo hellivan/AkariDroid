@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.graphics.Point;
+import at.ac.uibk.akari.core.Puzzle.CellState;
 import at.ac.uibk.akari.core.annotations.JsonIgnorePermanent;
 
 /**
@@ -12,43 +13,9 @@ import at.ac.uibk.akari.core.annotations.JsonIgnorePermanent;
 public class GameFieldModel {
 
 	/**
-	 * Enumeration that represents all possible states of a game-field-cell
+	 * Puzzle for this gamefield
 	 */
-	public enum CellState {
-		/**
-		 * An empty cell
-		 */
-		BLANK,
-		/**
-		 * A cell that represents a barrier
-		 */
-		BARRIER,
-		/**
-		 * A cell that may not have lamps around
-		 */
-		BLOCK0,
-		/**
-		 * A cell that must have 1 lamp around
-		 */
-		BLOCK1,
-		/**
-		 * A cell that must have 2 lamp around
-		 */
-		BLOCK2,
-		/**
-		 * A cell that must have 3 lamp around
-		 */
-		BLOCK3,
-		/**
-		 * A cell that must have 4 lamp around
-		 */
-		BLOCK4,
-	}
-
-	/**
-	 * Arrays that represents the cells of the game-field
-	 */
-	private CellState[][] cells;
+	private Puzzle puzzle;
 
 	/**
 	 * List of lamps that are placed on the game-field
@@ -57,9 +24,10 @@ public class GameFieldModel {
 	private List<Point> lamps;
 
 	/**
-	 * Initialize the game-field with a given width and height. After this, the
-	 * game-field is empty. Therefore the state of all cells on the game-field
-	 * is set to BLANK. The size of the game-field has to be at least 1x1
+	 * Initialize an new empty game-field with a given width and height. After
+	 * this, the game-field is completely empty (all cells are empty, no lamps
+	 * are on the game-field, ...). The size of the game-field has to be at
+	 * least 1x1
 	 * 
 	 * @param width
 	 *            Width of the game-field
@@ -67,11 +35,19 @@ public class GameFieldModel {
 	 *            Height of the game-field
 	 */
 	public GameFieldModel(final int width, final int height) {
-		if (width < 1 || height < 1) {
-			throw new RuntimeException("Invalid game-field-size " + width + "x" + height);
-		}
-		this.cells = new CellState[height][width];
-		this.setLamps(null);
+		this(new Puzzle(width, height));
+	}
+
+	/**
+	 * Initialize the game-field with a given puzzle. Apart from that cells that
+	 * are set in the puzzle, the game-field is empty (no lamps, marks, ... are
+	 * on the game-field)
+	 * 
+	 * @param puzzle
+	 *            Puzzle that is used as base for the game-field
+	 */
+	public GameFieldModel(final Puzzle puzzle) {
+		this.puzzle = puzzle;
 		this.clear();
 	}
 
@@ -81,60 +57,7 @@ public class GameFieldModel {
 	 * complete empty (lamps are removed too).
 	 */
 	public synchronized void clear() {
-		for (int posY = 0; posY < this.getHeight(); posY++) {
-			for (int posX = 0; posX < this.getWidth(); posX++) {
-				this.setCellState(posX, posY, CellState.BLANK);
-			}
-		}
-		this.setLamps(null);
-	}
-
-	/**
-	 * Setting the state of the cell at the given position
-	 * 
-	 * @param posX
-	 *            Horizontal position of the cell, starting from 0
-	 * @param posY
-	 *            Vertical position of the cell, starting from 0
-	 * @param cellState
-	 *            New state of the cell
-	 */
-	public synchronized void setCellState(final int posX, final int posY, final CellState cellState) {
-		if (!this.isFieldValid(posX, posY)) {
-			throw new RuntimeException("Illegal cell-position " + posX + "," + posY + " for " + this.getWidth() + "x" + this.getHeight() + " game-field");
-		}
-		this.cells[posY][posX] = cellState;
-	}
-
-	/**
-	 * Getting the state of the cell at the given position. Important is that
-	 * this method only returns the basic-cell-state, which means that lamps are
-	 * ignored (in this case the method returns BLANK)
-	 * 
-	 * @param location
-	 *            Position of the cell, both coordinates starting from 0
-	 * @return Current state of the cell
-	 */
-	public synchronized CellState getCellState(final Point location) {
-		return this.getCellState(location.x, location.y);
-	}
-
-	/**
-	 * Getting the state of the cell at the given position. Important is that
-	 * this method only returns the basic-cell-state, which means that lamps are
-	 * ignored (in this case the method returns BLANK)
-	 * 
-	 * @param posX
-	 *            Horizontal position of the cell, starting from 0
-	 * @param posY
-	 *            Vertical position of the cell, starting from 0
-	 * @return Current state of the cell
-	 */
-	public synchronized CellState getCellState(final int posX, final int posY) {
-		if (!this.isFieldValid(posX, posY)) {
-			throw new RuntimeException("Illegal cell-position " + posX + "," + posY + " for " + this.getWidth() + "x" + this.getHeight() + " game-field");
-		}
-		return this.cells[posY][posX];
+		this.clearLamps();
 	}
 
 	/**
@@ -143,7 +66,7 @@ public class GameFieldModel {
 	 * @return Width of the game-field
 	 */
 	public int getWidth() {
-		return this.cells[0].length;
+		return this.puzzle.getWidth();
 	}
 
 	/**
@@ -152,7 +75,7 @@ public class GameFieldModel {
 	 * @return Height of the game-field
 	 */
 	public int getHeight() {
-		return this.cells.length;
+		return this.puzzle.getHeight();
 	}
 
 	/**
@@ -176,12 +99,9 @@ public class GameFieldModel {
 		if (lamps == null) {
 			this.lamps = new ArrayList<Point>();
 		} else {
-			for (Point point : lamps) {
-				if (!this.isFieldValid(point.x, point.y)) {
-					throw new RuntimeException("Illegal cell-position " + point.x + "," + point.y + " for " + this.getWidth() + "x" + this.getHeight() + " game-field");
-				}
-				if (!this.getCellState(point).equals(CellState.BLANK)) {
-					throw new RuntimeException("Cant't set lamp at cell-position " + point.x + "," + point.y + " because the cell is not empty");
+			for (Point location : lamps) {
+				if (!this.isCellEmpty(location, true)) {
+					throw new RuntimeException("Cant't set lamp at cell-position " + location + " because the cell is not empty");
 				}
 			}
 			this.lamps = lamps;
@@ -204,38 +124,17 @@ public class GameFieldModel {
 	 *         otherwise false
 	 */
 	public synchronized boolean setLampAt(final int posX, final int posY) {
-		if (!this.isFieldValid(posX, posY)) {
-			throw new RuntimeException("Illegal cell-position " + posX + "," + posY + " for " + this.getWidth() + "x" + this.getHeight() + " game-field");
-		}
-		if (!this.getCellState(posX, posY).equals(CellState.BLANK)) {
-			return false;
-		}
-
-		if (!this.isLampAt(posX, posY)) {
+		if (this.isCellEmpty(posX, posY, false)) {
 			if (this.lamps == null) {
 				this.lamps = new ArrayList<Point>();
 			}
 			this.lamps.add(new Point(posX, posY));
+			return true;
 		}
-		return true;
-	}
-
-	/**
-	 * Check if the given cell position is valid for this game-field (not out of
-	 * range)
-	 * 
-	 * @param posX
-	 *            Horizontal position of the cell, starting from 0
-	 * @param posY
-	 *            Vertical position of the cell, starting from 0
-	 * 
-	 * @return True if the cell-position is valid, otherwise false
-	 */
-	private boolean isFieldValid(final int posX, final int posY) {
-		if (posX < 0 || posY < 0 || posX > this.getWidth() - 1 || posY > this.getHeight() - 1) {
-			return false;
+		if (this.isLampAt(posX, posY)) {
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	/**
@@ -283,7 +182,7 @@ public class GameFieldModel {
 	 * @return True if there is a cell at the given position, otherwise false
 	 */
 	public synchronized boolean isLampAt(final int posX, final int posY) {
-		if (!this.isFieldValid(posX, posY)) {
+		if (!this.puzzle.isCellValid(posX, posY)) {
 			throw new RuntimeException("Illegal cell-position " + posX + "," + posY + " for " + this.getWidth() + "x" + this.getHeight() + " game-field");
 		}
 		if (this.lamps != null) {
@@ -298,14 +197,10 @@ public class GameFieldModel {
 
 	@Override
 	public synchronized Object clone() {
-		GameFieldModel clone = new GameFieldModel(this.getWidth(), this.getHeight());
-		for (int posX = 0; posX < this.getWidth(); posX++) {
-			for (int posY = 0; posY < this.getHeight(); posY++) {
-				clone.setCellState(posX, posY, this.getCellState(posX, posY));
-			}
-		}
-		clone.setLamps(this.getLamps());
-		return clone;
+		Puzzle puzzleClone = (Puzzle) this.puzzle.clone();
+		GameFieldModel gamefieldClone = new GameFieldModel(puzzleClone);
+		gamefieldClone.setLamps(this.getLamps());
+		return gamefieldClone;
 	}
 
 	/**
@@ -325,10 +220,55 @@ public class GameFieldModel {
 		return this.setLampAt(location.x, location.y);
 	}
 
+	/**
+	 * Remove a lamp at the given cell-position of the game-field. If there was
+	 * not placed a lamp before, the method will return false, otherwise true
+	 * 
+	 * @param location
+	 *            Position of the cell, both coordinates starting from 0
+	 * 
+	 * @return True if the lamp was removed from the given position, otherwise
+	 *         false
+	 */
 	public synchronized boolean removeLampAt(final Point location) {
 		if (this.lamps == null) {
 			return false;
 		}
 		return this.lamps.remove(location);
+	}
+
+	public boolean isCellEmpty(final int posX, final int posY, final boolean ignoreLamps) {
+		if (ignoreLamps) {
+			return this.puzzle.getCellState(posX, posY).equals(CellState.BLANK);
+		}
+		return this.puzzle.getCellState(posX, posY).equals(CellState.BLANK) && !this.isLampAt(posX, posY);
+	}
+
+	public boolean isCellEmpty(final Point location, final boolean ignoreLamps) {
+		return this.isCellEmpty(location.x, location.y, ignoreLamps);
+	}
+
+	public boolean isBarrierAt(final int posX, final int posY) {
+		return this.puzzle.getCellState(posX, posY).equals(CellState.BARRIER);
+	}
+
+	public boolean isBlock0At(final int posX, final int posY) {
+		return this.puzzle.getCellState(posX, posY).equals(CellState.BLOCK0);
+	}
+
+	public boolean isBlock1At(final int posX, final int posY) {
+		return this.puzzle.getCellState(posX, posY).equals(CellState.BLOCK1);
+	}
+
+	public boolean isBlock2At(final int posX, final int posY) {
+		return this.puzzle.getCellState(posX, posY).equals(CellState.BLOCK2);
+	}
+
+	public boolean isBlock3At(final int posX, final int posY) {
+		return this.puzzle.getCellState(posX, posY).equals(CellState.BLOCK3);
+	}
+
+	public boolean isBlock4At(final int posX, final int posY) {
+		return this.puzzle.getCellState(posX, posY).equals(CellState.BLOCK4);
 	}
 }

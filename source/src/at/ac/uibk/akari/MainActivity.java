@@ -25,7 +25,7 @@ import android.util.Log;
 import android.view.Display;
 import android.widget.Toast;
 import at.ac.uibk.akari.controller.GameController;
-import at.ac.uibk.akari.core.GameFieldModel;
+import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.GameListener;
 import at.ac.uibk.akari.testsolver.Akari;
 import at.ac.uibk.akari.utils.PuzzleLoader;
@@ -41,7 +41,7 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 	private ZoomCamera gameCamera;
 	private Scene gameScene;
 
-	private List<GameFieldModel> puzzles;
+	private List<Puzzle> puzzles;
 
 	private float mPinchZoomStartedCameraZoomFactor;
 

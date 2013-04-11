@@ -14,7 +14,6 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.util.Log;
 import at.ac.uibk.akari.core.GameFieldModel;
-import at.ac.uibk.akari.core.GameFieldModel.CellState;
 import at.ac.uibk.akari.listener.GameFieldDragEvent;
 import at.ac.uibk.akari.listener.GameFieldInputListener;
 import at.ac.uibk.akari.listener.GameFieldTouchEvent;
@@ -36,8 +35,6 @@ public class GameField extends Rectangle {
 
 	private long lastMultiTouched;
 	private Point lastDragPoint;
-
-	private Point provisionLamp;
 
 	public GameField(final float posX, final float posY, final int cellCountX, final int cellCountY, final VertexBufferObjectManager vertexBufferObjectManager) {
 		this(posY, posY, vertexBufferObjectManager);
@@ -64,7 +61,7 @@ public class GameField extends Rectangle {
 		Color borderColor = new Color(0.0f, 0.0f, 0.0f, 1.0f);
 
 		this.addFieldCells();
-		this.addFieldLines(borderColor, gridColor, 5, 3);
+		// this.addFieldLines(borderColor, gridColor, 5, 3);
 
 	}
 
@@ -216,30 +213,32 @@ public class GameField extends Rectangle {
 	public void adaptFieldToModel() {
 		for (int posY = 0; posY < this.getModel().getHeight(); posY++) {
 			for (int posX = 0; posX < this.getModel().getWidth(); posX++) {
-				switch (this.getModel().getCellState(posX, posY)) {
-				case BARRIER:
+				if (this.getModel().isBarrierAt(posX, posY)) {
 					this.setGameFieldState(posX, posY, State.BARRIER);
-					break;
-				case BLANK:
+				}
+
+				else if (this.getModel().isCellEmpty(posX, posY, false)) {
 					this.setGameFieldState(posX, posY, State.BLANK);
-					break;
-				case BLOCK0:
+				}
+
+				else if (this.getModel().isBlock0At(posX, posY)) {
 					this.setGameFieldState(posX, posY, State.BLOCK0);
-					break;
-				case BLOCK1:
+				}
+
+				else if (this.getModel().isBlock1At(posX, posY)) {
 					this.setGameFieldState(posX, posY, State.BLOCK1);
-					break;
-				case BLOCK2:
+				}
+
+				else if (this.getModel().isBlock2At(posX, posY)) {
 					this.setGameFieldState(posX, posY, State.BLOCK2);
-					break;
-				case BLOCK3:
+				}
+
+				else if (this.getModel().isBlock3At(posX, posY)) {
 					this.setGameFieldState(posX, posY, State.BLOCK3);
-					break;
-				case BLOCK4:
+				}
+
+				else if (this.getModel().isBlock4At(posX, posY)) {
 					this.setGameFieldState(posX, posY, State.BLOCK4);
-					break;
-				default:
-					break;
 				}
 			}
 		}
@@ -257,26 +256,26 @@ public class GameField extends Rectangle {
 
 	private void lightCellsWithLamp(final int posX, final int posY) {
 		for (int lightX = posX + 1; lightX < this.getModel().getWidth(); lightX++) {
-			if (!this.getModel().getCellState(lightX, posY).equals(CellState.BLANK) || this.getModel().isLampAt(lightX, posY)) {
+			if (!this.getModel().isCellEmpty(lightX, posY, false)) {
 				break;
 			}
 			this.setGameFieldState(lightX, posY, State.LIGHTED);
 		}
 		for (int lightX = posX - 1; lightX >= 0; lightX--) {
-			if (!this.getModel().getCellState(lightX, posY).equals(CellState.BLANK) || this.getModel().isLampAt(lightX, posY)) {
+			if (!this.getModel().isCellEmpty(lightX, posY, false)) {
 				break;
 			}
 			this.setGameFieldState(lightX, posY, State.LIGHTED);
 		}
 
 		for (int lightY = posY + 1; lightY < this.getModel().getHeight(); lightY++) {
-			if (!this.getModel().getCellState(posX, lightY).equals(CellState.BLANK) || this.getModel().isLampAt(posX, lightY)) {
+			if (!this.getModel().isCellEmpty(posX, lightY, false)) {
 				break;
 			}
 			this.setGameFieldState(posX, lightY, State.LIGHTED);
 		}
 		for (int lightY = posY - 1; lightY >= 0; lightY--) {
-			if (!this.getModel().getCellState(posX, lightY).equals(CellState.BLANK) || this.getModel().isLampAt(posX, lightY)) {
+			if (!this.getModel().isCellEmpty(posX, lightY, false)) {
 				break;
 			}
 			this.setGameFieldState(posX, lightY, State.LIGHTED);
@@ -311,4 +310,5 @@ public class GameField extends Rectangle {
 	public boolean isLampAt(final Point location) {
 		return this.isLampAt(location.x, location.y);
 	}
+
 }

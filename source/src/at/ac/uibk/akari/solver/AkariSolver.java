@@ -13,7 +13,6 @@ import org.sat4j.specs.TimeoutException;
 
 import android.graphics.Point;
 import at.ac.uibk.akari.core.GameFieldModel;
-import at.ac.uibk.akari.core.GameFieldModel.CellState;
 
 /**
  * Solver for Akari puzzles
@@ -40,12 +39,13 @@ public class AkariSolver {
 	 * @param timeout
 	 *            timeout of the solve process
 	 * @throws ContradictionException
-	 *             Is thrown when a gamefield is not solvable even if no lamps are placed
+	 *             Is thrown when a gamefield is not solvable even if no lamps
+	 *             are placed
 	 */
 	public AkariSolver(final GameFieldModel model, final int timeout) throws ContradictionException {
 
 		this.model = model;
-		this.MAXVAR = falseVar() + 1;
+		this.MAXVAR = this.falseVar() + 1;
 		this.NBCLAUSES = 50000;
 
 		this.solver = SolverFactory.newDefault();
@@ -57,8 +57,6 @@ public class AkariSolver {
 		this.solver.setDBSimplificationAllowed(true);
 		this.solver.setKeepSolverHot(true);
 		this.solver.setVerbose(true);
-		
-		
 
 		this.lampPosTrueList = new ArrayList<Integer>();
 		this.lampPosTrueAndOtherFalseList = new ArrayList<Integer>();
@@ -104,42 +102,43 @@ public class AkariSolver {
 	}
 
 	private int lampAt(final int x, final int y) {
-		if (x >= this.model.getWidth() || y >= this.model.getWidth() || x < 0 || y < 0)
-			return falseVar();
+		if (x >= this.model.getWidth() || y >= this.model.getWidth() || x < 0 || y < 0) {
+			return this.falseVar();
+		}
 
 		return x + y * this.model.getWidth() + 1;
 	}
 
 	private int falseVar() {
-		return this.lightAt(model.getWidth() - 1, model.getHeight() - 1) + 1;
+		return this.lightAt(this.model.getWidth() - 1, this.model.getHeight() - 1) + 1;
 	}
 
 	private int lightAt(final int x, final int y) {
 
-		if (x >= this.model.getWidth() || y >= this.model.getWidth() || x < 0 || y < 0) 
-			return falseVar();
-		
+		if (x >= this.model.getWidth() || y >= this.model.getWidth() || x < 0 || y < 0) {
+			return this.falseVar();
+		}
+
 		return this.lampAt(this.model.getWidth() - 1, this.model.getHeight() - 1) + x + y * this.model.getWidth() + 1000;
 
 	}
 
 	private void createModel() throws ContradictionException {
-		
-		this.solver.addClause(new VecInt(new int[]{-falseVar()}));
-		
+
+		this.solver.addClause(new VecInt(new int[] { -this.falseVar() }));
+
 		for (int i = 0; i < this.model.getWidth(); i++) {
 			for (int j = 0; j < this.model.getHeight(); j++) {
-				
-				if (this.model.getCellState(i, j) != CellState.BLANK) {
+
+				if (!this.model.isCellEmpty(i, j, true)) {
 					// blocks cannot be lighted
 					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j) }));
 					// blocks cannot be lighted
 					this.solver.addClause(new VecInt(new int[] { -this.lightAt(i, j) }));
 				}
 
-				switch (this.model.getCellState(i, j)) {
-
-				case BLANK:
+				// Current position is empty or a lamp
+				if (this.model.isCellEmpty(i, j, true)) {
 					// win condition: every model.getCellState( lighted or a
 					// lamp
 					this.solver.addClause(new VecInt(new int[] { this.lampAt(i, j), this.lightAt(i, j) }));
@@ -151,7 +150,7 @@ public class AkariSolver {
 					list.add(-this.lightAt(i, j));
 
 					int k = j + 1;
-					while (k >= 0 && k < this.model.getHeight() && (this.model.getCellState(i, k) == CellState.BLANK)) {
+					while (k >= 0 && k < this.model.getHeight() && (this.model.isCellEmpty(i, k, true))) {
 						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(i, k) }));
 
 						list.add(this.lampAt(i, k));
@@ -159,21 +158,21 @@ public class AkariSolver {
 					}
 
 					k = j - 1;
-					while (k >= 0 && k < this.model.getHeight() && (this.model.getCellState(i, k) == CellState.BLANK)) {
+					while (k >= 0 && k < this.model.getHeight() && (this.model.isCellEmpty(i, k, true))) {
 						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(i, k) }));
 						list.add(this.lampAt(i, k));
 						k--;
 					}
 
 					k = i + 1;
-					while (k >= 0 && k < this.model.getWidth() && (this.model.getCellState(k, j) == CellState.BLANK)) {
+					while (k >= 0 && k < this.model.getWidth() && (this.model.isCellEmpty(k, j, true))) {
 						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(k, j) }));
 						list.add(this.lampAt(k, j));
 						k++;
 					}
 
 					k = i - 1;
-					while (k >= 0 && k < this.model.getWidth() && (this.model.getCellState(k, j) == CellState.BLANK)) {
+					while (k >= 0 && k < this.model.getWidth() && (this.model.isCellEmpty(k, j, true))) {
 
 						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(k, j) }));
 						list.add(this.lampAt(k, j));
@@ -182,23 +181,26 @@ public class AkariSolver {
 
 					this.solver.addClause(new VecInt(AkariSolver.toIntArray(list)));
 
-					break;
+				}
 
-				case BLOCK0:
+				// Current position is a 0 block
+				else if (this.model.isBlock0At(i, j)) {
 					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j) }));
 					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j + 1) }));
 					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i - 1, j) }));
 					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j - 1) }));
-					break;
+				}
 
-				case BLOCK4:
+				// Current position is a 4 block
+				else if (this.model.isBlock4At(i, j)) {
 					this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j) }));
 					this.solver.addClause(new VecInt(new int[] { this.lampAt(i, j + 1) }));
 					this.solver.addClause(new VecInt(new int[] { this.lampAt(i - 1, j) }));
 					this.solver.addClause(new VecInt(new int[] { this.lampAt(i, j - 1) }));
-					break;
+				}
 
-				case BLOCK1:
+				// Current position is a 1 block
+				else if (this.model.isBlock1At(i, j)) {
 					this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i - 1, j), this.lampAt(i, j + 1), this.lampAt(i, j - 1) }));
 
 					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i - 1, j) }));
@@ -222,10 +224,10 @@ public class AkariSolver {
 					// 1), -lampAt(i - 1, j) }));
 					// solver.addClause(new VecInt(new int[] { -lampAt(i, j -
 					// 1), -lampAt(i, j + 1) }));
+				}
 
-					break;
-
-				case BLOCK3:
+				// Current position is a 3 block
+				else if (this.model.isBlock3At(i, j)) {
 					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i - 1, j), -this.lampAt(i, j + 1), -this.lampAt(i, j - 1) }));
 
 					this.solver.addClause(new VecInt(new int[] { this.lampAt(i + 1, j), this.lampAt(i - 1, j) }));
@@ -250,9 +252,10 @@ public class AkariSolver {
 					// solver.addClause(new VecInt(new int[] { lampAt(i, j - 1),
 					// lampAt(i, j + 1) }));
 
-					break;
+				}
 
-				case BLOCK2:
+				// Current position is a 2 block
+				else if (this.model.isBlock2At(i, j)) {
 					// ( a + b + c ) * ( a + b + d ) * ( a + c + d ) * ( b + c +
 					// d ) *
 					// ( !a + !b + !c ) *( !a + !b + !d ) * ( !a + !c + !d ) * (
@@ -275,14 +278,7 @@ public class AkariSolver {
 					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i + 1, j), -this.lampAt(i, j + 1), -this.lampAt(i, j - 1) }));
 					// ( !b + !c + !d )
 					this.solver.addClause(new VecInt(new int[] { -this.lampAt(i - 1, j), -this.lampAt(i, j + 1), -this.lampAt(i, j - 1) }));
-
-					break;
-
-				default:
-					break;
 				}
-
-		
 
 			}
 
@@ -291,7 +287,8 @@ public class AkariSolver {
 	}
 
 	/**
-	 * Returns true when the Akari game is solved with the lamps currently placed on the gamefield.
+	 * Returns true when the Akari game is solved with the lamps currently
+	 * placed on the gamefield.
 	 * 
 	 * @return true when the Akari game is solved otherwise false;
 	 * @throws TimeoutException
@@ -306,7 +303,8 @@ public class AkariSolver {
 	}
 
 	/**
-	 * Returns true when the Akari puzzle is solvable (without the currently placed lamps)
+	 * Returns true when the Akari puzzle is solvable (without the currently
+	 * placed lamps)
 	 * 
 	 * @return true when the Akari game is solvable otherwise false;
 	 * @throws TimeoutException
@@ -319,7 +317,8 @@ public class AkariSolver {
 	}
 
 	/**
-	 * Returns true when the Akari puzzle is solvable (with the currently placed lamps)
+	 * Returns true when the Akari puzzle is solvable (with the currently placed
+	 * lamps)
 	 * 
 	 * @return true when the Akari game is solvable otherwise false;
 	 * @throws TimeoutException
@@ -371,8 +370,6 @@ public class AkariSolver {
 
 	}
 
-	
-	
 	/**
 	 * Returns all the lamps which lead to an unsolvable puzzle
 	 * 
@@ -385,9 +382,9 @@ public class AkariSolver {
 		this.updateLamps();
 
 		LinkedList<Point> list = null;
-		
-		ArrayList<Integer> l = new ArrayList<Integer>(lampPosTrueList); 
-		
+
+		ArrayList<Integer> l = new ArrayList<Integer>(this.lampPosTrueList);
+
 		list = new LinkedList<Point>();
 		while (!this.solver.isSatisfiable(new VecInt(AkariSolver.toIntArray(l)))) {
 
@@ -397,19 +394,17 @@ public class AkariSolver {
 				return null;
 			}
 
-			
-
 			for (int i = 0; i < errors.size(); i++) {
-				
-				l.remove((Integer)errors.get(i));
+
+				l.remove((Integer) errors.get(i));
 				l.add(-errors.get(i));
-				
+
 				Point p = this.reverseLampAt(errors.get(i));
 
 				if (p != null) {
 					list.add(p);
 				}
-				
+
 			}
 		}
 
@@ -423,7 +418,6 @@ public class AkariSolver {
 
 		return list != null && list.size() > 0;
 	}
-
 
 	/**
 	 * Returns the lamps which are needed to complete the current game
@@ -459,9 +453,11 @@ public class AkariSolver {
 	}
 
 	/**
-	 * Returns an arbitrary combination of lamps which are needed to complete the complete puzzle
+	 * Returns an arbitrary combination of lamps which are needed to complete
+	 * the complete puzzle
 	 * 
-	 * @return an arbitrary combination of lamps which are needed to complete the complete puzzle
+	 * @return an arbitrary combination of lamps which are needed to complete
+	 *         the complete puzzle
 	 * @throws TimeoutException
 	 *             Timeout expired
 	 */
@@ -488,9 +484,11 @@ public class AkariSolver {
 	}
 
 	/**
-	 * Returns an arbitrary model which is needed to complete the complete puzzle
+	 * Returns an arbitrary model which is needed to complete the complete
+	 * puzzle
 	 * 
-	 * @return an arbitrary model which is needed to complete the complete puzzle
+	 * @return an arbitrary model which is needed to complete the complete
+	 *         puzzle
 	 * @throws TimeoutException
 	 *             Timeout expired
 	 */

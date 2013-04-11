@@ -7,6 +7,7 @@ import org.sat4j.specs.TimeoutException;
 
 import android.graphics.Point;
 import at.ac.uibk.akari.core.GameFieldModel;
+import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.GameFieldListener;
 import at.ac.uibk.akari.listener.GameListener;
 import at.ac.uibk.akari.solver.AkariSolver;
@@ -41,8 +42,8 @@ public class GameController extends AbstractController implements GameFieldListe
 
 	}
 
-	public void setPuzzle(final GameFieldModel puzzle) throws ContradictionException {
-		this.puzzle = puzzle;
+	public void setPuzzle(final Puzzle puzzle) throws ContradictionException {
+		this.puzzle = new GameFieldModel(puzzle);
 		this.solver = new AkariSolver(this.puzzle, 10000);
 		this.gameField.setPuzzle(this.puzzle);
 

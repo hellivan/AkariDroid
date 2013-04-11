@@ -27,8 +27,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.util.Log;
-import at.ac.uibk.akari.core.GameFieldModel;
 import at.ac.uibk.akari.core.JsonTools;
+import at.ac.uibk.akari.core.Puzzle;
 
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
@@ -129,7 +129,7 @@ public class PuzzleLoader {
 	private static List<PuzzleDescription> fetchPuzzles(final List<PuzzleDescription> puzzles, final String puzzlesPath) throws IOException {
 		List<PuzzleDescription> fetched = new ArrayList<PuzzleDescription>();
 		for (PuzzleDescription puzzle : puzzles) {
-			GameFieldModel puzzleData = PuzzleLoader.fetchPuzzle(puzzle);
+			Puzzle puzzleData = PuzzleLoader.fetchPuzzle(puzzle);
 			if (puzzleData != null) {
 				PuzzleLoader.savePuzzle(puzzlesPath, puzzle.getName(), puzzleData);
 				fetched.add(puzzle);
@@ -138,7 +138,7 @@ public class PuzzleLoader {
 		return fetched;
 	}
 
-	private static GameFieldModel fetchPuzzle(final PuzzleDescription puzzle) throws IOException {
+	private static Puzzle fetchPuzzle(final PuzzleDescription puzzle) throws IOException {
 		HttpClient httpClient = new DefaultHttpClient();
 		HttpResponse response = httpClient.execute(new HttpGet(puzzle.getPath()));
 		StatusLine statusLine = response.getStatusLine();
@@ -146,7 +146,7 @@ public class PuzzleLoader {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			response.getEntity().writeTo(out);
 			out.close();
-			return JsonTools.getInstance().fromJson(GameFieldModel.class, out.toString());
+			return JsonTools.getInstance().fromJson(Puzzle.class, out.toString());
 		} else {
 			Log.i(PuzzleLoader.class.getName(), "Puzzle-data returned status " + statusLine.getStatusCode() + " for " + puzzle.getPath());
 		}
@@ -175,7 +175,7 @@ public class PuzzleLoader {
 		return false;
 	}
 
-	public static void savePuzzle(final String path, final String puzzleName, final GameFieldModel puzzle) throws IOException {
+	public static void savePuzzle(final String path, final String puzzleName, final Puzzle puzzle) throws IOException {
 		File levelsDir = new File(path);
 		if (!levelsDir.exists()) {
 			levelsDir.mkdirs();
@@ -185,12 +185,12 @@ public class PuzzleLoader {
 		write.close();
 	}
 
-	public static List<GameFieldModel> loadPuzzles(final String puzzlesPath) throws JsonSyntaxException, JsonIOException, FileNotFoundException {
-		List<GameFieldModel> levels = new ArrayList<GameFieldModel>();
+	public static List<Puzzle> loadPuzzles(final String puzzlesPath) throws JsonSyntaxException, JsonIOException, FileNotFoundException {
+		List<Puzzle> levels = new ArrayList<Puzzle>();
 		File levelDir = new File(puzzlesPath);
 		for (File levelFile : PuzzleLoader.sortFiles(levelDir.listFiles())) {
 
-			levels.add(JsonTools.getInstance().fromJson(GameFieldModel.class, levelFile));
+			levels.add(JsonTools.getInstance().fromJson(Puzzle.class, levelFile));
 		}
 		return levels;
 	}
