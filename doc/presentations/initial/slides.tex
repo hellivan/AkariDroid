@@ -1,0 +1,136 @@
+\documentclass[xcolor=dvipsnames]{beamer}
+\usetheme{Warsaw}
+\usecolortheme[named=RoyalBlue]{structure}
+\usenavigationsymbolstemplate{}
+
+\usepackage{ngerman}
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb}
+\usepackage{fancyvrb}
+\usepackage{graphicx}
+\usepackage{floatflt}
+\usepackage{setspace}
+\usepackage[absolute,overlay]{textpos}
+
+\setbeamercolor{framesource}{fg=gray}
+\setbeamerfont{framesource}{size=\tiny}
+
+\newcommand{\myarrowl}{$\leftarrow$\hspace{0.01\textwidth}}
+\newcommand{\myarrowr}{$\rightarrow$\hspace{0.01\textwidth}}
+
+\begin{document}
+\title{Akari goes tablet}
+\author{Ivan Hell, Julian Lang}
+\author[Ivan Hell, Julian Lang]{Ivan Hell, Julian Lang{\\\vspace*{10mm}\small Supervisor: Cynthia Kop}}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\begin{frame}
+  \frametitle{Content}
+  \scriptsize 
+  \tableofcontents
+\end{frame}
+
+
+%%-------------------- Introduction --------------------%%
+\section{Introduction}
+\begin{frame}
+  \frametitle{What is Akari?}
+  \begin{itemize}
+  \item Japanese pencil puzzle game
+  \item Also called ``Light Up''
+  \item Published in 2001 by Nikoli, a publisher for games and logic puzzles
+  \end{itemize}
+\end{frame}
+
+%%-------------------- Game-Rules  --------------------%%
+\section{Game-rules}
+\begin{frame}
+  \frametitle{Game-field}
+  \begin{itemize} 
+  \item Rectangular grid of white and black cells
+  \item Goal: Light bulbs must be placed to light all white cells
+  \end{itemize}
+  % \begin{figure}[b]
+  %   \includegraphics[width=0.2\textwidth]{img/BreandanEich.png}
+  %   \caption{Brendan Eich}
+  %   \label{fig:BrandanEich}
+  % \end{figure}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Light bulbs}
+  \begin{itemize}
+  \item Can be placed within the white cells
+  \item Sends rays of light horizontally and vertically, illuminating its entire row and column unless its light is blocked by a black cell
+  \item No two bulbs may shine on each other
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Black cells}
+  \begin{itemize}
+  \item May have a number from 0 to 4 on it 
+  \item The number indicates exact amount of bulbs that must be placed next to the cell (horizontally and vertically)
+  \item Unnumbered black cells may have an arbitrary number of adjacent light bulbs
+  \end{itemize}
+\end{frame}
+
+
+
+%%-------------------- Aim of the project --------------------%%
+\section{Aim of the project}
+\begin{frame}
+  \frametitle{Aim of the project}
+  \begin{itemize}
+  \item Implement a user-interface for Android tablets
+    \begin{itemize}
+    \item User-friendly
+    \item Support as many Android versions as possible
+    \end{itemize}
+  \item Implement a solver and generator for Akari puzzles
+    \begin{itemize}
+    \item Use encodings in satisfiability formulas
+    \item Generate uniquely solvable puzzles of various difficulty 
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+%%-------------------- Don't know --------------------%%
+\section{Don't know}
+\begin{frame}
+  \frametitle{Possible engines}
+  \begin{itemize}
+  \item Cocos2D-x
+    \begin{itemize}
+    \item Platforms: iOS, Android, WindowsPhone8, BlackBerry
+    \item Language: C++
+    \item License: MIT
+    \end{itemize}
+  \item AndEngine
+    \begin{itemize}
+    \item Platforms: Android
+    \item Language: Java
+    \item License: LGPL
+    \end{itemize}
+  \item LibGDX
+    \begin{itemize}
+    \item Platforms: Android, iOS
+    \item Language: Java
+    \item License: Apache v2
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+\begin{frame}
+  \frametitle{Optional features}
+  \begin{itemize}
+  \item Level-Chooser that is able to synchronize with a server
+  \item Give hints to the player
+  \item Compare high-score with other players
+  \item Provide multiple game-modes (standart-mode, time-mode, expert-mode, ...)
+  \item Share random generated levels
+  \end{itemize}
+\end{frame}
+\end{document}
