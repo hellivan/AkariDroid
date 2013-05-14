@@ -18,8 +18,6 @@ import org.andengine.input.touch.detector.ScrollDetector;
 import org.andengine.input.touch.detector.ScrollDetector.IScrollDetectorListener;
 import org.andengine.input.touch.detector.SurfaceScrollDetector;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
-import org.andengine.util.HorizontalAlign;
-import org.andengine.util.level.LevelLoader;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.TimeoutException;
 
@@ -99,13 +97,18 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 			int syncedPuzzles = PuzzleLoader.synchronizePuzzleList("http://helama.us.to/akari/", this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
 			Log.i(this.getClass().getName(), "Synchronized " + syncedPuzzles + " puzzles");
 
-			this.puzzles = PuzzleLoader.loadPuzzles(this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
+		try {
+			this.puzzles = PuzzleLoader.loadPuzzles(this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
 			Log.i(this.getClass().getName(), "Loaded " + this.puzzles.size() + " levels...");
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 	}
 
 	@Override
@@ -121,7 +124,6 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 		this.mPinchZoomDetector = new PinchZoomDetector(this);
 
 		this.gameScene.setOnSceneTouchListener(this);
-
 
 		this.currentPuzzle = 0;
 		this.gameController = new GameController(this.gameScene, this.getVertexBufferObjectManager());
@@ -156,13 +158,20 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 
 	@Override
 	public boolean onSceneTouchEvent(final Scene scene, final TouchEvent pSceneTouchEvent) {
-		Log.d(this.getClass().getName(), "MainActivity.onSceneTouchEvent()");
+
 		if (pSceneTouchEvent.getMotionEvent().getPointerCount() == 2) {
+			this.mScrollDetector.setEnabled(false);
 			this.mPinchZoomDetector.onTouchEvent(pSceneTouchEvent);
-			this.mScrollDetector.onTouchEvent(pSceneTouchEvent);
 			return true;
+
 		}
-		return false;
+
+		if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+			this.mScrollDetector.setEnabled(true);
+		}
+
+		this.mScrollDetector.onTouchEvent(pSceneTouchEvent);
+		return true;
 	}
 
 	@Override
@@ -190,6 +199,7 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 	public void onScroll(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
 		Log.d(this.getClass().getName(), "MainActivity.onScroll()");
 		final float zoomFactor = this.gameCamera.getZoomFactor();
+		Log.d(this.getClass().getName(), "ZoomFactor=" + zoomFactor + ", PointerID=" + pPointerID + ", pDistanceX=" + pDistanceX + ", pDistanceY=" + pDistanceY);
 		this.gameCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
 	}
 
