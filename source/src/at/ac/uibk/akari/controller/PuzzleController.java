@@ -14,7 +14,7 @@ import at.ac.uibk.akari.solver.AkariSolver;
 import at.ac.uibk.akari.utils.ListenerList;
 import at.ac.uibk.akari.view.GameField;
 
-public class GameController extends AbstractController implements GameFieldListener {
+public class PuzzleController extends AbstractController implements GameFieldListener {
 
 	private GameFieldController gameFieldController;
 	private GameField gameField;
@@ -27,7 +27,7 @@ public class GameController extends AbstractController implements GameFieldListe
 
 	private ListenerList listenerList;
 
-	public GameController(final Scene gameScene, final VertexBufferObjectManager vertexBufferObjectManager) {
+	public PuzzleController(final Scene gameScene, final VertexBufferObjectManager vertexBufferObjectManager) {
 		this.listenerList = new ListenerList();
 		this.gameScene = gameScene;
 		this.vertexBufferObjectManager = vertexBufferObjectManager;

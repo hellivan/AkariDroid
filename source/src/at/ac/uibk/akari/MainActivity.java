@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 
 import org.andengine.engine.camera.ZoomCamera;
+import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
@@ -24,12 +25,13 @@ import org.sat4j.specs.TimeoutException;
 import android.util.Log;
 import android.view.Display;
 import android.widget.Toast;
-import at.ac.uibk.akari.controller.GameController;
+import at.ac.uibk.akari.controller.PuzzleController;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.GameListener;
 import at.ac.uibk.akari.testsolver.Akari;
 import at.ac.uibk.akari.utils.PuzzleLoader;
 import at.ac.uibk.akari.utils.TextureLoader;
+import at.ac.uibk.akari.view.Lamp;
 
 public class MainActivity extends SimpleBaseGameActivity implements GameListener, IOnSceneTouchListener, IScrollDetectorListener, IPinchZoomDetectorListener {
 
@@ -48,9 +50,11 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 	private PinchZoomDetector mPinchZoomDetector;
 	private SurfaceScrollDetector mScrollDetector;
 
-	private GameController gameController;
+	private PuzzleController gameController;
 
 	private int currentPuzzle;
+
+	private HUD hud;
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
@@ -126,7 +130,7 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 		this.gameScene.setOnSceneTouchListener(this);
 
 		this.currentPuzzle = 0;
-		this.gameController = new GameController(this.gameScene, this.getVertexBufferObjectManager());
+		this.gameController = new PuzzleController(this.gameScene, this.getVertexBufferObjectManager());
 		this.gameController.addGameListener(this);
 		try {
 			this.gameController.setPuzzle(this.puzzles.get(this.currentPuzzle++));
@@ -134,6 +138,10 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 		} catch (ContradictionException e) {
 			e.printStackTrace();
 		}
+
+		this.hud = new HUD();
+		this.hud.attachChild(new Lamp(0, 0, 100, 100, this.getVertexBufferObjectManager()));
+		this.gameCamera.setHUD(this.hud);
 
 		return this.gameScene;
 
@@ -218,7 +226,7 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 	}
 
 	@Override
-	public void puzzleSolved(final GameController source, final long timeMs) {
+	public void puzzleSolved(final PuzzleController source, final long timeMs) {
 		if (source.equals(this.gameController)) {
 			this.gameController.stop();
 			try {
