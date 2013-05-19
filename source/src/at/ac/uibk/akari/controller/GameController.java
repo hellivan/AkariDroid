@@ -2,9 +2,11 @@ package at.ac.uibk.akari.controller;
 
 import java.util.List;
 
+import org.andengine.engine.camera.ZoomCamera;
+import org.andengine.entity.scene.Scene;
+import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.sat4j.specs.ContradictionException;
 
-import android.content.Context;
 import android.widget.Toast;
 import at.ac.uibk.akari.MainActivity;
 import at.ac.uibk.akari.core.Puzzle;
@@ -17,14 +19,35 @@ public class GameController extends AbstractController implements GameListener {
 
 	private int currentPuzzle;
 
-	public GameController(final List<Puzzle> puzzles) {
+	private ZoomCamera gameCamera;
+	private Scene gameScene;
+	private VertexBufferObjectManager vertexBufferObjectManager;
+
+
+	public GameController(final ZoomCamera gameCamera, final Scene gameScene, final VertexBufferObjectManager vertexBufferObjectManager, final List<Puzzle> puzzles) {
 		this.puzzles = puzzles;
-		this.currentPuzzle = 0;
+		this.gameCamera = gameCamera;
+		this.gameScene = gameScene;
+		this.vertexBufferObjectManager = vertexBufferObjectManager;
+		this.init();
+	}
+
+	private void init() {
+		this.puzzleController = new PuzzleController(this.gameCamera, this.gameScene, this.vertexBufferObjectManager);
+
 	}
 
 	@Override
 	public boolean start() {
-		// TODO Auto-generated method stub
+		this.currentPuzzle = 0;
+		this.puzzleController.addGameListener(this);
+		try {
+			this.puzzleController.setPuzzle(this.puzzles.get(this.currentPuzzle++));
+			this.puzzleController.start();
+		} catch (ContradictionException e) {
+			e.printStackTrace();
+		}
+
 		return true;
 	}
 

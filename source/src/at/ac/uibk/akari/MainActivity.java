@@ -4,20 +4,12 @@ import java.io.File;
 import java.util.List;
 
 import org.andengine.engine.camera.ZoomCamera;
-import org.andengine.engine.camera.hud.HUD;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
-import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.util.FPSLogger;
-import org.andengine.input.touch.TouchEvent;
-import org.andengine.input.touch.detector.PinchZoomDetector;
-import org.andengine.input.touch.detector.PinchZoomDetector.IPinchZoomDetectorListener;
-import org.andengine.input.touch.detector.ScrollDetector;
-import org.andengine.input.touch.detector.ScrollDetector.IScrollDetectorListener;
-import org.andengine.input.touch.detector.SurfaceScrollDetector;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.TimeoutException;
@@ -25,15 +17,13 @@ import org.sat4j.specs.TimeoutException;
 import android.util.Log;
 import android.view.Display;
 import android.widget.Toast;
-import at.ac.uibk.akari.controller.PuzzleController;
+import at.ac.uibk.akari.controller.GameController;
 import at.ac.uibk.akari.core.Puzzle;
-import at.ac.uibk.akari.listener.GameListener;
 import at.ac.uibk.akari.testsolver.Akari;
 import at.ac.uibk.akari.utils.PuzzleLoader;
 import at.ac.uibk.akari.utils.TextureLoader;
-import at.ac.uibk.akari.view.menu.PuzzleHUD;
 
-public class MainActivity extends SimpleBaseGameActivity implements GameListener, IOnSceneTouchListener, IScrollDetectorListener, IPinchZoomDetectorListener {
+public class MainActivity extends SimpleBaseGameActivity {
 
 	private static SimpleBaseGameActivity staticActivity;
 
@@ -49,17 +39,6 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 	private Scene gameScene;
 
 	private List<Puzzle> puzzles;
-
-	private float mPinchZoomStartedCameraZoomFactor;
-
-	private PinchZoomDetector mPinchZoomDetector;
-	private SurfaceScrollDetector mScrollDetector;
-
-	private PuzzleController gameController;
-
-	private int currentPuzzle;
-
-	private HUD hud;
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
@@ -133,21 +112,8 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 		this.gameScene.setTouchAreaBindingOnActionDownEnabled(true);
 		this.gameScene.setBackground(new Background(0.2f, 0.6f, 0.8f, 0.1f));
 
-		this.mScrollDetector = new SurfaceScrollDetector(this);
-		this.mPinchZoomDetector = new PinchZoomDetector(this);
-
-		this.gameScene.setOnSceneTouchListener(this);
-
-		this.currentPuzzle = 0;
-		this.gameController = new PuzzleController(this.gameCamera, this.gameScene, this.getVertexBufferObjectManager());
-		this.gameController.addGameListener(this);
-		try {
-			this.gameController.setPuzzle(this.puzzles.get(this.currentPuzzle++));
-			this.gameController.start();
-		} catch (ContradictionException e) {
-			e.printStackTrace();
-		}
-
+		GameController gameController = new GameController(this.gameCamera, this.gameScene, this.getVertexBufferObjectManager(), this.puzzles);
+		gameController.start();
 		return this.gameScene;
 
 	}
@@ -169,86 +135,6 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 
 	}
 
-	@Override
-	public boolean onSceneTouchEvent(final Scene scene, final TouchEvent pSceneTouchEvent) {
-
-		if (pSceneTouchEvent.getMotionEvent().getPointerCount() == 2) {
-			this.mScrollDetector.setEnabled(false);
-			this.mPinchZoomDetector.onTouchEvent(pSceneTouchEvent);
-			return true;
-
-		}
-
-		if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
-			this.mScrollDetector.setEnabled(true);
-		}
-
-		this.mScrollDetector.onTouchEvent(pSceneTouchEvent);
-		return true;
-	}
-
-	@Override
-	public void onPinchZoom(final PinchZoomDetector arg0, final TouchEvent arg1, final float pZoomFactor) {
-		Log.d(this.getClass().getName(), "MainActivity.onPinchZoom()");
-		this.gameCamera.setZoomFactor(this.mPinchZoomStartedCameraZoomFactor * pZoomFactor);
-
-	}
-
-	@Override
-	public void onPinchZoomFinished(final PinchZoomDetector arg0, final TouchEvent arg1, final float pZoomFactor) {
-		Log.d(this.getClass().getName(), "MainActivity.onPinchZoomFinished()");
-		this.gameCamera.setZoomFactor(this.mPinchZoomStartedCameraZoomFactor * pZoomFactor);
-
-	}
-
-	@Override
-	public void onPinchZoomStarted(final PinchZoomDetector arg0, final TouchEvent arg1) {
-		Log.d(this.getClass().getName(), "MainActivity.onPinchZoomStarted()");
-		this.mPinchZoomStartedCameraZoomFactor = this.gameCamera.getZoomFactor();
-
-	}
-
-	@Override
-	public void onScroll(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
-		Log.d(this.getClass().getName(), "MainActivity.onScroll()");
-		final float zoomFactor = this.gameCamera.getZoomFactor();
-		Log.d(this.getClass().getName(), "ZoomFactor=" + zoomFactor + ", PointerID=" + pPointerID + ", pDistanceX=" + pDistanceX + ", pDistanceY=" + pDistanceY);
-		this.gameCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
-	}
-
-	@Override
-	public void onScrollFinished(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
-		Log.d(this.getClass().getName(), "MainActivity.onScrollFinished()");
-		final float zoomFactor = this.gameCamera.getZoomFactor();
-		this.gameCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
-	}
-
-	@Override
-	public void onScrollStarted(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
-		Log.d(this.getClass().getName(), "MainActivity.onScrollStarted()");
-		final float zoomFactor = this.gameCamera.getZoomFactor();
-		this.gameCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
-	}
-
-	@Override
-	public void puzzleSolved(final PuzzleController source, final long timeMs) {
-		if (source.equals(this.gameController)) {
-			this.gameController.stop();
-			try {
-				MainActivity.showToast("Solved level", Toast.LENGTH_LONG);
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				this.gameController.setPuzzle(this.puzzles.get(this.currentPuzzle++));
-				this.gameController.start();
-			} catch (ContradictionException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
 	public static void showToast(final String text, final int length) {
 		MainActivity.staticActivity.runOnUiThread(new Runnable() {
 			@Override
@@ -267,11 +153,4 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 		});
 	}
 
-	public static int getCameraHeight() {
-		return MainActivity.CAMERA_HEIGHT;
-	}
-
-	public static int getCameraWidth() {
-		return MainActivity.CAMERA_WIDTH;
-	}
 }
