@@ -144,7 +144,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 		});
 	}
 
-	public static void setScene(final Scene scene) {
+	public static void setCurrentScene(final Scene scene) {
 		MainActivity.staticActivity.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {

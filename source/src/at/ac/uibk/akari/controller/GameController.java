@@ -3,7 +3,9 @@ package at.ac.uibk.akari.controller;
 import java.util.List;
 
 import org.andengine.engine.camera.ZoomCamera;
+import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
+import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.sat4j.specs.ContradictionException;
 
@@ -21,8 +23,12 @@ public class GameController extends AbstractController implements GameListener {
 
 	private ZoomCamera gameCamera;
 	private Scene gameScene;
-	private VertexBufferObjectManager vertexBufferObjectManager;
 
+	private Scene winningScene;
+
+	private int counter;
+
+	private VertexBufferObjectManager vertexBufferObjectManager;
 
 	public GameController(final ZoomCamera gameCamera, final Scene gameScene, final VertexBufferObjectManager vertexBufferObjectManager, final List<Puzzle> puzzles) {
 		this.puzzles = puzzles;
@@ -34,6 +40,20 @@ public class GameController extends AbstractController implements GameListener {
 
 	private void init() {
 		this.puzzleController = new PuzzleController(this.gameCamera, this.gameScene, this.vertexBufferObjectManager);
+		this.winningScene = new Scene();
+		this.winningScene.setBackgroundEnabled(false);
+
+		this.winningScene.setOnSceneTouchListener(new IOnSceneTouchListener() {
+
+			@Override
+			public boolean onSceneTouchEvent(Scene arg0, TouchEvent arg1) {
+				if (arg0 == winningScene&& counter>2) {
+					startNextLevel();
+				}
+				counter++;
+				return false;
+			}
+		});
 
 	}
 
@@ -61,20 +81,21 @@ public class GameController extends AbstractController implements GameListener {
 	public void puzzleSolved(PuzzleController source, long timeMs) {
 		if (source.equals(this.puzzleController)) {
 			this.puzzleController.stop();
-			try {
-				MainActivity.showToast("Solved level", Toast.LENGTH_LONG);
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				this.puzzleController.setPuzzle(this.puzzles.get(this.currentPuzzle++));
-				this.puzzleController.start();
-			} catch (ContradictionException e) {
-				e.printStackTrace();
-			}
-		}
+			MainActivity.showToast("Solved level", Toast.LENGTH_LONG);
 
+			counter=0;
+			this.gameScene.setChildScene(this.winningScene);
+		}
+	}
+
+	public void startNextLevel() {
+		try {
+			this.gameScene.clearChildScene();
+			this.puzzleController.setPuzzle(this.puzzles.get(this.currentPuzzle++));
+			this.puzzleController.start();
+		} catch (ContradictionException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

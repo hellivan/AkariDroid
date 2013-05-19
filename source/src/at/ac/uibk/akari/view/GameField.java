@@ -98,7 +98,6 @@ public class GameField extends Rectangle {
 			line.dispose();
 		}
 		this.gameFieldLines.clear();
-		
 
 		// add vertical lines
 		for (int cellX = 1; cellX < this.getModel().getWidth(); cellX++) {
@@ -149,7 +148,7 @@ public class GameField extends Rectangle {
 		}
 
 		int moutiTouchTolleranceMs = 200;
-		int touchDeltaTollerancePx = 20;
+		// int touchDeltaTollerancePx = 20;
 
 		// ignore all multi-touch-inputs
 		if (System.currentTimeMillis() - this.lastMultiTouched < moutiTouchTolleranceMs) {
