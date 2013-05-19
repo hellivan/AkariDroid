@@ -75,11 +75,11 @@ public class GameField extends Rectangle {
 		if (this.gameFieldCells != null) {
 			for (int posY = 0; posY < this.gameFieldCells.length; posY++) {
 				for (int posX = 0; posX < this.gameFieldCells[0].length; posX++) {
-					this.detachChild(this.gameFieldCells[posY][posX]);
+					this.gameFieldCells[posY][posX].detachSelf();
+					this.gameFieldCells[posY][posX].dispose();
 				}
 			}
 		}
-
 		// adding new cells
 		this.gameFieldCells = new Cell[this.getModel().getHeight()][this.getModel().getWidth()];
 
@@ -89,14 +89,16 @@ public class GameField extends Rectangle {
 				this.attachChild(this.gameFieldCells[posY][posX]);
 			}
 		}
-
 	}
 
 	private void addFieldLines(final Color borderColor, final Color gridColor, final int borderWidth, final int gridWidth) {
 		// Remove old lines if there were any before
 		for (Line line : this.gameFieldLines) {
-			this.detachChild(line);
+			line.detachSelf();
+			line.dispose();
 		}
+		this.gameFieldLines.clear();
+		
 
 		// add vertical lines
 		for (int cellX = 1; cellX < this.getModel().getWidth(); cellX++) {

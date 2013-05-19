@@ -31,12 +31,17 @@ import at.ac.uibk.akari.listener.GameListener;
 import at.ac.uibk.akari.testsolver.Akari;
 import at.ac.uibk.akari.utils.PuzzleLoader;
 import at.ac.uibk.akari.utils.TextureLoader;
-import at.ac.uibk.akari.view.Lamp;
+import at.ac.uibk.akari.view.menu.PuzzleHUD;
 
 public class MainActivity extends SimpleBaseGameActivity implements GameListener, IOnSceneTouchListener, IScrollDetectorListener, IPinchZoomDetectorListener {
 
-	private static int SCREEN_WIDTH = 800;
-	private static int SCREEN_HEIGHT = 480;
+	private static SimpleBaseGameActivity staticActivity;
+
+	private static int CAMERA_WIDTH = 800;
+	private static int CAMERA_HEIGHT = 480;
+
+	private static int SCREEN_WIDTH;
+	private static int SCREEN_HEIGHT;
 
 	private static String puzzlesDir = "puzzles";
 
@@ -58,6 +63,7 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
+		MainActivity.staticActivity = this;
 		Log.d(this.getClass().getName(), "Called create engine-options");
 
 		Display display = this.getWindowManager().getDefaultDisplay();
@@ -65,28 +71,27 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 		Log.i(this.getClass().getName(), "Got display with resolution " + display.getWidth() + "x" + display.getHeight());
 
 		// determine the right landscape resolution
-		int realScreenWidth = 0;
-		int realScreenHeight = 0;
 
 		if (display.getWidth() > display.getHeight()) {
-			realScreenWidth = display.getWidth();
-			realScreenHeight = display.getHeight();
+			SCREEN_WIDTH = display.getWidth();
+			SCREEN_HEIGHT = display.getHeight();
 		} else {
-			realScreenWidth = display.getHeight();
-			realScreenHeight = display.getWidth();
+			SCREEN_WIDTH = display.getHeight();
+			SCREEN_HEIGHT = display.getWidth();
 		}
 
-		float screenAspect = (float) realScreenWidth / (float) realScreenHeight;
-		MainActivity.SCREEN_WIDTH = (int) (MainActivity.SCREEN_HEIGHT * screenAspect);
+		float screenAspect = (float) SCREEN_WIDTH / (float) SCREEN_HEIGHT;
+		MainActivity.CAMERA_WIDTH = (int) (MainActivity.CAMERA_HEIGHT * screenAspect);
 		Log.i(this.getClass().getName(), "Got screen aspect of " + screenAspect);
 
 		// this.gameCamera = new Camera(0, 0, MainActivity.SCREEN_WIDTH,
 		// MainActivity.SCREEN_HEIGHT);
-		this.gameCamera = new ZoomCamera(0, 0, MainActivity.SCREEN_WIDTH, MainActivity.SCREEN_HEIGHT);
+		this.gameCamera = new ZoomCamera(0, 0, MainActivity.CAMERA_WIDTH, MainActivity.CAMERA_HEIGHT);
 
-		Log.i(this.getClass().getName(), "Got camera resolution " + MainActivity.SCREEN_WIDTH + "x" + MainActivity.SCREEN_HEIGHT);
+		Log.i(this.getClass().getName(), "Got screen resolution " + MainActivity.SCREEN_WIDTH + "x" + MainActivity.SCREEN_HEIGHT);
+		Log.i(this.getClass().getName(), "Got camera resolution " + MainActivity.CAMERA_WIDTH + "x" + MainActivity.CAMERA_HEIGHT);
 
-		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_SENSOR, new RatioResolutionPolicy(realScreenWidth, realScreenHeight), this.gameCamera);
+		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_SENSOR, new RatioResolutionPolicy(SCREEN_WIDTH, SCREEN_HEIGHT), this.gameCamera);
 		engineOptions.getTouchOptions().setNeedsMultiTouch(true);
 
 		return engineOptions;
@@ -95,8 +100,11 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 	@Override
 	protected void onCreateResources() {
 		Log.d(this.getClass().getName(), "Called create resources");
+
+		// load textures
 		TextureLoader.getInstance().init(this.getTextureManager(), this);
 
+		// synchronize levels
 		try {
 			int syncedPuzzles = PuzzleLoader.synchronizePuzzleList("http://helama.us.to/akari/", this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
 			Log.i(this.getClass().getName(), "Synchronized " + syncedPuzzles + " puzzles");
@@ -105,6 +113,7 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 			e.printStackTrace();
 		}
 
+		// load local levels
 		try {
 			this.puzzles = PuzzleLoader.loadPuzzles(this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
 			Log.i(this.getClass().getName(), "Loaded " + this.puzzles.size() + " levels...");
@@ -130,7 +139,7 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 		this.gameScene.setOnSceneTouchListener(this);
 
 		this.currentPuzzle = 0;
-		this.gameController = new PuzzleController(this.gameScene, this.getVertexBufferObjectManager());
+		this.gameController = new PuzzleController(this.gameCamera, this.gameScene, this.getVertexBufferObjectManager());
 		this.gameController.addGameListener(this);
 		try {
 			this.gameController.setPuzzle(this.puzzles.get(this.currentPuzzle++));
@@ -138,10 +147,6 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 		} catch (ContradictionException e) {
 			e.printStackTrace();
 		}
-
-		this.hud = new HUD();
-		this.hud.attachChild(new Lamp(0, 0, 100, 100, this.getVertexBufferObjectManager()));
-		this.gameCamera.setHUD(this.hud);
 
 		return this.gameScene;
 
@@ -230,12 +235,7 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 		if (source.equals(this.gameController)) {
 			this.gameController.stop();
 			try {
-				this.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						Toast.makeText(MainActivity.this, "Solved level", Toast.LENGTH_LONG).show();
-					}
-				});
+				MainActivity.showToast("Solved level", Toast.LENGTH_LONG);
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
@@ -247,5 +247,31 @@ public class MainActivity extends SimpleBaseGameActivity implements GameListener
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public static void showToast(final String text, final int length) {
+		MainActivity.staticActivity.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(MainActivity.staticActivity, text, length).show();
+			}
+		});
+	}
+
+	public static void setScene(final Scene scene) {
+		MainActivity.staticActivity.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				MainActivity.staticActivity.getEngine().setScene(scene);
+			}
+		});
+	}
+
+	public static int getCameraHeight() {
+		return MainActivity.CAMERA_HEIGHT;
+	}
+
+	public static int getCameraWidth() {
+		return MainActivity.CAMERA_WIDTH;
 	}
 }

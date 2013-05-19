@@ -1,24 +1,33 @@
 package at.ac.uibk.akari.controller;
 
+import org.andengine.engine.camera.ZoomCamera;
 import org.andengine.entity.scene.Scene;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.TimeoutException;
 
 import android.graphics.Point;
+import android.util.Log;
+import android.widget.Toast;
+import at.ac.uibk.akari.MainActivity;
 import at.ac.uibk.akari.core.GameFieldModel;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.GameFieldListener;
 import at.ac.uibk.akari.listener.GameListener;
+import at.ac.uibk.akari.listener.InputEvent;
+import at.ac.uibk.akari.listener.PuzzleControlListener;
 import at.ac.uibk.akari.solver.AkariSolver;
 import at.ac.uibk.akari.utils.ListenerList;
 import at.ac.uibk.akari.view.GameField;
+import at.ac.uibk.akari.view.menu.PuzzleHUD;
 
-public class PuzzleController extends AbstractController implements GameFieldListener {
+public class PuzzleController extends AbstractController implements GameFieldListener, PuzzleControlListener {
 
 	private GameFieldController gameFieldController;
 	private GameField gameField;
 	private Scene gameScene;
+	private ZoomCamera gameCamera;
+	private PuzzleHUD gameHUD;
 
 	private GameFieldModel puzzle;
 	private VertexBufferObjectManager vertexBufferObjectManager;
@@ -27,8 +36,9 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 
 	private ListenerList listenerList;
 
-	public PuzzleController(final Scene gameScene, final VertexBufferObjectManager vertexBufferObjectManager) {
+	public PuzzleController(final ZoomCamera gameCamera, final Scene gameScene, final VertexBufferObjectManager vertexBufferObjectManager) {
 		this.listenerList = new ListenerList();
+		this.gameCamera = gameCamera;
 		this.gameScene = gameScene;
 		this.vertexBufferObjectManager = vertexBufferObjectManager;
 		this.init();
@@ -39,6 +49,8 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		this.gameFieldController = new GameFieldController(this.gameField);
 		this.gameScene.attachChild(this.gameField);
 		this.gameScene.registerTouchArea(this.gameField);
+		this.gameHUD = new PuzzleHUD((int) this.gameCamera.getWidth(), this.vertexBufferObjectManager);
+		this.gameCamera.setHUD(this.gameHUD);
 
 	}
 
@@ -51,6 +63,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	@Override
 	public boolean start() {
 		this.gameFieldController.addGameFieldListener(this);
+		this.gameHUD.addPuzzleControlListener(this);
 		return this.gameFieldController.start();
 
 	}
@@ -58,7 +71,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	@Override
 	public boolean stop() {
 		this.gameFieldController.removeGameFieldListener(this);
-
+		this.gameHUD.removePuzzleControlListener(this);
 		return this.gameFieldController.stop();
 	}
 
@@ -99,6 +112,24 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 			} catch (TimeoutException e) {
 				e.printStackTrace();
 			}
+		}
+	}
+
+	@Override
+	public void pausePuzzle(InputEvent event) {
+		Log.i(this.getClass().getName(), "PAUSE-Game pressed");
+		MainActivity.showToast("PAUSE", Toast.LENGTH_SHORT);
+	}
+
+	@Override
+	public void helpPuzzle(InputEvent event) {
+		Log.i(this.getClass().getName(), "HELP-Game pressed");
+		MainActivity.showToast("HELP", Toast.LENGTH_SHORT);
+		try {
+			this.solver.setSolutionToModel();
+			this.gameField.adaptFieldToModel();
+		} catch (TimeoutException e) {
+			e.printStackTrace();
 		}
 	}
 }
