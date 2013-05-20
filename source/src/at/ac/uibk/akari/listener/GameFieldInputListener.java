@@ -4,8 +4,8 @@ import java.util.EventListener;
 
 public interface GameFieldInputListener extends EventListener {
 
-	public void gameFieldTouched(GameFieldTouchEvent event);
+	public void gameFieldTouched(final GameFieldTouchEvent event);
 
-	public void gameFieldDragged(GameFieldDragEvent event);
+	public void gameFieldDragged(final GameFieldDragEvent event);
 
 }

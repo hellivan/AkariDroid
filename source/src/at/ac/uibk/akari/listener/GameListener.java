@@ -2,10 +2,10 @@ package at.ac.uibk.akari.listener;
 
 import java.util.EventListener;
 
-import at.ac.uibk.akari.controller.GameController;
+import at.ac.uibk.akari.controller.PuzzleController;
 
 public interface GameListener extends EventListener {
 
-	public void puzzleSolved(GameController source, long timeMs);
+	public void puzzleSolved(PuzzleController source, long timeMs);
 
 }

@@ -35,6 +35,7 @@ public class GameField extends Rectangle {
 
 	private long lastMultiTouched;
 	private Point lastDragPoint;
+	private Point firstTouchedCell;
 
 	public GameField(final float posX, final float posY, final int cellCountX, final int cellCountY, final VertexBufferObjectManager vertexBufferObjectManager) {
 		this(posY, posY, vertexBufferObjectManager);
@@ -61,7 +62,7 @@ public class GameField extends Rectangle {
 		Color borderColor = new Color(0.0f, 0.0f, 0.0f, 1.0f);
 
 		this.addFieldCells();
-		// this.addFieldLines(borderColor, gridColor, 5, 3);
+		this.addFieldLines(borderColor, gridColor, 5, 3);
 
 	}
 
@@ -74,11 +75,11 @@ public class GameField extends Rectangle {
 		if (this.gameFieldCells != null) {
 			for (int posY = 0; posY < this.gameFieldCells.length; posY++) {
 				for (int posX = 0; posX < this.gameFieldCells[0].length; posX++) {
-					this.detachChild(this.gameFieldCells[posY][posX]);
+					this.gameFieldCells[posY][posX].detachSelf();
+					this.gameFieldCells[posY][posX].dispose();
 				}
 			}
 		}
-
 		// adding new cells
 		this.gameFieldCells = new Cell[this.getModel().getHeight()][this.getModel().getWidth()];
 
@@ -88,14 +89,15 @@ public class GameField extends Rectangle {
 				this.attachChild(this.gameFieldCells[posY][posX]);
 			}
 		}
-
 	}
 
 	private void addFieldLines(final Color borderColor, final Color gridColor, final int borderWidth, final int gridWidth) {
 		// Remove old lines if there were any before
 		for (Line line : this.gameFieldLines) {
-			this.detachChild(line);
+			line.detachSelf();
+			line.dispose();
 		}
+		this.gameFieldLines.clear();
 
 		// add vertical lines
 		for (int cellX = 1; cellX < this.getModel().getWidth(); cellX++) {
@@ -146,32 +148,46 @@ public class GameField extends Rectangle {
 		}
 
 		int moutiTouchTolleranceMs = 200;
+		// int touchDeltaTollerancePx = 20;
 
+		// ignore all multi-touch-inputs
 		if (System.currentTimeMillis() - this.lastMultiTouched < moutiTouchTolleranceMs) {
 			return false;
 		}
 
-		Point touchedCell = this.positionToCell(pTouchAreaLocalX, pTouchAreaLocalY);
-		Log.d(this.getClass().getName(), "Touched game-field at " + touchedCell.toString() + " with action " + pSceneTouchEvent.getAction());
+		Point currentTouchedCell = this.positionToCell(pTouchAreaLocalX, pTouchAreaLocalY);
+		Log.d(this.getClass().getName(), "Touched game-field at " + currentTouchedCell.toString() + " - " + new PointF(pTouchAreaLocalX, pTouchAreaLocalY) + " with action " + pSceneTouchEvent.getAction());
+
+		if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
+			this.firstTouchedCell = this.positionToCell(pTouchAreaLocalX, pTouchAreaLocalY);
+		}
 
 		if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_MOVE) {
-			Point newDragCell = this.positionToCell(pTouchAreaLocalX, pTouchAreaLocalY);
 			Point oldDragCell = this.lastDragPoint;
 
-			if (oldDragCell == null || !oldDragCell.equals(newDragCell)) {
-				if (oldDragCell == null) {
-					oldDragCell = newDragCell;
+			if (this.firstTouchedCell != null && this.isLampAt(this.firstTouchedCell)) {
+				if (oldDragCell == null || !oldDragCell.equals(currentTouchedCell)) {
+					if (oldDragCell == null) {
+						oldDragCell = currentTouchedCell;
+					}
+					this.fireGameFieldDragged(currentTouchedCell, oldDragCell);
+					this.lastDragPoint = currentTouchedCell;
 				}
-				this.fireGameFieldDragged(newDragCell, oldDragCell);
-				this.lastDragPoint = newDragCell;
+				return true;
 			}
 		}
 
-		if (pSceneTouchEvent.getMotionEvent().getPointerCount() < 2 && pSceneTouchEvent.getAction() == TouchEvent.ACTION_UP) {
+		if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_UP) {
+			Log.d(this.getClass().getName(), "HistorySize=" + pSceneTouchEvent.getMotionEvent().getHistorySize());
+
 			this.lastDragPoint = null;
-			this.fireGameFieldTouched(pTouchAreaLocalX, pTouchAreaLocalY);
+			if (this.firstTouchedCell != null && this.firstTouchedCell.equals(currentTouchedCell)) {
+				this.fireGameFieldTouched(currentTouchedCell);
+			}
+			this.firstTouchedCell = null;
 		}
-		return true;
+
+		return false;
 	}
 
 	public Point positionToCell(final float posX, final float posY) {
@@ -196,8 +212,8 @@ public class GameField extends Rectangle {
 		this.listenerList.removeListener(GameFieldInputListener.class, listener);
 	}
 
-	private void fireGameFieldTouched(final float posX, final float posY) {
-		GameFieldTouchEvent event = new GameFieldTouchEvent(this, this.positionToCell(posX, posY), new PointF(posX, posY));
+	private void fireGameFieldTouched(final Point touchedCell) {
+		GameFieldTouchEvent event = new GameFieldTouchEvent(this, touchedCell);
 		for (GameFieldInputListener listener : this.listenerList.getListeners(GameFieldInputListener.class)) {
 			listener.gameFieldTouched(event);
 		}

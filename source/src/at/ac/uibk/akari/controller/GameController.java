@@ -1,104 +1,101 @@
 package at.ac.uibk.akari.controller;
 
+import java.util.List;
+
+import org.andengine.engine.camera.ZoomCamera;
+import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
+import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.sat4j.specs.ContradictionException;
-import org.sat4j.specs.TimeoutException;
 
-import android.graphics.Point;
-import at.ac.uibk.akari.core.GameFieldModel;
+import android.widget.Toast;
+import at.ac.uibk.akari.MainActivity;
 import at.ac.uibk.akari.core.Puzzle;
-import at.ac.uibk.akari.listener.GameFieldListener;
 import at.ac.uibk.akari.listener.GameListener;
-import at.ac.uibk.akari.solver.AkariSolver;
-import at.ac.uibk.akari.utils.ListenerList;
-import at.ac.uibk.akari.view.GameField;
 
-public class GameController extends AbstractController implements GameFieldListener {
+public class GameController extends AbstractController implements GameListener {
 
-	private GameFieldController gameFieldController;
-	private GameField gameField;
+	private List<Puzzle> puzzles;
+	private PuzzleController puzzleController;
+
+	private int currentPuzzle;
+
+	private ZoomCamera gameCamera;
 	private Scene gameScene;
 
-	private GameFieldModel puzzle;
+	private Scene winningScene;
+
+	private int counter;
+
 	private VertexBufferObjectManager vertexBufferObjectManager;
 
-	private AkariSolver solver;
-
-	private ListenerList listenerList;
-
-	public GameController(final Scene gameScene, final VertexBufferObjectManager vertexBufferObjectManager) {
-		this.listenerList = new ListenerList();
+	public GameController(final ZoomCamera gameCamera, final Scene gameScene, final VertexBufferObjectManager vertexBufferObjectManager, final List<Puzzle> puzzles) {
+		this.puzzles = puzzles;
+		this.gameCamera = gameCamera;
 		this.gameScene = gameScene;
 		this.vertexBufferObjectManager = vertexBufferObjectManager;
 		this.init();
 	}
 
-	public void init() {
-		this.gameField = new GameField(10, 10, this.vertexBufferObjectManager);
-		this.gameFieldController = new GameFieldController(this.gameField);
-		this.gameScene.attachChild(this.gameField);
-		this.gameScene.registerTouchArea(this.gameField);
+	private void init() {
+		this.puzzleController = new PuzzleController(this.gameCamera, this.gameScene, this.vertexBufferObjectManager);
+		this.winningScene = new Scene();
+		this.winningScene.setBackgroundEnabled(false);
 
-	}
+		this.winningScene.setOnSceneTouchListener(new IOnSceneTouchListener() {
 
-	public void setPuzzle(final Puzzle puzzle) throws ContradictionException {
-		this.puzzle = new GameFieldModel(puzzle);
-		this.solver = new AkariSolver(this.puzzle);
-		this.gameField.setPuzzle(this.puzzle);
+			@Override
+			public boolean onSceneTouchEvent(Scene arg0, TouchEvent arg1) {
+				if (arg0 == winningScene&& counter>2) {
+					startNextLevel();
+				}
+				counter++;
+				return false;
+			}
+		});
+
 	}
 
 	@Override
 	public boolean start() {
-		this.gameFieldController.addGameFieldListener(this);
-		return this.gameFieldController.start();
+		this.currentPuzzle = 0;
+		this.puzzleController.addGameListener(this);
+		try {
+			this.puzzleController.setPuzzle(this.puzzles.get(this.currentPuzzle++));
+			this.puzzleController.start();
+		} catch (ContradictionException e) {
+			e.printStackTrace();
+		}
 
+		return true;
 	}
 
 	@Override
 	public boolean stop() {
-		this.gameFieldController.removeGameFieldListener(this);
-
-		return this.gameFieldController.stop();
-	}
-
-	private void firePuzzleSolved() {
-		for (GameListener listener : this.listenerList.getListeners(GameListener.class)) {
-			listener.puzzleSolved(this, 0);
-		}
-	}
-
-	public void addGameListener(final GameListener listener) {
-		this.listenerList.addListener(GameListener.class, listener);
-	}
-
-	public void removeGameListener(final GameListener listener) {
-		this.listenerList.removeListener(GameListener.class, listener);
+		// TODO Auto-generated method stub
+		return true;
 	}
 
 	@Override
-	public void lampPlaced(final GameFieldController source, final Point position) {
-		if (source.equals(this.gameFieldController)) {
-			try {
-				if (this.solver.isSolved()) {
-					this.firePuzzleSolved();
-				}
-			} catch (TimeoutException e) {
-				e.printStackTrace();
-			}
+	public void puzzleSolved(PuzzleController source, long timeMs) {
+		if (source.equals(this.puzzleController)) {
+			this.puzzleController.stop();
+			MainActivity.showToast("Solved level", Toast.LENGTH_LONG);
+
+			counter=0;
+			this.gameScene.setChildScene(this.winningScene);
 		}
 	}
 
-	@Override
-	public void lampRemoved(final GameFieldController source, final Point position) {
-		if (source.equals(this.gameFieldController)) {
-			try {
-				if (this.solver.isSolved()) {
-					this.firePuzzleSolved();
-				}
-			} catch (TimeoutException e) {
-				e.printStackTrace();
-			}
+	public void startNextLevel() {
+		try {
+			this.gameScene.clearChildScene();
+			this.puzzleController.setPuzzle(this.puzzles.get(this.currentPuzzle++));
+			this.puzzleController.start();
+		} catch (ContradictionException e) {
+			e.printStackTrace();
 		}
 	}
+
 }

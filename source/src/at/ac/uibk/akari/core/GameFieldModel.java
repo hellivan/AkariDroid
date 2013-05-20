@@ -13,7 +13,7 @@ import at.ac.uibk.akari.core.annotations.JsonIgnorePermanent;
 public class GameFieldModel {
 
 	/**
-	 * Puzzle for this gamefield
+	 * Puzzle for this game-field
 	 */
 	private Puzzle puzzle;
 

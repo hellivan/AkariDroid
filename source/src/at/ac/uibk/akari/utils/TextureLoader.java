@@ -15,6 +15,8 @@ import android.content.Context;
 
 public class TextureLoader {
 
+	// @Todo change texture-size to a maximum of 1024x1024 because of
+	// low-end-devices
 	public enum TextureType {
 		/**
 		 * Tiled texture for the a animated lamp
@@ -86,6 +88,8 @@ public class TextureLoader {
 			BitmapTextureAtlas textureAtlas = new BitmapTextureAtlas(textureManager, textureType.getTextureWidth(), textureType.getTextureHeight(), TextureOptions.BILINEAR);
 
 			TiledTextureRegion textureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(textureAtlas, context, textureType.getTexturePath(), 0, 0, textureType.getTileColumns(), textureType.getTileRows());
+
+			// @ToDo: improve memory usage by unloading not needed textures
 			textureAtlas.load();
 			this.texturesCache.put(textureType, textureRegion);
 		}
