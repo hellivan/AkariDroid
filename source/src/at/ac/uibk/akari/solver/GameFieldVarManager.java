@@ -123,5 +123,14 @@ public class GameFieldVarManager {
 	public int blockAt(int blockNr, int x, int y) {
 		return getVar(VarBlocks.getBlockN(blockNr).getValue(), x, y);
 	}
+	
+	public int blankAt(final Point location) {
+		return this.blankAt( location.x, location.y);
+	}
+	
+	public int blankAt(int x,int y)
+	{
+		return getVar(VarBlocks.BLANK.getValue(),x, y);
+	}
 
 }
