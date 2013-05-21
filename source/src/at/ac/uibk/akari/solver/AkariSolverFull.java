@@ -96,13 +96,52 @@ public class AkariSolverFull {
 		}
 	}
 
-	private void updateModel() throws ContradictionException {
+	void updateModel() throws ContradictionException {
 		this.setModel(this.model);
 	}
 
 	private void setModel(final GameFieldModel model) throws ContradictionException {
 
-		this.model = model;
+		solver.clearLearntClauses();
+		
+		setRules();
+
+		for (int i = 0; i < this.model.getWidth(); i++) {
+			for (int j = 0; j < this.model.getHeight(); j++) {
+				switch (model.getPuzzleCellState(i, j)) {
+				case BARRIER:
+					this.solver.addClause(new VecInt(new int[] { vars.barrierAt(i, j) }));
+					break;
+				case BLANK:
+					this.solver.addClause(new VecInt(new int[] { vars.blankAt(i, j) }));
+					break;
+				case BLOCK0:
+					this.solver.addClause(new VecInt(new int[] { vars.blockAt(0, i, j) }));
+					break;
+				case BLOCK1:
+					this.solver.addClause(new VecInt(new int[] { vars.blockAt(1, i, j) }));
+					break;
+				case BLOCK2:
+					this.solver.addClause(new VecInt(new int[] { vars.blockAt(2, i, j) }));
+					break;
+				case BLOCK3:
+					this.solver.addClause(new VecInt(new int[] { vars.blockAt(3, i, j) }));
+					break;
+				case BLOCK4:
+					this.solver.addClause(new VecInt(new int[] { vars.blockAt(4, i, j) }));
+					break;
+
+				default:
+					break;
+				}
+			}
+		}
+		
+
+	}
+
+	private void setRules() throws ContradictionException {
+
 		this.solver.clearLearntClauses();
 
 		this.solver.addClause(new VecInt(new int[] { -vars.falseVar() }));
@@ -134,7 +173,8 @@ public class AkariSolverFull {
 				this.solver.addClause(new VecInt(new int[] { -vars.blankAt(i, j), -vars.lampAt(i, j), -vars.lightAt(i, j) }));
 
 				ArrayList<Integer> list = new ArrayList<Integer>();
-				list.add(-vars.blankAt(i, j), -vars.lightAt(i, j));
+				list.add(-vars.blankAt(i, j));
+				list.add(-vars.lightAt(i, j));
 
 				int k = j + 1;
 				while (k >= 0 && k < this.model.getHeight() && (this.model.getPuzzleCellState(i, k) == CellState.BLANK)) {
@@ -168,7 +208,7 @@ public class AkariSolverFull {
 
 				this.solver.addClause(new VecInt(AkariSolverFull.toIntArray(list)));
 
-				this.addBlockDefinition(i, j, this.model.getPuzzleCellState(i, j));
+				this.addBlockDefinition(i, j);
 
 			}
 
@@ -176,25 +216,25 @@ public class AkariSolverFull {
 
 	}
 
-	public LinkedList<IConstr> addBlockDefinition(final int i, final int j, final CellState state) throws ContradictionException {
+	public LinkedList<IConstr> addBlockDefinition(final int i, final int j) throws ContradictionException {
 		LinkedList<IConstr> constr = new LinkedList<IConstr>();
 
 		// case BLOCK0:
-		
+
 		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(0, i, j), -vars.lampAt(i + 1, j) })));
 		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(0, i, j), -vars.lampAt(i, j + 1) })));
 		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(0, i, j), -vars.lampAt(i - 1, j) })));
 		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(0, i, j), -vars.lampAt(i, j - 1) })));
 
 		// case BLOCK4:
-		
+
 		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(4, i, j), vars.lampAt(i + 1, j) })));
 		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(4, i, j), vars.lampAt(i, j + 1) })));
 		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(4, i, j), vars.lampAt(i - 1, j) })));
 		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(4, i, j), vars.lampAt(i, j - 1) })));
 
 		// case BLOCK1:
-		
+
 		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(1, i, j), vars.lampAt(i + 1, j), vars.lampAt(i - 1, j), vars.lampAt(i, j + 1), vars.lampAt(i, j - 1) })));
 
 		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(1, i, j), -vars.lampAt(i + 1, j), -vars.lampAt(i - 1, j) })));
@@ -220,7 +260,7 @@ public class AkariSolverFull {
 		// 1), -vars.lampAt(i, j + 1) }));
 
 		// case BLOCK3:
-		
+
 		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(3, i, j), -vars.lampAt(i + 1, j), -vars.lampAt(i - 1, j), -vars.lampAt(i, j + 1), -vars.lampAt(i, j - 1) })));
 
 		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(3, i, j), vars.lampAt(i + 1, j), vars.lampAt(i - 1, j) })));
@@ -246,7 +286,7 @@ public class AkariSolverFull {
 		// vars.lampAt(i, j + 1) }));
 
 		// case BLOCK2:
-		
+
 		// ( a + b + c ) * ( a + b + d ) * ( a + c + d ) * ( b + c +
 		// d ) *
 		// ( !a + !b + !c ) *( !a + !b + !d ) * ( !a + !c + !d ) * (
@@ -539,7 +579,8 @@ public class AkariSolverFull {
 			int[] model = this.solver.model();
 
 			for (int i = 0; i < model.length; i++) {
-				if (vars.reverseVarBlock(model[i]) != VarBlocks.LAMP)
+
+				if (vars.reverseVarBlock(model[i]) != VarBlocks.LAMP || model[i] < 0)
 					continue;
 
 				Point p = vars.reverseVarPoint(model[i]);
@@ -607,7 +648,7 @@ public class AkariSolverFull {
 
 					puzzle.setCellState(barrier, CellState.getBlockByNumber(model.getLampNeightbors(barrier).size()));
 
-					LinkedList<IConstr> constr = solver.addBlockDefinition(barrier.x, barrier.y, puzzle.getCellState(barrier));
+					LinkedList<IConstr> constr = solver.addBlockDefinition(barrier.x, barrier.y);
 
 					if (!solver.isSatisfiable()) {
 						System.out.println("!satisfiable after first steps....");
@@ -675,7 +716,7 @@ public class AkariSolverFull {
 
 							puzzle.setCellState(barrier, CellState.getBlockByNumber(model.getLampNeightbors(barrier).size()));
 
-							LinkedList<IConstr> constr1 = solver.addBlockDefinition(barrier.x, barrier.y, puzzle.getCellState(barrier));
+							LinkedList<IConstr> constr1 = solver.addBlockDefinition(barrier.x, barrier.y);
 
 							if (!solver.isSatisfiable()) {
 								System.out.println("!satisfiable after first steps....");
