@@ -9,6 +9,8 @@ import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
 import at.ac.uibk.akari.listener.MenuListener;
 import at.ac.uibk.akari.listener.TouchListener;
 import at.ac.uibk.akari.utils.ListenerList;
+import at.ac.uibk.akari.utils.TextureLoader;
+import at.ac.uibk.akari.utils.TextureLoader.TextureType;
 
 public class PuzzleHUD extends HUD implements TouchListener {
 
@@ -32,13 +34,13 @@ public class PuzzleHUD extends HUD implements TouchListener {
 	}
 
 	private void initGUI() {
-		this.pauseButton = new HUDButton(PuzzleHUD.BORDER_INSET_X, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager);
+		this.pauseButton = new HUDButton(PuzzleHUD.BORDER_INSET_X, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTexture(TextureType.MENU_ICONS, 0, 1));
 
 		int timerWidth = 3 * PuzzleHUD.BUTTONS_SIZE;
 		int timerPos = this.desiredWidth / 2 - timerWidth / 2;
-		this.timerButton = new HUDButton(timerPos, PuzzleHUD.BORDER_INSET_Y, timerWidth, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager);
+		this.timerButton = new HUDButton(timerPos, PuzzleHUD.BORDER_INSET_Y, timerWidth, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTexture(TextureType.LAMP, 1, 0));
 
-		this.helpButton = new HUDButton(this.desiredWidth - PuzzleHUD.BUTTONS_SIZE - PuzzleHUD.BORDER_INSET_X, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager);
+		this.helpButton = new HUDButton(this.desiredWidth - PuzzleHUD.BUTTONS_SIZE - PuzzleHUD.BORDER_INSET_X, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTexture(TextureType.MENU_ICONS, 0, 0));
 
 		this.attachChild(this.pauseButton);
 		this.attachChild(this.timerButton);

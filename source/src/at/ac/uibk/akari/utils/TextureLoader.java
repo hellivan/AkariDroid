@@ -25,7 +25,11 @@ public class TextureLoader {
 		/**
 		 * Tiled texture for a cell
 		 */
-		CELL("cell.png", 128, 1280, 1, 10);
+		CELL("cell.png", 128, 1280, 1, 10),
+		/**
+		 * Tiled texture for a menu icons
+		 */
+		MENU_ICONS("menu.png", 64, 128, 1, 2);
 
 		private String texturePath;
 		private int textureWidth;

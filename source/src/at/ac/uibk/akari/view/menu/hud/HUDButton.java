@@ -2,40 +2,47 @@ package at.ac.uibk.akari.view.menu.hud;
 
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
+import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.graphics.PointF;
 import at.ac.uibk.akari.listener.TouchListener;
 import at.ac.uibk.akari.utils.ListenerList;
-import at.ac.uibk.akari.utils.TextureLoader;
-import at.ac.uibk.akari.utils.TextureLoader.TextureType;
 
 public class HUDButton extends Sprite {
 
 	protected ListenerList listeners;
 
-	public HUDButton(final PointF location, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager) {
-		this(location.x, location.y, width, height, vertexBufferObjectManager);
+	public HUDButton(final PointF location, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final ITextureRegion texture) {
+		this(location.x, location.y, width, height, vertexBufferObjectManager, texture);
 	}
 
-	public HUDButton(final float posX, final float posY, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager) {
-		super(posX, posY, width, height, TextureLoader.getInstance().getTexture(TextureType.LAMP, 1, 0), vertexBufferObjectManager);
+	public HUDButton(final float posX, final float posY, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final ITextureRegion texture) {
+		super(posX, posY, width, height, texture, vertexBufferObjectManager);
 		this.listeners = new ListenerList();
 	}
 
 	@Override
-	public boolean onAreaTouched(TouchEvent pSceneTouchEvent, float pTouchAreaLocalX, float pTouchAreaLocalY) {
+	public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
 		if (pSceneTouchEvent.isActionUp()) {
+			this.setScale(1f);
 			this.fireTouched();
+			return true;
+		} else if (pSceneTouchEvent.isActionDown()) {
+			this.setScale(1.2f);
+			return true;
+		} else if (pSceneTouchEvent.isActionOutside()) {
+			this.setScale(1f);
+			return true;
 		}
 		return false;
 	}
 
-	public void addTouchListener(TouchListener listener) {
+	public void addTouchListener(final TouchListener listener) {
 		this.listeners.addListener(TouchListener.class, listener);
 	}
 
-	public void removeTouchListener(TouchListener listener) {
+	public void removeTouchListener(final TouchListener listener) {
 		this.listeners.removeListener(TouchListener.class, listener);
 	}
 
