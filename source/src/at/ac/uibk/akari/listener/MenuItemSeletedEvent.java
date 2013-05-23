@@ -3,7 +3,7 @@ package at.ac.uibk.akari.listener;
 public class MenuItemSeletedEvent {
 
 	public enum ItemType {
-		REPLAY, NEXT, STOP, PAUSE, HELP
+		REPLAY, NEXT, STOP, PAUSE, HELP, CONTINUE, RESET
 
 	}
 

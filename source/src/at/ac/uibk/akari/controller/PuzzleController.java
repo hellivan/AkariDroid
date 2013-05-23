@@ -26,6 +26,7 @@ import at.ac.uibk.akari.listener.MenuListener;
 import at.ac.uibk.akari.solver.AkariSolver;
 import at.ac.uibk.akari.utils.ListenerList;
 import at.ac.uibk.akari.view.GameField;
+import at.ac.uibk.akari.view.menu.PuzzlePauseMenuScene;
 import at.ac.uibk.akari.view.menu.hud.PuzzleHUD;
 
 public class PuzzleController extends AbstractController implements GameFieldListener, MenuListener, IOnSceneTouchListener, IScrollDetectorListener, IPinchZoomDetectorListener {
@@ -35,6 +36,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	private Scene gameScene;
 	private ZoomCamera gameCamera;
 	private PuzzleHUD gameHUD;
+	private PuzzlePauseMenuScene pauseScene;
 
 	private GameFieldModel puzzle;
 	private VertexBufferObjectManager vertexBufferObjectManager;
@@ -62,6 +64,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		this.gameScene.attachChild(this.gameField);
 		this.gameScene.registerTouchArea(this.gameField);
 		this.gameHUD = new PuzzleHUD((int) this.gameCamera.getWidth(), this.vertexBufferObjectManager);
+		this.pauseScene = new PuzzlePauseMenuScene(this.gameCamera, this.vertexBufferObjectManager);
 
 		this.mScrollDetector = new SurfaceScrollDetector(this);
 		this.mPinchZoomDetector = new PinchZoomDetector(this);
@@ -81,6 +84,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		this.gameFieldController.addGameFieldListener(this);
 		this.gameHUD.addPuzzleControlListener(this);
 		this.gameScene.setOnSceneTouchListener(this);
+		this.pauseScene.addMenuListener(this);
 		return this.gameFieldController.start();
 
 	}
@@ -91,6 +95,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		this.gameFieldController.removeGameFieldListener(this);
 		this.gameHUD.removePuzzleControlListener(this);
 		this.gameScene.setOnSceneTouchListener(null);
+		this.pauseScene.addMenuListener(this);
 		return this.gameFieldController.stop();
 	}
 
@@ -200,6 +205,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 			case PAUSE:
 				Log.i(this.getClass().getName(), "PAUSE-Game pressed");
 				MainActivity.showToast("PAUSE", Toast.LENGTH_SHORT);
+				this.gameScene.setChildScene(this.pauseScene, false, true, true);
 				break;
 			case HELP:
 				Log.i(this.getClass().getName(), "HELP-Game pressed");
@@ -211,6 +217,26 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 				}
 				this.gameField.adaptFieldToModel();
 				this.onGameFieldChanged();
+				break;
+			default:
+				break;
+			}
+		} else if (event.getSource() == this.pauseScene) {
+			switch (event.getItemType()) {
+			case CONTINUE:
+				Log.i(this.getClass().getName(), "CONTINUE-Game pressed");
+				MainActivity.showToast("CONTINUE", Toast.LENGTH_SHORT);
+				this.pauseScene.back();
+				break;
+			case STOP:
+				Log.i(this.getClass().getName(), "STOP-Game pressed");
+				MainActivity.showToast("STOP", Toast.LENGTH_SHORT);
+				break;
+			case RESET:
+				Log.i(this.getClass().getName(), "RESET-Game pressed");
+				MainActivity.showToast("RESET", Toast.LENGTH_SHORT);
+				this.gameFieldController.resetGameField();
+				this.pauseScene.back();
 				break;
 			default:
 				break;

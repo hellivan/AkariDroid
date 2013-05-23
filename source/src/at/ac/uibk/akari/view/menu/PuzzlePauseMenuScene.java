@@ -17,17 +17,17 @@ import at.ac.uibk.akari.utils.TextureLoader.TextureType;
 import at.ac.uibk.akari.view.Cell;
 import at.ac.uibk.akari.view.Cell.State;
 
-public class PuzzleCompletedMenuScene extends MenuScene implements IOnMenuItemClickListener {
+public class PuzzlePauseMenuScene extends MenuScene implements IOnMenuItemClickListener {
 
 	private ListenerList listeners;
 
 	private VertexBufferObjectManager vertexBufferObjectManager;
 
-	private IMenuItem nextMenuItem;
+	private IMenuItem continueMenuItem;
 	private IMenuItem repeatMenuItem;
 	private IMenuItem stopMenuItem;
 
-	public PuzzleCompletedMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager) {
+	public PuzzlePauseMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager) {
 		super(camera);
 		this.listeners = new ListenerList();
 		this.vertexBufferObjectManager = vertexBufferObjectManager;
@@ -35,7 +35,7 @@ public class PuzzleCompletedMenuScene extends MenuScene implements IOnMenuItemCl
 	}
 
 	private void initGUI() {
-		this.nextMenuItem = new ScaleMenuItemDecorator(new SpriteMenuItem(0, 80, 80, TextureLoader.getInstance().getTexture(TextureType.LAMP, 0, 0), this.vertexBufferObjectManager), 1.2f, 1);
+		this.continueMenuItem = new ScaleMenuItemDecorator(new SpriteMenuItem(0, 80, 80, TextureLoader.getInstance().getTexture(TextureType.LAMP, 0, 0), this.vertexBufferObjectManager), 1.2f, 1);
 		this.repeatMenuItem = new ScaleMenuItemDecorator(new SpriteMenuItem(1, 80, 80, TextureLoader.getInstance().getTexture(TextureType.LAMP, 1, 0), this.vertexBufferObjectManager), 1.2f, 1);
 		this.stopMenuItem = new ScaleMenuItemDecorator(new SpriteMenuItem(2, 80, 80, TextureLoader.getInstance().getTexture(TextureType.LAMP, 2, 0), this.vertexBufferObjectManager), 1.2f, 1);
 
@@ -44,7 +44,7 @@ public class PuzzleCompletedMenuScene extends MenuScene implements IOnMenuItemCl
 		Cell cell = new Cell(this.getCamera().getCenterX() - bgWidth / 2, this.getCamera().getCenterY() - bgHeight / 2, bgWidth, bgHeight, this.vertexBufferObjectManager);
 		cell.setCellState(State.BARRIER);
 		this.attachChild(cell);
-		this.addMenuItem(this.nextMenuItem);
+		this.addMenuItem(this.continueMenuItem);
 		this.addMenuItem(this.repeatMenuItem);
 		this.addMenuItem(this.stopMenuItem);
 
@@ -57,10 +57,10 @@ public class PuzzleCompletedMenuScene extends MenuScene implements IOnMenuItemCl
 	@Override
 	public boolean onMenuItemClicked(final MenuScene pMenuScene, final IMenuItem pMenuItem, final float pMenuItemLocalX, final float pMenuItemLocalY) {
 		if (pMenuScene == this) {
-			if (pMenuItem == this.nextMenuItem) {
-				this.fireMenuItemSelected(ItemType.NEXT);
+			if (pMenuItem == this.continueMenuItem) {
+				this.fireMenuItemSelected(ItemType.CONTINUE);
 			} else if (pMenuItem == this.repeatMenuItem) {
-				this.fireMenuItemSelected(ItemType.REPLAY);
+				this.fireMenuItemSelected(ItemType.RESET);
 			} else if (pMenuItem == this.stopMenuItem) {
 				this.fireMenuItemSelected(ItemType.STOP);
 			}

@@ -82,5 +82,8 @@ public class GameFieldController extends AbstractController implements GameField
 	public void removeGameFieldListener(final GameFieldListener listener) {
 		this.listenerList.removeListener(GameFieldListener.class, listener);
 	}
-	
+
+	public void resetGameField() {
+		this.gameField.clearField();
+	}
 }

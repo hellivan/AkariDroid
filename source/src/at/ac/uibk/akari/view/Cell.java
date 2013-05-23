@@ -12,7 +12,7 @@ public class Cell extends AnimatedSprite {
 	 * 
 	 * Enumeration that represents all possible states of a cell
 	 */
-	enum State {
+	public enum State {
 		/**
 		 * An empty cell
 		 */

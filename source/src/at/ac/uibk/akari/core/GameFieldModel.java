@@ -52,9 +52,8 @@ public class GameFieldModel {
 	}
 
 	/**
-	 * Clear the whole field. After this method is called the state of all cells
-	 * of the game-field is set to BLANK, which means that the game-field is
-	 * complete empty (lamps are removed too).
+	 * Clear the whole field. After this method is called, all lamps, marks, ...
+	 * are removed. The puzzle itself is not influenced by this method
 	 */
 	public synchronized void clear() {
 		this.clearLamps();

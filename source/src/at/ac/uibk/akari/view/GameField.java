@@ -319,12 +319,17 @@ public class GameField extends Rectangle {
 	}
 
 	public boolean isLampAt(final int posX, final int posY) {
-		return this.puzzle.isLampAt(posX, posY);
+		return this.getModel().isLampAt(posX, posY);
 
 	}
 
 	public boolean isLampAt(final Point location) {
 		return this.isLampAt(location.x, location.y);
+	}
+
+	public void clearField() {
+		this.getModel().clear();
+		this.adaptFieldToModel();
 	}
 
 }
