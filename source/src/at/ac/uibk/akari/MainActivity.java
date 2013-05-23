@@ -52,14 +52,14 @@ public class MainActivity extends SimpleBaseGameActivity {
 		// determine the right landscape resolution
 
 		if (display.getWidth() > display.getHeight()) {
-			SCREEN_WIDTH = display.getWidth();
-			SCREEN_HEIGHT = display.getHeight();
+			MainActivity.SCREEN_WIDTH = display.getWidth();
+			MainActivity.SCREEN_HEIGHT = display.getHeight();
 		} else {
-			SCREEN_WIDTH = display.getHeight();
-			SCREEN_HEIGHT = display.getWidth();
+			MainActivity.SCREEN_WIDTH = display.getHeight();
+			MainActivity.SCREEN_HEIGHT = display.getWidth();
 		}
 
-		float screenAspect = (float) SCREEN_WIDTH / (float) SCREEN_HEIGHT;
+		float screenAspect = (float) MainActivity.SCREEN_WIDTH / (float) MainActivity.SCREEN_HEIGHT;
 		MainActivity.CAMERA_WIDTH = (int) (MainActivity.CAMERA_HEIGHT * screenAspect);
 		Log.i(this.getClass().getName(), "Got screen aspect of " + screenAspect);
 
@@ -70,7 +70,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 		Log.i(this.getClass().getName(), "Got screen resolution " + MainActivity.SCREEN_WIDTH + "x" + MainActivity.SCREEN_HEIGHT);
 		Log.i(this.getClass().getName(), "Got camera resolution " + MainActivity.CAMERA_WIDTH + "x" + MainActivity.CAMERA_HEIGHT);
 
-		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_SENSOR, new RatioResolutionPolicy(SCREEN_WIDTH, SCREEN_HEIGHT), this.gameCamera);
+		EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_SENSOR, new RatioResolutionPolicy(MainActivity.SCREEN_WIDTH, MainActivity.SCREEN_HEIGHT), this.gameCamera);
 		engineOptions.getTouchOptions().setNeedsMultiTouch(true);
 
 		return engineOptions;
@@ -87,6 +87,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 		try {
 			int syncedPuzzles = PuzzleLoader.synchronizePuzzleList("http://helama.us.to/akari/", this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
 			Log.i(this.getClass().getName(), "Synchronized " + syncedPuzzles + " puzzles");
+			MainActivity.showToast("Synchronized " + syncedPuzzles + " puzzles", Toast.LENGTH_SHORT);
 
 		} catch (Exception e) {
 			e.printStackTrace();

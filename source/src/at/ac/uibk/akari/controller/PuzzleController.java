@@ -5,10 +5,10 @@ import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.input.touch.detector.PinchZoomDetector;
-import org.andengine.input.touch.detector.ScrollDetector;
-import org.andengine.input.touch.detector.SurfaceScrollDetector;
 import org.andengine.input.touch.detector.PinchZoomDetector.IPinchZoomDetectorListener;
+import org.andengine.input.touch.detector.ScrollDetector;
 import org.andengine.input.touch.detector.ScrollDetector.IScrollDetectorListener;
+import org.andengine.input.touch.detector.SurfaceScrollDetector;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.TimeoutException;
@@ -21,15 +21,14 @@ import at.ac.uibk.akari.core.GameFieldModel;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.GameFieldListener;
 import at.ac.uibk.akari.listener.GameListener;
-import at.ac.uibk.akari.listener.InputEvent;
-import at.ac.uibk.akari.listener.PuzzleControlListener;
+import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
+import at.ac.uibk.akari.listener.MenuListener;
 import at.ac.uibk.akari.solver.AkariSolver;
-import at.ac.uibk.akari.solver.AkariSolverFull;
 import at.ac.uibk.akari.utils.ListenerList;
 import at.ac.uibk.akari.view.GameField;
-import at.ac.uibk.akari.view.menu.PuzzleHUD;
+import at.ac.uibk.akari.view.menu.hud.PuzzleHUD;
 
-public class PuzzleController extends AbstractController implements GameFieldListener, PuzzleControlListener, IOnSceneTouchListener, IScrollDetectorListener, IPinchZoomDetectorListener {
+public class PuzzleController extends AbstractController implements GameFieldListener, MenuListener, IOnSceneTouchListener, IScrollDetectorListener, IPinchZoomDetectorListener {
 
 	private GameFieldController gameFieldController;
 	private GameField gameField;
@@ -40,7 +39,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	private GameFieldModel puzzle;
 	private VertexBufferObjectManager vertexBufferObjectManager;
 
-	private AkariSolverFull solver;
+	private AkariSolver solver;
 
 	private ListenerList listenerList;
 
@@ -63,7 +62,6 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		this.gameScene.attachChild(this.gameField);
 		this.gameScene.registerTouchArea(this.gameField);
 		this.gameHUD = new PuzzleHUD((int) this.gameCamera.getWidth(), this.vertexBufferObjectManager);
-		this.gameCamera.setHUD(this.gameHUD);
 
 		this.mScrollDetector = new SurfaceScrollDetector(this);
 		this.mPinchZoomDetector = new PinchZoomDetector(this);
@@ -73,12 +71,13 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 
 	public void setPuzzle(final Puzzle puzzle) throws ContradictionException {
 		this.puzzle = new GameFieldModel(puzzle);
-		this.solver = new AkariSolverFull(this.puzzle);
+		this.solver = new AkariSolver(this.puzzle);
 		this.gameField.setPuzzle(this.puzzle);
 	}
 
 	@Override
 	public boolean start() {
+		this.gameCamera.setHUD(this.gameHUD);
 		this.gameFieldController.addGameFieldListener(this);
 		this.gameHUD.addPuzzleControlListener(this);
 		this.gameScene.setOnSceneTouchListener(this);
@@ -88,8 +87,10 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 
 	@Override
 	public boolean stop() {
+		this.gameCamera.setHUD(null);
 		this.gameFieldController.removeGameFieldListener(this);
 		this.gameHUD.removePuzzleControlListener(this);
+		this.gameScene.setOnSceneTouchListener(null);
 		return this.gameFieldController.stop();
 	}
 
@@ -129,25 +130,6 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		if (source.equals(this.gameFieldController)) {
 			this.onGameFieldChanged();
 		}
-	}
-
-	@Override
-	public void pausePuzzle(InputEvent event) {
-		Log.i(this.getClass().getName(), "PAUSE-Game pressed");
-		MainActivity.showToast("PAUSE", Toast.LENGTH_SHORT);
-	}
-
-	@Override
-	public void helpPuzzle(InputEvent event) {
-		Log.i(this.getClass().getName(), "HELP-Game pressed");
-		MainActivity.showToast("HELP", Toast.LENGTH_SHORT);
-		try {
-			this.solver.setSolutionToModel();
-		} catch (TimeoutException e) {
-			e.printStackTrace();
-		}
-		this.gameField.adaptFieldToModel();
-		this.onGameFieldChanged();
 	}
 
 	@Override
@@ -209,5 +191,30 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		Log.d(this.getClass().getName(), "MainActivity.onScrollStarted()");
 		final float zoomFactor = this.gameCamera.getZoomFactor();
 		this.gameCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
+	}
+
+	@Override
+	public void menuItemSelected(final MenuItemSeletedEvent event) {
+		if (event.getSource() == this.gameHUD) {
+			switch (event.getItemType()) {
+			case PAUSE:
+				Log.i(this.getClass().getName(), "PAUSE-Game pressed");
+				MainActivity.showToast("PAUSE", Toast.LENGTH_SHORT);
+				break;
+			case HELP:
+				Log.i(this.getClass().getName(), "HELP-Game pressed");
+				MainActivity.showToast("HELP", Toast.LENGTH_SHORT);
+				try {
+					this.solver.setSolutionToModel();
+				} catch (TimeoutException e) {
+					e.printStackTrace();
+				}
+				this.gameField.adaptFieldToModel();
+				this.onGameFieldChanged();
+				break;
+			default:
+				break;
+			}
+		}
 	}
 }

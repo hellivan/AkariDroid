@@ -3,18 +3,20 @@ package at.ac.uibk.akari.controller;
 import java.util.List;
 
 import org.andengine.engine.camera.ZoomCamera;
-import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
-import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.sat4j.specs.ContradictionException;
 
+import android.util.Log;
 import android.widget.Toast;
 import at.ac.uibk.akari.MainActivity;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.GameListener;
+import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
+import at.ac.uibk.akari.listener.MenuListener;
+import at.ac.uibk.akari.view.menu.PuzzleCompletedMenuScene;
 
-public class GameController extends AbstractController implements GameListener {
+public class GameController extends AbstractController implements GameListener, MenuListener {
 
 	private List<Puzzle> puzzles;
 	private PuzzleController puzzleController;
@@ -23,10 +25,7 @@ public class GameController extends AbstractController implements GameListener {
 
 	private ZoomCamera gameCamera;
 	private Scene gameScene;
-
-	private Scene winningScene;
-
-	private int counter;
+	private PuzzleCompletedMenuScene winninMenuScene;
 
 	private VertexBufferObjectManager vertexBufferObjectManager;
 
@@ -40,29 +39,17 @@ public class GameController extends AbstractController implements GameListener {
 
 	private void init() {
 		this.puzzleController = new PuzzleController(this.gameCamera, this.gameScene, this.vertexBufferObjectManager);
-		this.winningScene = new Scene();
-		this.winningScene.setBackgroundEnabled(false);
 
-		this.winningScene.setOnSceneTouchListener(new IOnSceneTouchListener() {
-
-			@Override
-			public boolean onSceneTouchEvent(Scene arg0, TouchEvent arg1) {
-				if (arg0 == winningScene&& counter>2) {
-					startNextLevel();
-				}
-				counter++;
-				return false;
-			}
-		});
-
+		this.winninMenuScene = new PuzzleCompletedMenuScene(this.gameCamera, this.vertexBufferObjectManager);
 	}
 
 	@Override
 	public boolean start() {
 		this.currentPuzzle = 0;
 		this.puzzleController.addGameListener(this);
+		this.winninMenuScene.addMenuListener(this);
 		try {
-			this.puzzleController.setPuzzle(this.puzzles.get(this.currentPuzzle++));
+			this.puzzleController.setPuzzle(this.puzzles.get(this.currentPuzzle));
 			this.puzzleController.start();
 		} catch (ContradictionException e) {
 			e.printStackTrace();
@@ -78,24 +65,48 @@ public class GameController extends AbstractController implements GameListener {
 	}
 
 	@Override
-	public void puzzleSolved(PuzzleController source, long timeMs) {
+	public void puzzleSolved(final PuzzleController source, final long timeMs) {
 		if (source.equals(this.puzzleController)) {
 			this.puzzleController.stop();
 			MainActivity.showToast("Solved level", Toast.LENGTH_LONG);
 
-			counter=0;
-			this.gameScene.setChildScene(this.winningScene);
+			this.gameScene.setChildScene(this.winninMenuScene, false, true, true);
+
 		}
 	}
 
-	public void startNextLevel() {
+	public void startLevel(final int index) {
 		try {
-			this.gameScene.clearChildScene();
-			this.puzzleController.setPuzzle(this.puzzles.get(this.currentPuzzle++));
+			this.puzzleController.setPuzzle(this.puzzles.get(index));
 			this.puzzleController.start();
 		} catch (ContradictionException e) {
 			e.printStackTrace();
 		}
 	}
 
+	@Override
+	public void menuItemSelected(final MenuItemSeletedEvent event) {
+		if (event.getSource() == this.winninMenuScene) {
+			switch (event.getItemType()) {
+			case REPLAY:
+				Log.i(this.getClass().getName(), "REPLAY-Game pressed");
+				MainActivity.showToast("REPLAY", Toast.LENGTH_SHORT);
+				this.winninMenuScene.back();
+				this.startLevel(this.currentPuzzle);
+				break;
+			case NEXT:
+				Log.i(this.getClass().getName(), "NEXT-Game pressed");
+				MainActivity.showToast("NEXT", Toast.LENGTH_SHORT);
+				this.winninMenuScene.back();
+				this.startLevel(++this.currentPuzzle);
+				break;
+			case STOP:
+				Log.i(this.getClass().getName(), "STOP-Game pressed");
+				MainActivity.showToast("STOP", Toast.LENGTH_SHORT);
+				break;
+			default:
+				break;
+			}
+		}
+	}
 }

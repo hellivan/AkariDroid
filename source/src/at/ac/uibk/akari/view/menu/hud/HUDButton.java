@@ -1,4 +1,4 @@
-package at.ac.uibk.akari.view.menu;
+package at.ac.uibk.akari.view.menu.hud;
 
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
