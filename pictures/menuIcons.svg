@@ -16,7 +16,10 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="menuIcons.svg">
+   sodipodi:docname="menuIcons.svg"
+   inkscape:export-filename="/home/ivan/git/AkariDroid/pictures/menuIcons.png"
+   inkscape:export-xdpi="230.38643"
+   inkscape:export-ydpi="230.38643">
   <defs
      id="defs4">
     <linearGradient
@@ -108,6 +111,26 @@
        y1="255.35182"
        x2="305.55694"
        y2="255.35182" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3866-8"
+       id="linearGradient3982"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.40743379,0,0,0.40743381,35.505777,838.32324)"
+       x1="60.118294"
+       y1="255.35182"
+       x2="305.55695"
+       y2="255.35182" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3866-8"
+       id="linearGradient3987"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.40743379,0,0,0.40743381,35.505777,838.32324)"
+       x1="60.118294"
+       y1="255.35182"
+       x2="305.55695"
+       y2="255.35182" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -116,9 +139,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="-63.490471"
-     inkscape:cy="168.21517"
+     inkscape:zoom="5.6"
+     inkscape:cx="90.425925"
+     inkscape:cy="188.02718"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -144,7 +167,10 @@
      inkscape:groupmode="layer"
      id="layer1">
     <g
-       id="g3972">
+       id="g3972"
+       inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/menu.png"
+       inkscape:export-xdpi="57.599998"
+       inkscape:export-ydpi="57.599998">
       <path
          inkscape:connector-curvature="0"
          inkscape:export-ydpi="57.599998"
@@ -180,32 +206,38 @@
        x="91.785713"
        y="835.93359"
        id="text3962"
-       sodipodi:linespacing="1000%"><tspan
+       sodipodi:linespacing="1000%"
+       inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/menu.png"
+       inkscape:export-xdpi="57.599998"
+       inkscape:export-ydpi="57.599998"><tspan
          sodipodi:role="line"
          id="tspan3964"
          x="91.785713"
          y="835.93359" /></text>
     <g
-       id="g3977">
+       id="g3989"
+       inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/menu.png"
+       inkscape:export-xdpi="57.599998"
+       inkscape:export-ydpi="57.599998">
       <path
          inkscape:export-ydpi="57.599998"
          inkscape:export-xdpi="57.599998"
          inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/menu.png"
          id="path2985-7"
          d="m 110,792.56222 c -27.496878,0 -49.8,22.31012 -49.8,49.81562 0,27.50551 22.303122,49.78438 49.8,49.78438 27.49688,0 49.8,-22.27887 49.8,-49.78438 0,-27.5055 -22.30312,-49.81562 -49.8,-49.81562 z m 0,10.00062 c 21.97541,0 39.80251,17.83269 39.80251,39.815 0,21.98231 -17.8271,39.78375 -39.80251,39.78375 -21.975424,0 -39.802509,-17.80144 -39.802509,-39.78375 0,-21.98231 17.827085,-39.815 39.802509,-39.815 z"
-         style="fill:url(#linearGradient3941);fill-opacity:1;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         style="fill:url(#linearGradient3987);fill-opacity:1;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
          inkscape:connector-curvature="0" />
       <text
-         transform="scale(0.99997372,1.0000263)"
+         transform="scale(1.0005792,0.99942116)"
          sodipodi:linespacing="1000%"
          id="text3966"
-         y="867.1394"
-         x="92.202835"
-         style="font-size:66.82771301px;font-style:normal;font-weight:normal;line-height:1000%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Sans"
+         y="872.6673"
+         x="88.534599"
+         style="font-size:80.34967041px;font-style:normal;font-weight:normal;line-height:1000%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.39999998;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;font-family:Sans"
          xml:space="preserve"><tspan
-           style="stroke-width:0.40000001"
-           y="867.1394"
-           x="92.202835"
+           style="stroke-width:0.39999998"
+           y="872.6673"
+           x="88.534599"
            id="tspan3968"
            sodipodi:role="line">?</tspan></text>
     </g>

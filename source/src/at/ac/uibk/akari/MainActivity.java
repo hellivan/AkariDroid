@@ -3,6 +3,8 @@ package at.ac.uibk.akari;
 import java.io.File;
 import java.util.List;
 
+import org.andengine.engine.Engine;
+import org.andengine.engine.LimitedFPSEngine;
 import org.andengine.engine.camera.ZoomCamera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
@@ -39,6 +41,11 @@ public class MainActivity extends SimpleBaseGameActivity {
 	private Scene gameScene;
 
 	private List<Puzzle> puzzles;
+
+	@Override
+	public Engine onCreateEngine(final EngineOptions pEngineOptions) {
+		return new LimitedFPSEngine(pEngineOptions, 30);
+	}
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
