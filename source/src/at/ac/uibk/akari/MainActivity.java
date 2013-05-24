@@ -22,6 +22,7 @@ import android.widget.Toast;
 import at.ac.uibk.akari.controller.GameController;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.testsolver.Akari;
+import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.PuzzleLoader;
 import at.ac.uibk.akari.utils.TextureLoader;
 
@@ -89,6 +90,9 @@ public class MainActivity extends SimpleBaseGameActivity {
 
 		// load textures
 		TextureLoader.getInstance().init(this.getTextureManager(), this);
+		
+		// load fonts
+		FontLoader.getInstance().init(this.getTextureManager(), this.getFontManager(), this.getAssets());
 
 		// synchronize levels
 		try {

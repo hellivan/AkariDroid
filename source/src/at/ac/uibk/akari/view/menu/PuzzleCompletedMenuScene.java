@@ -4,16 +4,17 @@ import org.andengine.engine.camera.Camera;
 import org.andengine.entity.scene.menu.MenuScene;
 import org.andengine.entity.scene.menu.MenuScene.IOnMenuItemClickListener;
 import org.andengine.entity.scene.menu.item.IMenuItem;
-import org.andengine.entity.scene.menu.item.SpriteMenuItem;
+import org.andengine.entity.scene.menu.item.TextMenuItem;
 import org.andengine.entity.scene.menu.item.decorator.ScaleMenuItemDecorator;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
+import android.opengl.GLES20;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
 import at.ac.uibk.akari.listener.MenuListener;
+import at.ac.uibk.akari.utils.FontLoader;
+import at.ac.uibk.akari.utils.FontLoader.FontType;
 import at.ac.uibk.akari.utils.ListenerList;
-import at.ac.uibk.akari.utils.TextureLoader;
-import at.ac.uibk.akari.utils.TextureLoader.TextureType;
 import at.ac.uibk.akari.view.Cell;
 import at.ac.uibk.akari.view.Cell.State;
 
@@ -35,14 +36,23 @@ public class PuzzleCompletedMenuScene extends MenuScene implements IOnMenuItemCl
 	}
 
 	private void initGUI() {
-		this.nextMenuItem = new ScaleMenuItemDecorator(new SpriteMenuItem(0, 80, 80, TextureLoader.getInstance().getTexture(TextureType.LAMP, 0, 0), this.vertexBufferObjectManager), 1.2f, 1);
-		this.repeatMenuItem = new ScaleMenuItemDecorator(new SpriteMenuItem(1, 80, 80, TextureLoader.getInstance().getTexture(TextureType.LAMP, 1, 0), this.vertexBufferObjectManager), 1.2f, 1);
-		this.stopMenuItem = new ScaleMenuItemDecorator(new SpriteMenuItem(2, 80, 80, TextureLoader.getInstance().getTexture(TextureType.LAMP, 2, 0), this.vertexBufferObjectManager), 1.2f, 1);
+		FontType fontType = FontType.DROID_48_BLACK;
+		float sizePessed = 1.1f;
+		float sizeNormal = 1f;
+
+		this.nextMenuItem = new ScaleMenuItemDecorator(new TextMenuItem(0, FontLoader.getInstance().getFont(fontType), "Next", this.vertexBufferObjectManager), sizePessed, sizeNormal);
+		this.nextMenuItem.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+
+		this.repeatMenuItem = new ScaleMenuItemDecorator(new TextMenuItem(1, FontLoader.getInstance().getFont(fontType), "Repeat", this.vertexBufferObjectManager), sizePessed, sizeNormal);
+		this.repeatMenuItem.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+
+		this.stopMenuItem = new ScaleMenuItemDecorator(new TextMenuItem(2, FontLoader.getInstance().getFont(fontType), "Stop", this.vertexBufferObjectManager), sizePessed, sizeNormal);
+		this.stopMenuItem.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
 		int bgWidth = 500;
 		int bgHeight = 300;
 		Cell cell = new Cell(this.getCamera().getCenterX() - bgWidth / 2, this.getCamera().getCenterY() - bgHeight / 2, bgWidth, bgHeight, this.vertexBufferObjectManager);
-		cell.setCellState(State.BARRIER);
+		cell.setCellState(State.LAMP);
 		this.attachChild(cell);
 		this.addMenuItem(this.nextMenuItem);
 		this.addMenuItem(this.repeatMenuItem);

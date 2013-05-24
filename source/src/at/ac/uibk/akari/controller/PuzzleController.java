@@ -204,8 +204,8 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 			switch (event.getItemType()) {
 			case PAUSE:
 				Log.i(this.getClass().getName(), "PAUSE-Game pressed");
-				MainActivity.showToast("PAUSE", Toast.LENGTH_SHORT);
 				this.gameScene.setChildScene(this.pauseScene, false, true, true);
+				this.gameHUD.setEnabled(false);
 				break;
 			case HELP:
 				Log.i(this.getClass().getName(), "HELP-Game pressed");
@@ -225,8 +225,8 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 			switch (event.getItemType()) {
 			case CONTINUE:
 				Log.i(this.getClass().getName(), "CONTINUE-Game pressed");
-				MainActivity.showToast("CONTINUE", Toast.LENGTH_SHORT);
 				this.pauseScene.back();
+				this.gameHUD.setEnabled(true);
 				break;
 			case STOP:
 				Log.i(this.getClass().getName(), "STOP-Game pressed");
@@ -234,9 +234,9 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 				break;
 			case RESET:
 				Log.i(this.getClass().getName(), "RESET-Game pressed");
-				MainActivity.showToast("RESET", Toast.LENGTH_SHORT);
 				this.gameFieldController.resetGameField();
 				this.pauseScene.back();
+				this.gameHUD.setEnabled(true);
 				break;
 			default:
 				break;

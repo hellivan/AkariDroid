@@ -12,6 +12,7 @@ import at.ac.uibk.akari.utils.ListenerList;
 public class HUDButton extends Sprite {
 
 	protected ListenerList listeners;
+	private boolean enabled;
 
 	public HUDButton(final PointF location, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final ITextureRegion texture) {
 		this(location.x, location.y, width, height, vertexBufferObjectManager, texture);
@@ -20,10 +21,14 @@ public class HUDButton extends Sprite {
 	public HUDButton(final float posX, final float posY, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final ITextureRegion texture) {
 		super(posX, posY, width, height, texture, vertexBufferObjectManager);
 		this.listeners = new ListenerList();
+		this.setEnabled(true);
 	}
 
 	@Override
 	public boolean onAreaTouched(final TouchEvent pSceneTouchEvent, final float pTouchAreaLocalX, final float pTouchAreaLocalY) {
+		if (!this.isEnabled()) {
+			return false;
+		}
 		if (pSceneTouchEvent.isActionUp()) {
 			this.setScale(1f);
 			this.fireTouched();
@@ -34,8 +39,10 @@ public class HUDButton extends Sprite {
 		} else if (pSceneTouchEvent.isActionOutside()) {
 			this.setScale(1f);
 			return true;
+		} else if (pSceneTouchEvent.isActionMove()) {
+			return true;
 		}
-		return false;
+		return true;
 	}
 
 	public void addTouchListener(final TouchListener listener) {
@@ -51,5 +58,13 @@ public class HUDButton extends Sprite {
 		for (TouchListener listener : this.listeners.getListeners(TouchListener.class)) {
 			listener.touchPerformed(event);
 		}
+	}
+
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 }

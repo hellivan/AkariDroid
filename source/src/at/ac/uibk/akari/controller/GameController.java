@@ -90,13 +90,11 @@ public class GameController extends AbstractController implements GameListener, 
 			switch (event.getItemType()) {
 			case REPLAY:
 				Log.i(this.getClass().getName(), "REPLAY-Game pressed");
-				MainActivity.showToast("REPLAY", Toast.LENGTH_SHORT);
 				this.winninMenuScene.back();
 				this.startLevel(this.currentPuzzle);
 				break;
 			case NEXT:
 				Log.i(this.getClass().getName(), "NEXT-Game pressed");
-				MainActivity.showToast("NEXT", Toast.LENGTH_SHORT);
 				this.winninMenuScene.back();
 				this.startLevel(++this.currentPuzzle);
 				break;

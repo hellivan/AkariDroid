@@ -1,6 +1,7 @@
 package at.ac.uibk.akari.view.menu.hud;
 
 import org.andengine.engine.camera.hud.HUD;
+import org.andengine.entity.sprite.ButtonSprite;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import at.ac.uibk.akari.listener.InputEvent;
@@ -26,11 +27,14 @@ public class PuzzleHUD extends HUD implements TouchListener {
 	protected ListenerList listeners;
 	protected VertexBufferObjectManager vertexBufferObjectManager;
 
+	private boolean enabled;
+
 	public PuzzleHUD(final int width, final VertexBufferObjectManager vertexBufferObjectManager) {
 		this.listeners = new ListenerList();
 		this.vertexBufferObjectManager = vertexBufferObjectManager;
 		this.desiredWidth = width;
 		this.initGUI();
+		this.setEnabled(true);
 	}
 
 	private void initGUI() {
@@ -49,6 +53,8 @@ public class PuzzleHUD extends HUD implements TouchListener {
 		this.registerTouchArea(this.pauseButton);
 		this.registerTouchArea(this.helpButton);
 
+		this.setTouchAreaBindingOnActionDownEnabled(true);
+
 		this.pauseButton.addTouchListener(this);
 		this.helpButton.addTouchListener(this);
 
@@ -63,6 +69,10 @@ public class PuzzleHUD extends HUD implements TouchListener {
 	}
 
 	protected void fireMenuItemSelected(final ItemType type) {
+		if (!this.isEnabled()) {
+			return;
+		}
+
 		MenuItemSeletedEvent event = new MenuItemSeletedEvent(this, type);
 		for (MenuListener listener : this.listeners.getListeners(MenuListener.class)) {
 			listener.menuItemSelected(event);
@@ -76,5 +86,15 @@ public class PuzzleHUD extends HUD implements TouchListener {
 		} else if (event.getSource() == this.helpButton) {
 			this.fireMenuItemSelected(ItemType.HELP);
 		}
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+		this.helpButton.setEnabled(enabled);
+		this.pauseButton.setEnabled(enabled);
+	}
+
+	public boolean isEnabled() {
+		return enabled;
 	}
 }
