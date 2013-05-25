@@ -5,7 +5,7 @@ import android.graphics.Point;
 public class GameFieldVarManager {
 
 	public enum VarBlocks {
-		LAMP(0), LIGHT(1), BLANK(2), BARRIER(3), BLOCK0(4), BLOCK1(5), BLOCK2(6), BLOCK3(7), BLOCK4(8);
+		LAMP(0), LIGHT(1), BARRIER(2), BLOCK0(3), BLOCK1(4), BLOCK2(5), BLOCK3(6), BLOCK4(7), LEFTRAY(8), UPRAY(9), RIGHTRAY(10), DOWNRAY(11);
 
 		private int value;
 
@@ -52,7 +52,7 @@ public class GameFieldVarManager {
 
 	private int blocksize;
 
-	private final int CONSTANT_COUNT = 1;
+	private final int CONSTANT_COUNT = 2;
 
 	public GameFieldVarManager(int width, int height) {
 		this.width = width;
@@ -61,11 +61,15 @@ public class GameFieldVarManager {
 	}
 
 	public int lastVar() {
-		return getVar(VarBlocks.BLOCK4.value, width - 1, height - 1);
+		return getVar(VarBlocks.UPRAY.value, width - 1, height - 1);
 	}
 
 	public int falseVar() {
 		return 1;
+	}
+
+	public int trueVar() {
+		return 2;
 	}
 
 	public int getVar(int block, int x, int y) {
@@ -77,6 +81,9 @@ public class GameFieldVarManager {
 	}
 
 	public int reverseVarBlockNum(int variable) {
+		if (variable <= CONSTANT_COUNT)
+			return -1;
+
 		return (variable - CONSTANT_COUNT - 1) / blocksize;
 	}
 
@@ -105,7 +112,7 @@ public class GameFieldVarManager {
 	}
 
 	public int lightAt(int x, int y) {
-		return getVar(VarBlocks.LAMP.getValue(), x, y);
+		return getVar(VarBlocks.LIGHT.getValue(), x, y);
 	}
 
 	public int barrierAt(final Point location) {
@@ -123,14 +130,30 @@ public class GameFieldVarManager {
 	public int blockAt(int blockNr, int x, int y) {
 		return getVar(VarBlocks.getBlockN(blockNr).getValue(), x, y);
 	}
-	
+
 	public int blankAt(final Point location) {
-		return this.blankAt( location.x, location.y);
+		return this.blankAt(location.x, location.y);
 	}
-	
-	public int blankAt(int x,int y)
-	{
-		return getVar(VarBlocks.BLANK.getValue(),x, y);
+
+	public int blankAt(int x, int y) {
+		//Blank is the same as Light
+		return getVar(VarBlocks.LIGHT.getValue(), x, y);
+	}
+
+	public int leftRayAt(int x, int y) {
+		return getVar(VarBlocks.LEFTRAY.getValue(), x, y);
+	}
+
+	public int rightRayAt(int x, int y) {
+		return getVar(VarBlocks.RIGHTRAY.getValue(), x, y);
+	}
+
+	public int upRayAt(int x, int y) {
+		return getVar(VarBlocks.UPRAY.getValue(), x, y);
+	}
+
+	public int downRayAt(int x, int y) {
+		return getVar(VarBlocks.DOWNRAY.getValue(), x, y);
 	}
 
 }
