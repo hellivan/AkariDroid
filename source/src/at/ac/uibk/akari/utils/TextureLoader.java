@@ -29,7 +29,12 @@ public class TextureLoader {
 		/**
 		 * Tiled texture for a menu icons
 		 */
-		MENU_ICONS("menu.png", 64, 128, 1, 2);
+		MENU_ICONS("menu.png", 64, 128, 1, 2),
+		/**
+		 * Tiled texture for popup-backgrounds
+		 */
+		MENU_ICONS("popupBackground.png", 500, 300, 1, 1);
+
 
 		private String texturePath;
 		private int textureWidth;
