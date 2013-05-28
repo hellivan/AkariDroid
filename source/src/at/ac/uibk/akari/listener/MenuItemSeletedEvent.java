@@ -3,8 +3,17 @@ package at.ac.uibk.akari.listener;
 public class MenuItemSeletedEvent {
 
 	public enum ItemType {
-		REPLAY, NEXT, STOP, PAUSE, HELP, CONTINUE, RESET
+		REPLAY("Replay"), NEXT("Next"), MAIN_MENU("Main Menu"), PAUSE("Pause"), HELP("Help"), CONTINUE("Continue"), RESET("Reset");
 
+		private String itemText;
+
+		private ItemType(final String itemText) {
+			this.itemText = itemText;
+		}
+
+		public String getItemText() {
+			return this.itemText;
+		}
 	}
 
 	private Object source;

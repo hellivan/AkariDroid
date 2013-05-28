@@ -1,5 +1,8 @@
 package at.ac.uibk.akari.view.menu;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.scene.menu.MenuScene;
 import org.andengine.entity.scene.menu.MenuScene.IOnMenuItemClickListener;
@@ -15,21 +18,17 @@ import at.ac.uibk.akari.listener.MenuListener;
 import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.FontLoader.FontType;
 import at.ac.uibk.akari.utils.ListenerList;
-import at.ac.uibk.akari.view.Cell;
-import at.ac.uibk.akari.view.Cell.State;
 
-public class PuzzleCompletedMenuScene extends MenuScene implements IOnMenuItemClickListener {
-
+public class PopupMenuScene extends MenuScene implements IOnMenuItemClickListener {
 	private ListenerList listeners;
 
 	private VertexBufferObjectManager vertexBufferObjectManager;
 
-	private IMenuItem nextMenuItem;
-	private IMenuItem repeatMenuItem;
-	private IMenuItem stopMenuItem;
+	private List<ItemType> itemTypes;
 
-	public PuzzleCompletedMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager) {
+	public PopupMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, final List<ItemType> itemTypes) {
 		super(camera);
+		this.itemTypes = itemTypes;
 		this.listeners = new ListenerList();
 		this.vertexBufferObjectManager = vertexBufferObjectManager;
 		this.initGUI();
@@ -40,23 +39,20 @@ public class PuzzleCompletedMenuScene extends MenuScene implements IOnMenuItemCl
 		float sizePessed = 1.1f;
 		float sizeNormal = 1f;
 
-		this.nextMenuItem = new ScaleMenuItemDecorator(new TextMenuItem(0, FontLoader.getInstance().getFont(fontType), "Next", this.vertexBufferObjectManager), sizePessed, sizeNormal);
-		this.nextMenuItem.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-
-		this.repeatMenuItem = new ScaleMenuItemDecorator(new TextMenuItem(1, FontLoader.getInstance().getFont(fontType), "Repeat", this.vertexBufferObjectManager), sizePessed, sizeNormal);
-		this.repeatMenuItem.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-
-		this.stopMenuItem = new ScaleMenuItemDecorator(new TextMenuItem(2, FontLoader.getInstance().getFont(fontType), "Stop", this.vertexBufferObjectManager), sizePessed, sizeNormal);
-		this.stopMenuItem.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+		List<IMenuItem> menuItems = new ArrayList<IMenuItem>();
+		for (ItemType itemType : this.itemTypes) {
+			IMenuItem item = new ScaleMenuItemDecorator(new TextMenuItem(itemType.ordinal(), FontLoader.getInstance().getFont(fontType), itemType.getItemText(), this.vertexBufferObjectManager), sizePessed, sizeNormal);
+			item.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+			menuItems.add(item);
+		}
 
 		int bgWidth = 500;
 		int bgHeight = 300;
-		Cell cell = new Cell(this.getCamera().getCenterX() - bgWidth / 2, this.getCamera().getCenterY() - bgHeight / 2, bgWidth, bgHeight, this.vertexBufferObjectManager);
-		cell.setCellState(State.LAMP);
-		this.attachChild(cell);
-		this.addMenuItem(this.nextMenuItem);
-		this.addMenuItem(this.repeatMenuItem);
-		this.addMenuItem(this.stopMenuItem);
+		PopupBackground backGround = new PopupBackground(this.getCamera().getCenterX() - bgWidth / 2, this.getCamera().getCenterY() - bgHeight / 2, bgWidth, bgHeight, this.vertexBufferObjectManager);
+		this.attachChild(backGround);
+		for (IMenuItem menuItem : menuItems) {
+			this.addMenuItem(menuItem);
+		}
 
 		this.buildAnimations();
 		this.setBackgroundEnabled(false);
@@ -67,12 +63,11 @@ public class PuzzleCompletedMenuScene extends MenuScene implements IOnMenuItemCl
 	@Override
 	public boolean onMenuItemClicked(final MenuScene pMenuScene, final IMenuItem pMenuItem, final float pMenuItemLocalX, final float pMenuItemLocalY) {
 		if (pMenuScene == this) {
-			if (pMenuItem == this.nextMenuItem) {
-				this.fireMenuItemSelected(ItemType.NEXT);
-			} else if (pMenuItem == this.repeatMenuItem) {
-				this.fireMenuItemSelected(ItemType.REPLAY);
-			} else if (pMenuItem == this.stopMenuItem) {
-				this.fireMenuItemSelected(ItemType.STOP);
+			for (ItemType itemType : this.itemTypes) {
+				if (pMenuItem.getID() == itemType.ordinal()) {
+					this.fireMenuItemSelected(itemType);
+					break;
+				}
 			}
 		}
 		return true;

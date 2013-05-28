@@ -18,7 +18,7 @@ import at.ac.uibk.akari.utils.ListenerList;
 import at.ac.uibk.akari.view.Cell;
 import at.ac.uibk.akari.view.Cell.State;
 
-public class PuzzlePauseMenuScene extends MenuScene implements IOnMenuItemClickListener {
+public class MainMenuScene extends MenuScene implements IOnMenuItemClickListener {
 
 	private ListenerList listeners;
 
@@ -28,7 +28,7 @@ public class PuzzlePauseMenuScene extends MenuScene implements IOnMenuItemClickL
 	private IMenuItem resetMenuItem;
 	private IMenuItem stopMenuItem;
 
-	public PuzzlePauseMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager) {
+	public MainMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager) {
 		super(camera);
 		this.listeners = new ListenerList();
 		this.vertexBufferObjectManager = vertexBufferObjectManager;
@@ -73,7 +73,7 @@ public class PuzzlePauseMenuScene extends MenuScene implements IOnMenuItemClickL
 			} else if (pMenuItem == this.resetMenuItem) {
 				this.fireMenuItemSelected(ItemType.RESET);
 			} else if (pMenuItem == this.stopMenuItem) {
-				this.fireMenuItemSelected(ItemType.STOP);
+				this.fireMenuItemSelected(ItemType.MAIN_MENU);
 			}
 		}
 		return true;

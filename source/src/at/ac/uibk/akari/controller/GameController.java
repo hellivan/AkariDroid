@@ -1,5 +1,6 @@
 package at.ac.uibk.akari.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.andengine.engine.camera.ZoomCamera;
@@ -13,8 +14,11 @@ import at.ac.uibk.akari.MainActivity;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.GameListener;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
+import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
 import at.ac.uibk.akari.listener.MenuListener;
-import at.ac.uibk.akari.view.menu.PuzzleCompletedMenuScene;
+import at.ac.uibk.akari.utils.TextureLoader;
+import at.ac.uibk.akari.utils.TextureLoader.BackgroundType;
+import at.ac.uibk.akari.view.menu.PopupMenuScene;
 
 public class GameController extends AbstractController implements GameListener, MenuListener {
 
@@ -25,7 +29,8 @@ public class GameController extends AbstractController implements GameListener, 
 
 	private ZoomCamera gameCamera;
 	private Scene gameScene;
-	private PuzzleCompletedMenuScene winninMenuScene;
+
+	private PopupMenuScene winninMenuScene;
 
 	private VertexBufferObjectManager vertexBufferObjectManager;
 
@@ -40,7 +45,13 @@ public class GameController extends AbstractController implements GameListener, 
 	private void init() {
 		this.puzzleController = new PuzzleController(this.gameCamera, this.gameScene, this.vertexBufferObjectManager);
 
-		this.winninMenuScene = new PuzzleCompletedMenuScene(this.gameCamera, this.vertexBufferObjectManager);
+		this.gameScene.setBackground(TextureLoader.getInstance().getBackground(BackgroundType.GAME_FIELD_BACKGROUND));
+
+		List<ItemType> winningMenuItems = new ArrayList<ItemType>();
+		winningMenuItems.add(ItemType.NEXT);
+		winningMenuItems.add(ItemType.REPLAY);
+		winningMenuItems.add(ItemType.MAIN_MENU);
+		this.winninMenuScene = new PopupMenuScene(this.gameCamera, this.vertexBufferObjectManager, winningMenuItems);
 	}
 
 	@Override
@@ -98,7 +109,7 @@ public class GameController extends AbstractController implements GameListener, 
 				this.winninMenuScene.back();
 				this.startLevel(++this.currentPuzzle);
 				break;
-			case STOP:
+			case MAIN_MENU:
 				Log.i(this.getClass().getName(), "STOP-Game pressed");
 				MainActivity.showToast("STOP", Toast.LENGTH_SHORT);
 				break;

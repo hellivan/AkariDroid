@@ -1,5 +1,8 @@
 package at.ac.uibk.akari.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.andengine.engine.camera.ZoomCamera;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.Scene;
@@ -22,12 +25,12 @@ import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.GameFieldListener;
 import at.ac.uibk.akari.listener.GameListener;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
+import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
 import at.ac.uibk.akari.listener.MenuListener;
-import at.ac.uibk.akari.solver.AkariSolver;
 import at.ac.uibk.akari.solver.AkariSolverFull;
 import at.ac.uibk.akari.utils.ListenerList;
 import at.ac.uibk.akari.view.GameField;
-import at.ac.uibk.akari.view.menu.PuzzlePauseMenuScene;
+import at.ac.uibk.akari.view.menu.PopupMenuScene;
 import at.ac.uibk.akari.view.menu.hud.PuzzleHUD;
 
 public class PuzzleController extends AbstractController implements GameFieldListener, MenuListener, IOnSceneTouchListener, IScrollDetectorListener, IPinchZoomDetectorListener {
@@ -37,7 +40,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	private Scene gameScene;
 	private ZoomCamera gameCamera;
 	private PuzzleHUD gameHUD;
-	private PuzzlePauseMenuScene pauseScene;
+	private PopupMenuScene pauseScene;
 
 	private GameFieldModel puzzle;
 	private VertexBufferObjectManager vertexBufferObjectManager;
@@ -60,12 +63,17 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	}
 
 	public void init() {
-		this.gameField = new GameField(10, 10, this.vertexBufferObjectManager);
+		this.gameField = new GameField(10, 80, this.vertexBufferObjectManager);
 		this.gameFieldController = new GameFieldController(this.gameField);
 		this.gameScene.attachChild(this.gameField);
 		this.gameScene.registerTouchArea(this.gameField);
 		this.gameHUD = new PuzzleHUD((int) this.gameCamera.getWidth(), this.vertexBufferObjectManager);
-		this.pauseScene = new PuzzlePauseMenuScene(this.gameCamera, this.vertexBufferObjectManager);
+
+		List<ItemType> pauseMenuItems = new ArrayList<ItemType>();
+		pauseMenuItems.add(ItemType.CONTINUE);
+		pauseMenuItems.add(ItemType.RESET);
+		pauseMenuItems.add(ItemType.MAIN_MENU);
+		this.pauseScene = new PopupMenuScene(this.gameCamera, this.vertexBufferObjectManager, pauseMenuItems);
 
 		this.mScrollDetector = new SurfaceScrollDetector(this);
 		this.mPinchZoomDetector = new PinchZoomDetector(this);
@@ -229,7 +237,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 				this.pauseScene.back();
 				this.gameHUD.setEnabled(true);
 				break;
-			case STOP:
+			case MAIN_MENU:
 				Log.i(this.getClass().getName(), "STOP-Game pressed");
 				MainActivity.showToast("STOP", Toast.LENGTH_SHORT);
 				break;

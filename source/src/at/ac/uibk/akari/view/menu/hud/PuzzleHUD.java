@@ -1,8 +1,10 @@
 package at.ac.uibk.akari.view.menu.hud;
 
 import org.andengine.engine.camera.hud.HUD;
-import org.andengine.entity.sprite.ButtonSprite;
+import org.andengine.entity.primitive.Line;
+import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
+import org.andengine.util.color.Color;
 
 import at.ac.uibk.akari.listener.InputEvent;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
@@ -15,9 +17,9 @@ import at.ac.uibk.akari.utils.TextureLoader.TextureType;
 
 public class PuzzleHUD extends HUD implements TouchListener {
 
-	private static final int BUTTONS_SIZE = 60;
-	private static final int BORDER_INSET_X = 30;
-	private static final int BORDER_INSET_Y = 15;
+	private static final int BUTTONS_SIZE = 55;
+	private static final int BORDER_INSET_X = 25;
+	private static final int BORDER_INSET_Y = 8;
 
 	private HUDButton pauseButton;
 	private HUDButton helpButton;
@@ -45,6 +47,13 @@ public class PuzzleHUD extends HUD implements TouchListener {
 		this.timerButton = new HUDButton(timerPos, PuzzleHUD.BORDER_INSET_Y, timerWidth, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTexture(TextureType.LAMP, 1, 0));
 
 		this.helpButton = new HUDButton(this.desiredWidth - PuzzleHUD.BUTTONS_SIZE - PuzzleHUD.BORDER_INSET_X, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTexture(TextureType.MENU_ICONS, 0, 0));
+
+		Sprite sprite = new Sprite(0, 0, this.desiredWidth, PuzzleHUD.BUTTONS_SIZE + (2 * PuzzleHUD.BORDER_INSET_Y), TextureLoader.getInstance().getTexture(TextureType.HUD_BACKGROUND, 0, 0), this.vertexBufferObjectManager);
+		this.attachChild(sprite);
+		Line line = new Line(0, PuzzleHUD.BUTTONS_SIZE + (2 * PuzzleHUD.BORDER_INSET_Y), this.desiredWidth, PuzzleHUD.BUTTONS_SIZE + (2 * PuzzleHUD.BORDER_INSET_Y), this.vertexBufferObjectManager);
+		line.setColor(Color.WHITE);
+		line.setLineWidth(5);
+		this.attachChild(line);
 
 		this.attachChild(this.pauseButton);
 		this.attachChild(this.timerButton);
@@ -88,13 +97,13 @@ public class PuzzleHUD extends HUD implements TouchListener {
 		}
 	}
 
-	public void setEnabled(boolean enabled) {
+	public void setEnabled(final boolean enabled) {
 		this.enabled = enabled;
 		this.helpButton.setEnabled(enabled);
 		this.pauseButton.setEnabled(enabled);
 	}
 
 	public boolean isEnabled() {
-		return enabled;
+		return this.enabled;
 	}
 }

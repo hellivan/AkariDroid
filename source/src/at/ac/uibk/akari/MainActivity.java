@@ -89,8 +89,8 @@ public class MainActivity extends SimpleBaseGameActivity {
 		Log.d(this.getClass().getName(), "Called create resources");
 
 		// load textures
-		TextureLoader.getInstance().init(this.getTextureManager(), this);
-		
+		TextureLoader.getInstance().init(this.getTextureManager(), this, this.getAssets(), this.getVertexBufferObjectManager(), this.gameCamera.getWidth(), this.gameCamera.getHeight());
+
 		// load fonts
 		FontLoader.getInstance().init(this.getTextureManager(), this.getFontManager(), this.getAssets());
 
