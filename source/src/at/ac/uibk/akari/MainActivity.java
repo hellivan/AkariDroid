@@ -22,6 +22,7 @@ import android.widget.Toast;
 import at.ac.uibk.akari.controller.GameController;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.testsolver.Akari;
+import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.PuzzleLoader;
 import at.ac.uibk.akari.utils.TextureLoader;
@@ -89,7 +90,10 @@ public class MainActivity extends SimpleBaseGameActivity {
 		Log.d(this.getClass().getName(), "Called create resources");
 
 		// load textures
-		TextureLoader.getInstance().init(this.getTextureManager(), this, this.getAssets(), this.getVertexBufferObjectManager(), this.gameCamera.getWidth(), this.gameCamera.getHeight());
+		TextureLoader.getInstance().init(this.getTextureManager(), this);
+
+		// load backgrounds
+		BackgroundLoader.getInstance().init(this.getTextureManager(), this.getAssets(), this.getVertexBufferObjectManager(), this.gameCamera.getWidth(), this.gameCamera.getHeight());
 
 		// load fonts
 		FontLoader.getInstance().init(this.getTextureManager(), this.getFontManager(), this.getAssets());

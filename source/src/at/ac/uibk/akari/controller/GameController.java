@@ -16,8 +16,8 @@ import at.ac.uibk.akari.listener.GameListener;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
 import at.ac.uibk.akari.listener.MenuListener;
-import at.ac.uibk.akari.utils.TextureLoader;
-import at.ac.uibk.akari.utils.TextureLoader.BackgroundType;
+import at.ac.uibk.akari.utils.BackgroundLoader;
+import at.ac.uibk.akari.utils.BackgroundLoader.BackgroundType;
 import at.ac.uibk.akari.view.menu.PopupMenuScene;
 
 public class GameController extends AbstractController implements GameListener, MenuListener {
@@ -45,7 +45,7 @@ public class GameController extends AbstractController implements GameListener, 
 	private void init() {
 		this.puzzleController = new PuzzleController(this.gameCamera, this.gameScene, this.vertexBufferObjectManager);
 
-		this.gameScene.setBackground(TextureLoader.getInstance().getBackground(BackgroundType.GAME_FIELD_BACKGROUND));
+		this.gameScene.setBackground(BackgroundLoader.getInstance().getBackground(BackgroundType.GAME_FIELD_BACKGROUND));
 
 		List<ItemType> winningMenuItems = new ArrayList<ItemType>();
 		winningMenuItems.add(ItemType.NEXT);
