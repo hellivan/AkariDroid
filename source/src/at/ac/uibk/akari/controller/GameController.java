@@ -18,6 +18,8 @@ import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
 import at.ac.uibk.akari.listener.MenuListener;
 import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.BackgroundLoader.BackgroundType;
+import at.ac.uibk.akari.view.menu.AbstractMenuScene;
+import at.ac.uibk.akari.view.menu.MainMenuScene;
 import at.ac.uibk.akari.view.menu.PopupMenuScene;
 
 public class GameController extends AbstractController implements GameListener, MenuListener {
@@ -25,12 +27,13 @@ public class GameController extends AbstractController implements GameListener, 
 	private List<Puzzle> puzzles;
 	private PuzzleController puzzleController;
 
-	private int currentPuzzle;
+	private int currentPuzzleIndex;
 
 	private ZoomCamera gameCamera;
 	private Scene gameScene;
 
 	private PopupMenuScene winninMenuScene;
+	private AbstractMenuScene mainMenuScene;
 
 	private VertexBufferObjectManager vertexBufferObjectManager;
 
@@ -45,33 +48,39 @@ public class GameController extends AbstractController implements GameListener, 
 	private void init() {
 		this.puzzleController = new PuzzleController(this.gameCamera, this.gameScene, this.vertexBufferObjectManager);
 
+		// initialize main-menu-scene
+		List<ItemType> mainMenuItems = new ArrayList<ItemType>();
+		mainMenuItems.add(ItemType.START_PUZZLE);
+		mainMenuItems.add(ItemType.QUIT);
+		this.mainMenuScene = new MainMenuScene(this.gameCamera, this.vertexBufferObjectManager, mainMenuItems);
+
+		// initialize game-scene
 		this.gameScene.setBackground(BackgroundLoader.getInstance().getBackground(BackgroundType.GAME_FIELD_BACKGROUND));
 
+		// initialize winning-menu-scene
 		List<ItemType> winningMenuItems = new ArrayList<ItemType>();
 		winningMenuItems.add(ItemType.NEXT);
 		winningMenuItems.add(ItemType.REPLAY);
 		winningMenuItems.add(ItemType.MAIN_MENU);
 		this.winninMenuScene = new PopupMenuScene(this.gameCamera, this.vertexBufferObjectManager, winningMenuItems);
+
 	}
 
 	@Override
 	public boolean start() {
-		this.currentPuzzle = 0;
 		this.puzzleController.addGameListener(this);
 		this.winninMenuScene.addMenuListener(this);
-		try {
-			this.puzzleController.setPuzzle(this.puzzles.get(this.currentPuzzle));
-			this.puzzleController.start();
-		} catch (ContradictionException e) {
-			e.printStackTrace();
-		}
+		this.mainMenuScene.addMenuListener(this);
 
+		MainActivity.setCurrentScene(this.mainMenuScene);
 		return true;
 	}
 
 	@Override
 	public boolean stop() {
-		// TODO Auto-generated method stub
+		this.puzzleController.removeGameListener(this);
+		this.winninMenuScene.removeMenuListener(this);
+		this.mainMenuScene.removeMenuListener(this);
 		return true;
 	}
 
@@ -97,25 +106,54 @@ public class GameController extends AbstractController implements GameListener, 
 
 	@Override
 	public void menuItemSelected(final MenuItemSeletedEvent event) {
+		// source was the winning-menu-scene
 		if (event.getSource() == this.winninMenuScene) {
 			switch (event.getItemType()) {
 			case REPLAY:
 				Log.i(this.getClass().getName(), "REPLAY-Game pressed");
+				this.puzzleController.stop();
 				this.winninMenuScene.back();
-				this.startLevel(this.currentPuzzle);
+				this.startLevel(this.currentPuzzleIndex);
 				break;
 			case NEXT:
 				Log.i(this.getClass().getName(), "NEXT-Game pressed");
+				this.puzzleController.stop();
 				this.winninMenuScene.back();
-				this.startLevel(++this.currentPuzzle);
+				this.startLevel(++this.currentPuzzleIndex);
 				break;
 			case MAIN_MENU:
-				Log.i(this.getClass().getName(), "STOP-Game pressed");
-				MainActivity.showToast("STOP", Toast.LENGTH_SHORT);
+				Log.i(this.getClass().getName(), "MAIN_MENU pressed");
+				this.puzzleController.stop();
+				this.winninMenuScene.back();
+				MainActivity.setCurrentScene(this.mainMenuScene);
 				break;
 			default:
 				break;
 			}
+		}
+		// source was the main-menu-scene
+		else if (event.getSource() == this.mainMenuScene) {
+			switch (event.getItemType()) {
+			case START_PUZZLE:
+				MainActivity.setCurrentScene(this.gameScene);
+				this.currentPuzzleIndex = 0;
+				this.startLevel(this.currentPuzzleIndex);
+				break;
+			case QUIT:
+				this.puzzleController.stop();
+				MainActivity.quit();
+			default:
+				break;
+			}
+		}
+	}
+
+	@Override
+	public void puzzleStopped(PuzzleController source) {
+		if (source == this.puzzleController) {
+			this.puzzleController.stop();
+			this.winninMenuScene.back();
+			MainActivity.setCurrentScene(this.mainMenuScene);
 		}
 	}
 }

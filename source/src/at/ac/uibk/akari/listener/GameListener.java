@@ -7,5 +7,7 @@ import at.ac.uibk.akari.controller.PuzzleController;
 public interface GameListener extends EventListener {
 
 	public void puzzleSolved(PuzzleController source, long timeMs);
+	
+	public void puzzleStopped(PuzzleController source);
 
 }

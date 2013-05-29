@@ -29,6 +29,8 @@ import at.ac.uibk.akari.utils.TextureLoader;
 
 public class MainActivity extends SimpleBaseGameActivity {
 
+	private static final String PUZZLE_SYNC_URL = "http://helama.us.to/akari/";
+
 	private static SimpleBaseGameActivity staticActivity;
 
 	private static int CAMERA_WIDTH = 800;
@@ -90,15 +92,19 @@ public class MainActivity extends SimpleBaseGameActivity {
 		Log.d(this.getClass().getName(), "Called create resources");
 
 		// load textures
+		Log.d(this.getClass().getName(), "Loading textures");
 		TextureLoader.getInstance().init(this.getTextureManager(), this);
 
 		// load backgrounds
+		Log.d(this.getClass().getName(), "Loading background-textures");
 		BackgroundLoader.getInstance().init(this.getTextureManager(), this.getAssets(), this.getVertexBufferObjectManager(), this.gameCamera.getWidth(), this.gameCamera.getHeight());
 
 		// load fonts
+		Log.d(this.getClass().getName(), "Loading fonts");
 		FontLoader.getInstance().init(this.getTextureManager(), this.getFontManager(), this.getAssets());
 
 		// synchronize levels
+		Log.d(this.getClass().getName(), "Synchronizing levels using url '" + MainActivity.PUZZLE_SYNC_URL + "'");
 		try {
 			int syncedPuzzles = PuzzleLoader.synchronizePuzzleList("http://helama.us.to/akari/", this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
 			Log.i(this.getClass().getName(), "Synchronized " + syncedPuzzles + " puzzles");
@@ -109,6 +115,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 		}
 
 		// load local levels
+		Log.d(this.getClass().getName(), "Loading levels from memory");
 		try {
 			this.puzzles = PuzzleLoader.loadPuzzles(this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
 			Log.i(this.getClass().getName(), "Loaded " + this.puzzles.size() + " levels...");
@@ -167,6 +174,11 @@ public class MainActivity extends SimpleBaseGameActivity {
 				MainActivity.staticActivity.getEngine().setScene(scene);
 			}
 		});
+	}
+
+	public static void quit() {
+		Log.d(MainActivity.class.getName(), "Quitting activity");
+		MainActivity.staticActivity.finish();
 	}
 
 }
