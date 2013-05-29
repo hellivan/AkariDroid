@@ -34,7 +34,7 @@ public class AkariSolverFull {
 	private final int NBCLAUSES;
 
 	private GateTranslator solver;
-
+	
 	private ArrayList<Integer> lampPosTrueList;
 
 	private ArrayList<Integer> lampPosTrueAndOtherFalseList;
@@ -59,9 +59,11 @@ public class AkariSolverFull {
 		this.MAXVAR = vars.lastVar() + 1;
 		this.NBCLAUSES = model.getWidth() * model.getHeight() * 20;
 
-		this.solver = new GateTranslator(SolverFactory.newLight());
+		this.solver = new GateTranslator(SolverFactory.newDefault());
 
 		// this.solver.setTimeout(100000);
+		
+		
 
 		this.solver.newVar(MAXVAR);
 		this.solver.setExpectedNumberOfClauses(this.NBCLAUSES);
@@ -75,7 +77,8 @@ public class AkariSolverFull {
 		this.updateLamps();
 
 		this.setModel(model);
-		
+		System.out.println(solver.nConstraints());
+
 	}
 
 	private void updateLamps() {
@@ -105,7 +108,7 @@ public class AkariSolverFull {
 
 		solver.clearLearntClauses();
 
-		setRules();
+		
 
 		for (int i = 0; i < this.model.getWidth(); i++) {
 			for (int j = 0; j < this.model.getHeight(); j++) {
@@ -114,7 +117,7 @@ public class AkariSolverFull {
 					this.solver.addClause(new VecInt(new int[] { vars.barrierAt(i, j) }));
 					break;
 				case BLANK:
-					this.solver.addClause(new VecInt(new int[] { vars.blankAt(i, j), vars.lampAt(i, j) }));
+					this.solver.addClause(new VecInt(new int[] { vars.placeableAt(i, j) }));
 					break;
 				case BLOCK0:
 					this.solver.addClause(new VecInt(new int[] { vars.blockAt(0, i, j) }));
@@ -137,6 +140,8 @@ public class AkariSolverFull {
 				}
 			}
 		}
+		
+		setRules();
 
 	}
 
@@ -155,14 +160,19 @@ public class AkariSolverFull {
 
 		// this.solver.clearLearntClauses();
 
-		solver.gateFalse(vars.falseVar());
-		solver.gateTrue(vars.trueVar());
+		solver.addClause(new VecInt(new int[] { -vars.falseVar()}));
+		
+		// solver.gateTrue(vars.trueVar());
 
 		for (int i = 0; i < this.model.getWidth(); i++) {
 			for (int j = 0; j < this.model.getHeight(); j++) {
 
 				// a field can only be one type at the same time
 				exaclyOneTrue(new int[] { vars.blankAt(i, j), vars.lampAt(i, j), vars.barrierAt(i, j), vars.blockAt(0, i, j), vars.blockAt(1, i, j), vars.blockAt(2, i, j), vars.blockAt(3, i, j), vars.blockAt(4, i, j) });
+
+				// placeable is lamp or blank
+				GateTranslator trans = new GateTranslator(this.solver);
+				trans.or(vars.placeableAt(i, j), new VecInt(new int[] { vars.blankAt(i, j), vars.lampAt(i, j) }));
 
 				// light is caused by a ray
 				this.solver.addClause(new VecInt(new int[] { -vars.lightAt(i, j), vars.leftRayAt(i, j), vars.rightRayAt(i, j), vars.upRayAt(i, j), vars.downRayAt(i, j) }));
@@ -176,13 +186,15 @@ public class AkariSolverFull {
 				// only blanks can be lighted
 				// win condition: cell lighted or a lamp
 				// light equals blank (added to variable manager)
-//				this.solver.addClause(new VecInt(new int[] { vars.blankAt(i, j), -vars.lightAt(i, j) }));
-//				this.solver.addClause(new VecInt(new int[] { -vars.blankAt(i, j), vars.lightAt(i, j) }));
+				// this.solver.addClause(new VecInt(new int[] { vars.blankAt(i,
+				// j), -vars.lightAt(i, j) }));
+				// this.solver.addClause(new VecInt(new int[] { -vars.blankAt(i,
+				// j), vars.lightAt(i, j) }));
 
 				// only blank can be lights (implies also the rays)
 				solver.addClause(new VecInt(new int[] { vars.blankAt(i, j), -vars.lightAt(i, j) }));
 
-				// lamp implies horizontal and vertical ray
+				// lamp implies rays in all directions
 				this.solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.blankAt(i + 1, j), vars.rightRayAt(i + 1, j) }));
 				this.solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.blankAt(i - 1, j), vars.leftRayAt(i - 1, j) }));
 

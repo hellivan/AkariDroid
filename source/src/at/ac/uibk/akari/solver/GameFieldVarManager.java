@@ -5,7 +5,7 @@ import android.graphics.Point;
 public class GameFieldVarManager {
 
 	public enum VarBlocks {
-		LAMP(0), LIGHT(1), BARRIER(2), BLOCK0(3), BLOCK1(4), BLOCK2(5), BLOCK3(6), BLOCK4(7), LEFTRAY(8), UPRAY(9), RIGHTRAY(10), DOWNRAY(11);
+		LAMP(0), LIGHT(1), BARRIER(2), BLOCK0(3), BLOCK1(4), BLOCK2(5), BLOCK3(6), BLOCK4(7), LEFTRAY(8), UPRAY(9), RIGHTRAY(10), DOWNRAY(11),PLACEABLE(12);
 
 		private int value;
 
@@ -154,6 +154,10 @@ public class GameFieldVarManager {
 
 	public int downRayAt(int x, int y) {
 		return getVar(VarBlocks.DOWNRAY.getValue(), x, y);
+	}
+	
+	public int placeableAt(int x, int y) {
+		return getVar(VarBlocks.PLACEABLE.getValue(), x, y);
 	}
 
 }
