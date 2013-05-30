@@ -13,15 +13,12 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
-import org.sat4j.specs.ContradictionException;
-import org.sat4j.specs.TimeoutException;
 
 import android.util.Log;
 import android.view.Display;
 import android.widget.Toast;
 import at.ac.uibk.akari.controller.GameController;
 import at.ac.uibk.akari.core.Puzzle;
-import at.ac.uibk.akari.testsolver.Akari;
 import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.PuzzleLoader;
@@ -131,23 +128,6 @@ public class MainActivity extends SimpleBaseGameActivity {
 		GameController gameController = new GameController(this.gameCamera, this.gameScene, this.getVertexBufferObjectManager(), this.puzzles);
 		gameController.start();
 		return this.gameScene;
-
-	}
-
-	public void testSolver() {
-		try {
-			Log.d(this.getClass().getName(), "Starting  solving");
-			long timeStart = System.currentTimeMillis();
-
-			new Akari();
-			long timeStop = System.currentTimeMillis();
-			float secondsNeeded = ((float) (timeStop - timeStart)) / 1000;
-			Log.d(this.getClass().getName(), "Finished solving puzzle  in " + secondsNeeded + " seconds ...");
-		} catch (ContradictionException e) {
-			e.printStackTrace();
-		} catch (TimeoutException e) {
-			e.printStackTrace();
-		}
 
 	}
 
