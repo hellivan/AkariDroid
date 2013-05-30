@@ -113,6 +113,12 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 			listener.puzzleSolved(this, 0);
 		}
 	}
+	
+	private void firePuzzleStopped() {
+		for (GameListener listener : this.listenerList.getListeners(GameListener.class)) {
+			listener.puzzleStopped(this);
+		}
+	}
 
 	public void addGameListener(final GameListener listener) {
 		this.listenerList.addListener(GameListener.class, listener);
@@ -131,7 +137,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 			e.printStackTrace();
 		}
 	}
-
+	
 	@Override
 	public void lampPlaced(final GameFieldController source, final Point position) {
 		if (source.equals(this.gameFieldController)) {
@@ -238,14 +244,16 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 				this.gameHUD.setEnabled(true);
 				break;
 			case MAIN_MENU:
-				Log.i(this.getClass().getName(), "STOP-Game pressed");
-				MainActivity.showToast("STOP", Toast.LENGTH_SHORT);
+				Log.i(this.getClass().getName(), "MAIN_MENU pressed");
+				this.pauseScene.back();
+				this.gameHUD.setEnabled(true);
+				this.firePuzzleStopped();
 				break;
 			case RESET:
 				Log.i(this.getClass().getName(), "RESET-Game pressed");
-				this.gameFieldController.resetGameField();
 				this.pauseScene.back();
 				this.gameHUD.setEnabled(true);
+				this.gameFieldController.resetGameField();
 				break;
 			default:
 				break;
