@@ -6,6 +6,7 @@ import java.util.List;
 import org.andengine.engine.Engine;
 import org.andengine.engine.LimitedFPSEngine;
 import org.andengine.engine.camera.ZoomCamera;
+import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
@@ -137,6 +138,10 @@ public class MainActivity extends SimpleBaseGameActivity {
 		return this.gameScene;
 
 	}
+	
+	public Engine getEngine(){
+		return this.mEngine;
+	}
 
 	public static void showToast(final String text, final int length) {
 		MainActivity.staticActivity.runOnUiThread(new Runnable() {
@@ -161,4 +166,11 @@ public class MainActivity extends SimpleBaseGameActivity {
 		MainActivity.staticActivity.finish();
 	}
 
+	public static void registerUpdateHandler(IUpdateHandler updateHandler){
+		MainActivity.staticActivity.getEngine().registerUpdateHandler(updateHandler);
+	}
+	
+	public static void unregisterUpdateHandler(IUpdateHandler updateHandler){
+		MainActivity.staticActivity.getEngine().unregisterUpdateHandler(updateHandler);
+	}
 }
