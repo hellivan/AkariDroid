@@ -9,7 +9,6 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.sat4j.specs.ContradictionException;
 
 import android.util.Log;
-import android.widget.Toast;
 import at.ac.uibk.akari.MainActivity;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.GameListener;
@@ -72,7 +71,7 @@ public class GameController extends AbstractController implements GameListener, 
 		this.winninMenuScene.addMenuListener(this);
 		this.mainMenuScene.addMenuListener(this);
 
-		MainActivity.setCurrentScene(this.mainMenuScene);
+		this.setCurrentGameScene(this.mainMenuScene);
 		return true;
 	}
 
@@ -88,10 +87,8 @@ public class GameController extends AbstractController implements GameListener, 
 	public void puzzleSolved(final PuzzleController source, final long timeMs) {
 		if (source.equals(this.puzzleController)) {
 			this.puzzleController.stop();
-			MainActivity.showToast("Solved level", Toast.LENGTH_LONG);
-
+			// display game-winning-menu
 			this.gameScene.setChildScene(this.winninMenuScene, false, true, true);
-
 		}
 	}
 
@@ -108,24 +105,22 @@ public class GameController extends AbstractController implements GameListener, 
 	public void menuItemSelected(final MenuItemSeletedEvent event) {
 		// source was the winning-menu-scene
 		if (event.getSource() == this.winninMenuScene) {
+			this.puzzleController.stop();
+			this.winninMenuScene.back();
+
 			switch (event.getItemType()) {
 			case REPLAY:
 				Log.i(this.getClass().getName(), "REPLAY-Game pressed");
-				this.puzzleController.stop();
-				this.winninMenuScene.back();
 				this.startLevel(this.currentPuzzleIndex);
 				break;
 			case NEXT:
 				Log.i(this.getClass().getName(), "NEXT-Game pressed");
-				this.puzzleController.stop();
-				this.winninMenuScene.back();
+				this.resetGameCamera();
 				this.startLevel(++this.currentPuzzleIndex);
 				break;
 			case MAIN_MENU:
 				Log.i(this.getClass().getName(), "MAIN_MENU pressed");
-				this.puzzleController.stop();
-				this.winninMenuScene.back();
-				MainActivity.setCurrentScene(this.mainMenuScene);
+				this.setCurrentGameScene(this.mainMenuScene);
 				break;
 			default:
 				break;
@@ -135,7 +130,7 @@ public class GameController extends AbstractController implements GameListener, 
 		else if (event.getSource() == this.mainMenuScene) {
 			switch (event.getItemType()) {
 			case START_PUZZLE:
-				MainActivity.setCurrentScene(this.gameScene);
+				this.setCurrentGameScene(this.gameScene);
 				this.currentPuzzleIndex = 0;
 				this.startLevel(this.currentPuzzleIndex);
 				break;
@@ -149,11 +144,22 @@ public class GameController extends AbstractController implements GameListener, 
 	}
 
 	@Override
-	public void puzzleStopped(PuzzleController source) {
+	public void puzzleStopped(final PuzzleController source) {
 		if (source == this.puzzleController) {
 			this.puzzleController.stop();
 			this.winninMenuScene.back();
-			MainActivity.setCurrentScene(this.mainMenuScene);
+			this.setCurrentGameScene(this.mainMenuScene);
 		}
+	}
+
+	private void resetGameCamera() {
+		this.gameCamera.setZoomFactor(1);
+		this.gameCamera.setCenter(this.gameCamera.getWidth() / 2, this.gameCamera.getHeight() / 2);
+	}
+
+	private void setCurrentGameScene(final Scene scene) {
+		this.gameCamera.setHUD(null);
+		this.resetGameCamera();
+		MainActivity.setCurrentScene(scene);
 	}
 }

@@ -4,21 +4,26 @@ import org.andengine.engine.camera.hud.HUD;
 import org.andengine.entity.primitive.Line;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
+import org.andengine.entity.text.TextOptions;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
+import org.andengine.util.HorizontalAlign;
 import org.andengine.util.color.Color;
 
 import at.ac.uibk.akari.listener.InputEvent;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
 import at.ac.uibk.akari.listener.MenuListener;
+import at.ac.uibk.akari.listener.StopClockEvent;
+import at.ac.uibk.akari.listener.StopClockUpdateListener;
 import at.ac.uibk.akari.listener.TouchListener;
 import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.FontLoader.FontType;
 import at.ac.uibk.akari.utils.ListenerList;
+import at.ac.uibk.akari.utils.StopClockModel;
 import at.ac.uibk.akari.utils.TextureLoader;
 import at.ac.uibk.akari.utils.TextureLoader.TextureType;
 
-public class PuzzleHUD extends HUD implements TouchListener {
+public class PuzzleHUD extends HUD implements TouchListener, StopClockUpdateListener {
 
 	private static final int BUTTONS_SIZE = 55;
 	private static final int BORDER_INSET_X = 25;
@@ -34,6 +39,8 @@ public class PuzzleHUD extends HUD implements TouchListener {
 
 	private boolean enabled;
 
+	private StopClockModel currentStopClock;
+
 	public PuzzleHUD(final int width, final VertexBufferObjectManager vertexBufferObjectManager) {
 		this.listeners = new ListenerList();
 		this.vertexBufferObjectManager = vertexBufferObjectManager;
@@ -47,11 +54,7 @@ public class PuzzleHUD extends HUD implements TouchListener {
 
 		int timerWidth = 3 * PuzzleHUD.BUTTONS_SIZE;
 		int timerPos = this.desiredWidth / 2 - timerWidth / 2;
-		this.timerText = new Text(timerPos, PuzzleHUD.BORDER_INSET_Y, FontLoader.getInstance().getFont(FontType.DROID_48_WHITE), "00:00", this.vertexBufferObjectManager);
-
-		// new HUDButton(timerPos, PuzzleHUD.BORDER_INSET_Y, timerWidth,
-		// PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager,
-		// TextureLoader.getInstance().getTexture(TextureType.LAMP, 1, 0));
+		this.timerText = new Text(timerPos, PuzzleHUD.BORDER_INSET_Y, FontLoader.getInstance().getFont(FontType.DROID_48_WHITE), "00:00", new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager);
 
 		this.helpButton = new HUDButton(this.desiredWidth - PuzzleHUD.BUTTONS_SIZE - PuzzleHUD.BORDER_INSET_X, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTexture(TextureType.MENU_ICONS, 0, 0));
 
@@ -112,5 +115,46 @@ public class PuzzleHUD extends HUD implements TouchListener {
 
 	public boolean isEnabled() {
 		return this.enabled;
+	}
+
+	public void setStopClockModel(final StopClockModel stopClock) {
+		if (this.currentStopClock != null) {
+			this.currentStopClock.removeStopClockUpdateListener(this);
+		}
+
+		this.currentStopClock = stopClock;
+		this.currentStopClock.addStopClockUpdateListener(this);
+
+	}
+
+	private String convertSecondsToTimeString(final long secondsTimer) {
+		StringBuffer buffer = new StringBuffer();
+		long mSeconds = secondsTimer;
+		long mMinutes = mSeconds / 60;
+		int mHours = (int) (mMinutes / 60);
+		int mDays = mHours / 24;
+
+		int days = mDays; // days
+		int hours = mHours % 24; // hours
+		int minutes = (int) (mMinutes % 60); // minutes
+		int seconds = (int) (mSeconds % 60); // seconds
+
+		if (days > 0) {
+			buffer.append(String.format("%02d:", days));
+		}
+		if (days > 0 || hours > 0) {
+			buffer.append(String.format("%02d:", hours));
+		}
+		buffer.append(String.format("%02d:", minutes));
+		buffer.append(String.format("%02d", seconds));
+
+		return buffer.toString();
+	}
+
+	@Override
+	public void stopClockUpdated(final StopClockEvent event) {
+		if (event.getSource() == this.currentStopClock) {
+			this.timerText.setText(this.convertSecondsToTimeString(event.getCurrentClockSeconds()));
+		}
 	}
 }
