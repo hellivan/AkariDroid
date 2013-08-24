@@ -1,8 +1,10 @@
-package at.ac.uibk.akari.solver;
+package solver;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import at.ac.uibk.akari.solver.GameFieldVarManager;
 
 public class GameFieldVarManagerTest {
 

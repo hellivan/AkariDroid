@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.List;
 
 import org.andengine.engine.Engine;
-import org.andengine.engine.LimitedFPSEngine;
 import org.andengine.engine.camera.ZoomCamera;
 import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.options.EngineOptions;
@@ -27,7 +26,7 @@ import at.ac.uibk.akari.utils.TextureLoader;
 
 public class MainActivity extends SimpleBaseGameActivity {
 
-	private static final String PUZZLE_SYNC_URL = "http://helama.us.to/akari/";
+	private static final String PUZZLE_SYNC_URL = "http://helli.ath.cx/akari/";
 
 	private static SimpleBaseGameActivity staticActivity;
 
@@ -44,10 +43,10 @@ public class MainActivity extends SimpleBaseGameActivity {
 
 	private List<Puzzle> puzzles;
 
-	@Override
-	public Engine onCreateEngine(final EngineOptions pEngineOptions) {
-		return new LimitedFPSEngine(pEngineOptions, 30);
-	}
+	// @Override
+	// public Engine onCreateEngine(final EngineOptions pEngineOptions) {
+	// return new LimitedFPSEngine(pEngineOptions, 60);
+	// }
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
@@ -104,7 +103,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 		// synchronize levels
 		Log.d(this.getClass().getName(), "Synchronizing levels using url '" + MainActivity.PUZZLE_SYNC_URL + "'");
 		try {
-			int syncedPuzzles = PuzzleLoader.synchronizePuzzleList("http://helama.us.to/akari/", this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
+			int syncedPuzzles = PuzzleLoader.synchronizePuzzleList(MainActivity.PUZZLE_SYNC_URL, this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
 			Log.i(this.getClass().getName(), "Synchronized " + syncedPuzzles + " puzzles");
 			MainActivity.showToast("Synchronized " + syncedPuzzles + " puzzles", Toast.LENGTH_SHORT);
 
@@ -138,8 +137,9 @@ public class MainActivity extends SimpleBaseGameActivity {
 		return this.gameScene;
 
 	}
-	
-	public Engine getEngine(){
+
+	@Override
+	public Engine getEngine() {
 		return this.mEngine;
 	}
 
@@ -166,11 +166,11 @@ public class MainActivity extends SimpleBaseGameActivity {
 		MainActivity.staticActivity.finish();
 	}
 
-	public static void registerUpdateHandler(IUpdateHandler updateHandler){
+	public static void registerUpdateHandler(final IUpdateHandler updateHandler) {
 		MainActivity.staticActivity.getEngine().registerUpdateHandler(updateHandler);
 	}
-	
-	public static void unregisterUpdateHandler(IUpdateHandler updateHandler){
+
+	public static void unregisterUpdateHandler(final IUpdateHandler updateHandler) {
 		MainActivity.staticActivity.getEngine().unregisterUpdateHandler(updateHandler);
 	}
 }

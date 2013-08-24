@@ -3,7 +3,25 @@ package at.ac.uibk.akari.listener;
 public class MenuItemSeletedEvent {
 
 	public enum ItemType {
-		REPLAY("Replay"), NEXT("Next"), MAIN_MENU("Main Menu"), PAUSE("Pause"), HELP("Help"), CONTINUE("Continue"), RESET("Reset"), START_PUZZLE("Start Puzzle"), QUIT("Quit");
+		REPLAY("Replay"),
+
+		NEXT("Next"),
+
+		MAIN_MENU("Main Menu"),
+
+		PAUSE("Pause"),
+
+		HELP("Help"),
+
+		CONTINUE("Continue"),
+
+		RESET("Reset"),
+
+		START_RANDOM_PUZZLE("Start A Ramdom Puzzle"),
+
+		SELECT_PUZZLE("Select Puzzle"),
+
+		QUIT("Quit");
 
 		private String itemText;
 

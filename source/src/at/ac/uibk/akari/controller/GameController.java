@@ -15,6 +15,7 @@ import at.ac.uibk.akari.listener.GameListener;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
 import at.ac.uibk.akari.listener.MenuListener;
+import at.ac.uibk.akari.puzzleSelector.view.PuzzleSelectionScene;
 import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.BackgroundLoader.BackgroundType;
 import at.ac.uibk.akari.view.menu.AbstractMenuScene;
@@ -33,6 +34,7 @@ public class GameController extends AbstractController implements GameListener, 
 
 	private PopupMenuScene winninMenuScene;
 	private AbstractMenuScene mainMenuScene;
+	private PuzzleSelectionScene levelSelectionScene;
 
 	private VertexBufferObjectManager vertexBufferObjectManager;
 
@@ -49,7 +51,8 @@ public class GameController extends AbstractController implements GameListener, 
 
 		// initialize main-menu-scene
 		List<ItemType> mainMenuItems = new ArrayList<ItemType>();
-		mainMenuItems.add(ItemType.START_PUZZLE);
+		mainMenuItems.add(ItemType.START_RANDOM_PUZZLE);
+		mainMenuItems.add(ItemType.SELECT_PUZZLE);
 		mainMenuItems.add(ItemType.QUIT);
 		this.mainMenuScene = new MainMenuScene(this.gameCamera, this.vertexBufferObjectManager, mainMenuItems);
 
@@ -129,10 +132,14 @@ public class GameController extends AbstractController implements GameListener, 
 		// source was the main-menu-scene
 		else if (event.getSource() == this.mainMenuScene) {
 			switch (event.getItemType()) {
-			case START_PUZZLE:
+			case START_RANDOM_PUZZLE:
 				this.setCurrentGameScene(this.gameScene);
 				this.currentPuzzleIndex = 0;
 				this.startLevel(this.currentPuzzleIndex);
+				break;
+			case SELECT_PUZZLE:
+				this.levelSelectionScene = new PuzzleSelectionScene(this.gameCamera, this.vertexBufferObjectManager);
+				this.setCurrentGameScene(this.levelSelectionScene);
 				break;
 			case QUIT:
 				this.puzzleController.stop();
