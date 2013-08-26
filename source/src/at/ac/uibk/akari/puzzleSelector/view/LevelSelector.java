@@ -4,19 +4,24 @@ import java.util.ArrayList;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.Entity;
-import org.andengine.entity.IEntity;
 import org.andengine.entity.modifier.MoveModifier;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.input.touch.detector.ScrollDetector;
 import org.andengine.input.touch.detector.ScrollDetector.IScrollDetectorListener;
 import org.andengine.input.touch.detector.SurfaceScrollDetector;
+import org.andengine.util.modifier.ease.EaseQuadOut;
+import org.andengine.util.modifier.ease.IEaseFunction;
 
+import android.graphics.PointF;
+import android.util.Log;
 import android.view.VelocityTracker;
 
 public class LevelSelector extends Entity implements IScrollDetectorListener {
 
-	private static int THRESHOLD_FLING_VELOCITY = 250;
+	private static int THRESHOLD_FLING_VELOCITY = 500;
+
+	private static final boolean MOVE_OLD = false;
 
 	private ArrayList<Sprite> levelItems;
 
@@ -33,6 +38,8 @@ public class LevelSelector extends Entity implements IScrollDetectorListener {
 	private IPageChangeListener mPageChangeListener;
 
 	private Entity easeEntity;
+	private IEaseFunction easeFunction;
+	private float easeMultiplicator;
 
 	public int getColumnsOnPages() {
 		return this.columnsOnPages;
@@ -60,11 +67,16 @@ public class LevelSelector extends Entity implements IScrollDetectorListener {
 		this.rowsOnPages = rows;
 		this.gameCamera = camera;
 		this.mScrollDetector = new SurfaceScrollDetector(this);
-		this.mVelocityTracker = VelocityTracker.obtain();
 		this.currentPageIndex = 0; // start at the zeroth page
 		this.buildLevelSelector();
-		this.easeEntity = new Entity();
-		this.attachChild(this.easeEntity);
+		if (!LevelSelector.MOVE_OLD) {
+			this.easeFunction = EaseQuadOut.getInstance();
+			this.easeMultiplicator = 2;
+			this.easeEntity = new Entity();
+			this.easeEntity.setPosition(this.gameCamera.getCenterX(), this.gameCamera.getCenterY());
+			this.attachChild(this.easeEntity);
+			this.gameCamera.setChaseEntity(this.easeEntity);
+		}
 	}
 
 	public void setmPageChangeListener(final IPageChangeListener mPageChangeListener) {
@@ -111,17 +123,43 @@ public class LevelSelector extends Entity implements IScrollDetectorListener {
 	}
 
 	public void onTouchEvent(final TouchEvent pSceneTouchEvent) {
-		this.mScrollDetector.onTouchEvent(pSceneTouchEvent);
-		this.mVelocityTracker.addMovement(pSceneTouchEvent.getMotionEvent());
+		if (pSceneTouchEvent.isActionUp() || pSceneTouchEvent.isActionOutside() || pSceneTouchEvent.isActionCancel()) {
+			this.mVelocityTracker.addMovement(pSceneTouchEvent.getMotionEvent());
+			this.mScrollDetector.onTouchEvent(pSceneTouchEvent);
+			if ((this.mVelocityTracker != null) && (pSceneTouchEvent.getMotionEvent().getPointerCount() == 1)) {
+				Log.d(this.getClass().getName(), "Recycle velocity tracker");
+				this.mVelocityTracker.recycle();
+				this.mVelocityTracker = null;
+			}
+		} else {
+			if (this.mVelocityTracker == null) {
+				Log.d(this.getClass().getName(), "Obtain velocity tracker");
+				this.mVelocityTracker = VelocityTracker.obtain();
+			}
+			this.mVelocityTracker.addMovement(pSceneTouchEvent.getMotionEvent());
+			this.mScrollDetector.onTouchEvent(pSceneTouchEvent);
+		}
 	}
 
 	@Override
 	public void onScrollStarted(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
+
 	}
 
 	@Override
 	public void onScroll(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
-		this.gameCamera.offsetCenter(-pDistanceX, 0);
+
+		if (LevelSelector.MOVE_OLD) {
+			this.gameCamera.offsetCenter(-pDistanceX, 0);
+		} else {
+			PointF start = new PointF();
+			start.x = this.easeEntity.getX();
+			start.y = this.easeEntity.getY();
+			PointF end = new PointF();
+			end.x = start.x - (pDistanceX * this.easeMultiplicator);
+			end.y = start.y;
+			this.moveEaseEntity(start, end);
+		}
 	}
 
 	@Override
@@ -171,17 +209,21 @@ public class LevelSelector extends Entity implements IScrollDetectorListener {
 		}
 
 		this.mVelocityTracker.clear();
+
 	}
 
 	private boolean moveToCurrentPage() {
+		Log.d(this.getClass().getName(), "Move to current page");
 		return this.moveToPage(this.getCurrentPageIndex());
 	}
 
 	private boolean movePageLeft() {
+		Log.d(this.getClass().getName(), "Move page left");
 		return this.moveToPage(this.getCurrentPageIndex() - 1);
 	}
 
 	private boolean movePageRight() {
+		Log.d(this.getClass().getName(), "Move page right");
 		return this.moveToPage(this.getCurrentPageIndex() + 1);
 	}
 
@@ -191,40 +233,30 @@ public class LevelSelector extends Entity implements IScrollDetectorListener {
 
 	private boolean moveToPage(final int pageIndex) {
 		boolean success = false;
+		int oldPageIndex = this.getCurrentPageIndex();
 		if (this.isValidPageIndex(pageIndex)) {
 			this.currentPageIndex = pageIndex;
 			success = true;
 		} else {
-			System.out.println("Invalid page-index " + pageIndex);
+			Log.d(this.getClass().getName(), "Invalid page-index " + pageIndex);
 			success = false;
 		}
 
-		boolean moveOld = false;
-
-		System.out.println("Move to current page " + this.getCurrentPageIndex() + " of " + this.getPagesCount() + " pages [" + this.levelItems.size() + "]");
-		if (moveOld) {
+		Log.d(this.getClass().getName(), "Move to current page " + oldPageIndex + " to page " + this.getCurrentPageIndex() + " [" + this.getPagesCount() + " pages with " + this.levelItems.size() + " items]");
+		if (LevelSelector.MOVE_OLD) {
 			float displacementX = (this.gameCamera.getWidth() * this.getCurrentPageIndex()) - this.gameCamera.getXMin();
 			// moving camera to pageIndex
 			this.gameCamera.offsetCenter(displacementX, 0);
 
 		} else {
-			float startX = this.gameCamera.getCenterX();
-			float startY = this.gameCamera.getCenterY();
+			PointF start = new PointF();
+			start.x = this.gameCamera.getCenterX();
+			start.y = this.gameCamera.getCenterY();
+			PointF end = new PointF();
+			end.x = (this.gameCamera.getWidth() * this.getCurrentPageIndex()) + (this.gameCamera.getWidth() / 2);
+			end.y = start.y;
+			this.moveEaseEntity(start, end);
 
-			this.easeEntity.setPosition(startX, startY);
-
-			this.gameCamera.setChaseEntity(this.easeEntity);
-
-			MoveModifier moveModiefier = new MoveModifier(0.2f, startX, this.gameCamera.getWidth() * this.getCurrentPageIndex(), startY, startY) {
-				@Override
-				protected void onModifierFinished(final IEntity pItem) {
-					System.out.println("LevelSelector.moveToPage(...).new MoveModifier() {...}.onModifierFinished()");
-					super.onModifierFinished(pItem);
-					LevelSelector.this.gameCamera.setChaseEntity(null);
-				}
-			};
-			this.easeEntity.clearEntityModifiers();
-			this.easeEntity.registerEntityModifier(moveModiefier);
 		}
 
 		// register listeners
@@ -233,6 +265,16 @@ public class LevelSelector extends Entity implements IScrollDetectorListener {
 		}
 
 		return success;
+	}
+
+	private void moveEaseEntity(final PointF start, final PointF end) {
+
+		this.easeEntity.setPosition(start.x, start.y);
+		// Log.d(this.getClass().getName(), "Moving camera from " + start +
+		// " to " + end);
+		MoveModifier moveModiefier = new MoveModifier(0.15f, start.x, end.x, start.y, end.y, this.easeFunction);
+		this.easeEntity.clearEntityModifiers();
+		this.easeEntity.registerEntityModifier(moveModiefier);
 	}
 
 	private boolean isValidPageIndex(final int pageIndex) {
