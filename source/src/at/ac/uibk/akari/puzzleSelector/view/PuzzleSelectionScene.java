@@ -10,6 +10,8 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.graphics.PointF;
 import at.ac.uibk.akari.puzzleSelector.controller.PuzzleSelectionController;
+import at.ac.uibk.akari.utils.BackgroundLoader;
+import at.ac.uibk.akari.utils.BackgroundLoader.BackgroundType;
 import at.ac.uibk.akari.view.Cell;
 import at.ac.uibk.akari.view.Cell.State;
 
@@ -32,5 +34,12 @@ public class PuzzleSelectionScene extends Scene {
 
 		this.setOnSceneTouchListener(new PuzzleSelectionController(this.levelSelector));
 		this.attachChild(this.levelSelector);
+		this.setSceneOptions();
 	}
+
+	protected void setSceneOptions() {
+		this.setBackground(BackgroundLoader.getInstance().getBackground(BackgroundType.GAME_FIELD_BACKGROUND));
+		this.setBackgroundEnabled(true);
+	}
+
 }
