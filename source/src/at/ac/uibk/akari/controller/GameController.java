@@ -138,8 +138,8 @@ public class GameController extends AbstractController implements GameListener, 
 				this.startLevel(this.currentPuzzleIndex);
 				break;
 			case SELECT_PUZZLE:
-				this.setCurrentGameScene(this.puzzleSelectionScene);
-				this.puzzleSelectionController.start();
+				this.levelSelectionScene = new PuzzleSelectionScene(this.gameCamera, this.vertexBufferObjectManager);
+				this.setCurrentGameScene(this.levelSelectionScene);
 				break;
 			case QUIT:
 				MainActivity.quit();
