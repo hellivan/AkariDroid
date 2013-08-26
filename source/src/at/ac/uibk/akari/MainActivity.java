@@ -27,6 +27,7 @@ import at.ac.uibk.akari.utils.TextureLoader;
 public class MainActivity extends SimpleBaseGameActivity {
 
 	private static final String PUZZLE_SYNC_URL = "http://helli.ath.cx/akari/";
+	private static final boolean PUZZLE_SYNC = false;
 
 	private static SimpleBaseGameActivity staticActivity;
 
@@ -100,15 +101,18 @@ public class MainActivity extends SimpleBaseGameActivity {
 		Log.d(this.getClass().getName(), "Loading fonts");
 		FontLoader.getInstance().init(this.getTextureManager(), this.getFontManager(), this.getAssets());
 
-		// synchronize levels
-		Log.d(this.getClass().getName(), "Synchronizing levels using url '" + MainActivity.PUZZLE_SYNC_URL + "'");
-		try {
-			int syncedPuzzles = PuzzleLoader.synchronizePuzzleList(MainActivity.PUZZLE_SYNC_URL, this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
-			Log.i(this.getClass().getName(), "Synchronized " + syncedPuzzles + " puzzles");
-			MainActivity.showToast("Synchronized " + syncedPuzzles + " puzzles", Toast.LENGTH_SHORT);
+		if (MainActivity.PUZZLE_SYNC) {
+			Log.d(this.getClass().getName(), "Synchronizing levels using url '" + MainActivity.PUZZLE_SYNC_URL + "'");
+			try {
+				int syncedPuzzles = PuzzleLoader.synchronizePuzzleList(MainActivity.PUZZLE_SYNC_URL, this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
+				Log.i(this.getClass().getName(), "Synchronized " + syncedPuzzles + " puzzles");
+				MainActivity.showToast("Synchronized " + syncedPuzzles + " puzzles", Toast.LENGTH_SHORT);
 
-		} catch (Exception e) {
-			e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+			Log.d(this.getClass().getName(), "Synchronizing levels is disabled");
 		}
 
 		// load local levels
