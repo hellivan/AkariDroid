@@ -100,6 +100,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 
 	@Override
 	public boolean start() {
+		Log.d(this.getClass().getName(), "Start puzzle-controller");
 		// setting the game-HUD if it was not already set
 		if (this.gameCamera.getHUD() != this.gameHUD) {
 			this.gameCamera.setHUD(this.gameHUD);
@@ -116,6 +117,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 
 	@Override
 	public boolean stop() {
+		Log.d(this.getClass().getName(), "Stop puzzle-controller");
 		this.gameFieldController.removeGameFieldListener(this);
 		this.gameHUD.removePuzzleControlListener(this);
 		this.gameScene.setOnSceneTouchListener(null);

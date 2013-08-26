@@ -17,7 +17,7 @@ public class MenuItemSeletedEvent {
 
 		RESET("Reset"),
 
-		START_RANDOM_PUZZLE("Start A Ramdom Puzzle"),
+		RANDOM_PUZZLE("Ramdom Puzzle"),
 
 		SELECT_PUZZLE("Select Puzzle"),
 
