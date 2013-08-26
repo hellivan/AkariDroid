@@ -202,8 +202,8 @@ public class LevelSelector extends Entity implements IScrollDetectorListener {
 		boolean moveOld = false;
 
 		System.out.println("Move to current page " + this.getCurrentPageIndex() + " of " + this.getPagesCount() + " pages [" + this.levelItems.size() + "]");
-		float displacementX = (this.gameCamera.getWidth() * this.getCurrentPageIndex()) - this.gameCamera.getXMin();
 		if (moveOld) {
+			float displacementX = (this.gameCamera.getWidth() * this.getCurrentPageIndex()) - this.gameCamera.getXMin();
 			// moving camera to pageIndex
 			this.gameCamera.offsetCenter(displacementX, 0);
 
@@ -215,7 +215,7 @@ public class LevelSelector extends Entity implements IScrollDetectorListener {
 
 			this.gameCamera.setChaseEntity(this.easeEntity);
 
-			MoveModifier moveModiefier = new MoveModifier(0.2f, startX, startX + displacementX, startY, startY) {
+			MoveModifier moveModiefier = new MoveModifier(0.2f, startX, this.gameCamera.getWidth() * this.getCurrentPageIndex(), startY, startY) {
 				@Override
 				protected void onModifierFinished(final IEntity pItem) {
 					System.out.println("LevelSelector.moveToPage(...).new MoveModifier() {...}.onModifierFinished()");
