@@ -6,6 +6,7 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.graphics.PointF;
+import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
 import at.ac.uibk.akari.listener.TouchListener;
 import at.ac.uibk.akari.utils.ListenerList;
 
@@ -13,15 +14,21 @@ public class HUDButton extends Sprite {
 
 	protected ListenerList listeners;
 	private boolean enabled;
+	private ItemType itemType;
 
-	public HUDButton(final PointF location, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final ITextureRegion texture) {
-		this(location.x, location.y, width, height, vertexBufferObjectManager, texture);
+	public HUDButton(final PointF location, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final ITextureRegion texture, final ItemType itemType) {
+		this(location.x, location.y, width, height, vertexBufferObjectManager, texture, itemType);
 	}
 
-	public HUDButton(final float posX, final float posY, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final ITextureRegion texture) {
+	public HUDButton(final float posX, final float posY, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final ITextureRegion texture, final ItemType itemType) {
 		super(posX, posY, width, height, texture, vertexBufferObjectManager);
 		this.listeners = new ListenerList();
 		this.setEnabled(true);
+		this.itemType = itemType;
+	}
+
+	public ItemType getItemType() {
+		return this.itemType;
 	}
 
 	@Override
@@ -61,10 +68,10 @@ public class HUDButton extends Sprite {
 	}
 
 	public boolean isEnabled() {
-		return enabled;
+		return this.enabled;
 	}
 
-	public void setEnabled(boolean enabled) {
+	public void setEnabled(final boolean enabled) {
 		this.enabled = enabled;
 	}
 }

@@ -16,13 +16,15 @@ import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
 import at.ac.uibk.akari.listener.MenuListener;
 import at.ac.uibk.akari.puzzleSelector.controller.PuzzleSelectionController;
+import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionEvent;
+import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionListener;
 import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.BackgroundLoader.BackgroundType;
 import at.ac.uibk.akari.view.menu.AbstractMenuScene;
 import at.ac.uibk.akari.view.menu.MainMenuScene;
 import at.ac.uibk.akari.view.menu.PopupMenuScene;
 
-public class GameController extends AbstractController implements GameListener, MenuListener {
+public class GameController extends AbstractController implements GameListener, MenuListener, PuzzleSelectionListener {
 
 	private List<Puzzle> puzzles;
 	private PuzzleController puzzleController;
@@ -78,6 +80,7 @@ public class GameController extends AbstractController implements GameListener, 
 		this.puzzleController.addGameListener(this);
 		this.winninMenuScene.addMenuListener(this);
 		this.mainMenuScene.addMenuListener(this);
+		this.puzzleSelectionController.addPuzzleSelectionListener(this);
 
 		this.setCurrentGameScene(this.mainMenuScene);
 		return true;
@@ -88,6 +91,8 @@ public class GameController extends AbstractController implements GameListener, 
 		this.puzzleController.removeGameListener(this);
 		this.winninMenuScene.removeMenuListener(this);
 		this.mainMenuScene.removeMenuListener(this);
+		this.puzzleSelectionController.removePuzzleSelectionListener(this);
+
 		return true;
 	}
 
@@ -100,9 +105,9 @@ public class GameController extends AbstractController implements GameListener, 
 		}
 	}
 
-	public void startLevel(final int index) {
+	public void startLevel(final Puzzle puzzle) {
 		try {
-			this.puzzleController.setPuzzle(this.puzzles.get(index));
+			this.puzzleController.setPuzzle(puzzle);
 			this.puzzleController.start();
 		} catch (ContradictionException e) {
 			e.printStackTrace();
@@ -119,12 +124,12 @@ public class GameController extends AbstractController implements GameListener, 
 			switch (event.getItemType()) {
 			case REPLAY:
 				Log.i(this.getClass().getName(), "REPLAY-Game pressed");
-				this.startLevel(this.currentPuzzleIndex);
+				this.startLevel(this.puzzles.get(this.currentPuzzleIndex));
 				break;
 			case NEXT:
 				Log.i(this.getClass().getName(), "NEXT-Game pressed");
 				this.resetGameCamera();
-				this.startLevel(++this.currentPuzzleIndex);
+				this.startLevel(this.puzzles.get(++this.currentPuzzleIndex));
 				break;
 			case MAIN_MENU:
 				Log.i(this.getClass().getName(), "MAIN_MENU pressed");
@@ -140,10 +145,11 @@ public class GameController extends AbstractController implements GameListener, 
 			case RANDOM_PUZZLE:
 				this.setCurrentGameScene(this.gameScene);
 				this.currentPuzzleIndex = 0;
-				this.startLevel(this.currentPuzzleIndex);
+				this.startLevel(this.puzzles.get(this.currentPuzzleIndex));
 				break;
 			case SELECT_PUZZLE:
 				this.setCurrentGameScene(this.puzzleSelectionScene);
+				this.puzzleSelectionController.setPuzzles(this.puzzles);
 				this.puzzleSelectionController.start();
 				break;
 			case QUIT:
@@ -172,5 +178,21 @@ public class GameController extends AbstractController implements GameListener, 
 		this.gameCamera.setHUD(null);
 		this.resetGameCamera();
 		MainActivity.setCurrentScene(scene);
+	}
+
+	@Override
+	public void puzzleSelectionCanceled(final PuzzleSelectionEvent event) {
+		if (event.getSource().equals(this.puzzleSelectionController)) {
+			Log.i(this.getClass().getName(), "Puzzle-selection cancelled");
+			this.setCurrentGameScene(this.mainMenuScene);
+		}
+	}
+
+	@Override
+	public void puzzleSelected(final PuzzleSelectionEvent event) {
+		if (event.getSource().equals(this.puzzleSelectionController)) {
+			this.setCurrentGameScene(this.gameScene);
+			this.startLevel(event.getPuzzle());
+		}
 	}
 }

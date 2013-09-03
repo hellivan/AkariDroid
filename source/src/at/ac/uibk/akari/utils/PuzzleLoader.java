@@ -123,7 +123,7 @@ public class PuzzleLoader {
 		List<PuzzleDescription> fetchedPuzzles = PuzzleLoader.fetchPuzzles(puzzlesToFetch, puzzlesPath);
 		Log.i(PuzzleLoader.class.getName(), "Fetched " + fetchedPuzzles.size() + " of " + puzzlesToFetch.size() + " puzzels from " + puzzleURL);
 
-		return localDescriptions.size() - deletedPuzzles.size() + fetchedPuzzles.size();
+		return (localDescriptions.size() - deletedPuzzles.size()) + fetchedPuzzles.size();
 	}
 
 	private static List<PuzzleDescription> fetchPuzzles(final List<PuzzleDescription> puzzles, final String puzzlesPath) throws IOException {

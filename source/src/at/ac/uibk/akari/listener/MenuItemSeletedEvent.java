@@ -21,7 +21,9 @@ public class MenuItemSeletedEvent {
 
 		SELECT_PUZZLE("Select Puzzle"),
 
-		QUIT("Quit");
+		QUIT("Quit"),
+
+		BACK("Back");
 
 		private String itemText;
 

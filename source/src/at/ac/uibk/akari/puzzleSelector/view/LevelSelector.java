@@ -1,6 +1,6 @@
 package at.ac.uibk.akari.puzzleSelector.view;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.Entity;
@@ -23,7 +23,7 @@ public class LevelSelector extends Entity implements IScrollDetectorListener {
 
 	private static final boolean MOVE_OLD = false;
 
-	private ArrayList<Sprite> levelItems;
+	private List<LevelItem> levelItems;
 
 	private int columnsOnPages;
 	private int rowsOnPages;
@@ -54,7 +54,7 @@ public class LevelSelector extends Entity implements IScrollDetectorListener {
 		return (int) Math.ceil(this.levelItems.size() / maxItemsPerPage);
 	}
 
-	public LevelSelector(final ArrayList<Sprite> items, final int cols, final int rows, final Camera camera) {
+	public LevelSelector(final List<LevelItem> items, final int cols, final int rows, final Camera camera) {
 		if ((items == null) || (camera == null)) {
 			throw new NullPointerException();
 		}
