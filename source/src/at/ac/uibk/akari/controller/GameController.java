@@ -15,7 +15,7 @@ import at.ac.uibk.akari.listener.GameListener;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
 import at.ac.uibk.akari.listener.MenuListener;
-import at.ac.uibk.akari.puzzleSelector.view.PuzzleSelectionScene;
+import at.ac.uibk.akari.puzzleSelector.controller.PuzzleSelectionController;
 import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.BackgroundLoader.BackgroundType;
 import at.ac.uibk.akari.view.menu.AbstractMenuScene;
@@ -26,15 +26,16 @@ public class GameController extends AbstractController implements GameListener, 
 
 	private List<Puzzle> puzzles;
 	private PuzzleController puzzleController;
+	private PuzzleSelectionController puzzleSelectionController;
 
 	private int currentPuzzleIndex;
 
 	private ZoomCamera gameCamera;
-	private Scene gameScene;
 
+	private Scene gameScene;
+	private Scene puzzleSelectionScene;
 	private PopupMenuScene winninMenuScene;
 	private AbstractMenuScene mainMenuScene;
-	private PuzzleSelectionScene levelSelectionScene;
 
 	private VertexBufferObjectManager vertexBufferObjectManager;
 
@@ -47,6 +48,7 @@ public class GameController extends AbstractController implements GameListener, 
 	}
 
 	private void init() {
+		// initialize puzzle controller
 		this.puzzleController = new PuzzleController(this.gameCamera, this.gameScene, this.vertexBufferObjectManager);
 
 		// initialize main-menu-scene
@@ -66,6 +68,9 @@ public class GameController extends AbstractController implements GameListener, 
 		winningMenuItems.add(ItemType.MAIN_MENU);
 		this.winninMenuScene = new PopupMenuScene(this.gameCamera, this.vertexBufferObjectManager, winningMenuItems);
 
+		// initialize puzzle-selection-scene and controller
+		this.puzzleSelectionScene = new Scene();
+		this.puzzleSelectionController = new PuzzleSelectionController(this.puzzleSelectionScene, this.gameCamera, this.vertexBufferObjectManager);
 	}
 
 	@Override
@@ -138,8 +143,8 @@ public class GameController extends AbstractController implements GameListener, 
 				this.startLevel(this.currentPuzzleIndex);
 				break;
 			case SELECT_PUZZLE:
-				this.levelSelectionScene = new PuzzleSelectionScene(this.gameCamera, this.vertexBufferObjectManager);
-				this.setCurrentGameScene(this.levelSelectionScene);
+				this.setCurrentGameScene(this.puzzleSelectionScene);
+				this.puzzleSelectionController.start();
 				break;
 			case QUIT:
 				MainActivity.quit();
