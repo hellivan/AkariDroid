@@ -61,6 +61,7 @@ public class GameController extends AbstractController implements GameListener, 
 		this.mainMenuScene = new MainMenuScene(this.gameCamera, this.vertexBufferObjectManager, mainMenuItems);
 
 		// initialize game-scene
+		this.gameScene.setBackgroundEnabled(true);
 		this.gameScene.setBackground(BackgroundLoader.getInstance().getBackground(BackgroundType.GAME_FIELD_BACKGROUND));
 
 		// initialize winning-menu-scene
@@ -72,6 +73,8 @@ public class GameController extends AbstractController implements GameListener, 
 
 		// initialize puzzle-selection-scene and controller
 		this.puzzleSelectionScene = new Scene();
+		this.puzzleSelectionScene.setBackgroundEnabled(true);
+		this.puzzleSelectionScene.setBackground(BackgroundLoader.getInstance().getBackground(BackgroundType.GAME_FIELD_BACKGROUND));
 		this.puzzleSelectionController = new PuzzleSelectionController(this.puzzleSelectionScene, this.gameCamera, this.vertexBufferObjectManager);
 	}
 

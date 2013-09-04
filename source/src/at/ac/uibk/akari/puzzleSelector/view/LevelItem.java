@@ -4,6 +4,7 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.graphics.PointF;
+import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.TouchListener;
 import at.ac.uibk.akari.utils.ListenerList;
 import at.ac.uibk.akari.view.Cell;
@@ -16,17 +17,17 @@ public class LevelItem extends Cell {
 	private int deltaX = 7;
 	private int deltaY = 7;
 	private PointF lastDownPoint;
-	private int itemIndex;
+	private Puzzle puzzle;
 
-	public LevelItem(final PointF location, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final int itemIndex) {
-		this(location.x, location.y, width, height, vertexBufferObjectManager, itemIndex);
+	public LevelItem(final PointF location, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final Puzzle puzzle) {
+		this(location.x, location.y, width, height, vertexBufferObjectManager, puzzle);
 	}
 
-	public LevelItem(final float posX, final float posY, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final int itemIndex) {
+	public LevelItem(final float posX, final float posY, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final Puzzle puzzle) {
 		super(posX, posY, width, height, vertexBufferObjectManager);
 		this.listeners = new ListenerList();
 		this.setEnabled(true);
-		this.itemIndex = itemIndex;
+		this.puzzle = puzzle;
 	}
 
 	private boolean wasMoved(final PointF newPoint) {
@@ -52,7 +53,7 @@ public class LevelItem extends Cell {
 					// return true because event was handeled (avoid iterating
 					// over other touchares that are possibly removed after this
 					// levelSelection)
-					return true;
+					return false;
 				}
 			} else if (pSceneTouchEvent.isActionDown()) {
 				this.lastDownPoint = new PointF(pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
@@ -93,8 +94,8 @@ public class LevelItem extends Cell {
 		this.enabled = enabled;
 	}
 
-	public int getItemIndex() {
-		return this.itemIndex;
+	public Puzzle getPuzzle() {
+		return this.puzzle;
 	}
 
 }

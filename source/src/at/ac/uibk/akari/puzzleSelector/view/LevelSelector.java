@@ -1,5 +1,6 @@
 package at.ac.uibk.akari.puzzleSelector.view;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.andengine.engine.camera.Camera;
@@ -10,18 +11,27 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.input.touch.detector.ScrollDetector;
 import org.andengine.input.touch.detector.ScrollDetector.IScrollDetectorListener;
 import org.andengine.input.touch.detector.SurfaceScrollDetector;
+import org.andengine.opengl.vbo.VertexBufferObjectManager;
+import org.andengine.util.Constants;
 import org.andengine.util.modifier.ease.EaseQuadOut;
 import org.andengine.util.modifier.ease.IEaseFunction;
 
 import android.graphics.PointF;
 import android.util.Log;
 import android.view.VelocityTracker;
+import at.ac.uibk.akari.core.Puzzle;
+import at.ac.uibk.akari.listener.InputEvent;
+import at.ac.uibk.akari.listener.TouchListener;
+import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionEvent;
+import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionListener;
+import at.ac.uibk.akari.puzzleSelector.listener.ValueChangedEvent;
+import at.ac.uibk.akari.puzzleSelector.listener.ValueChangedListener;
+import at.ac.uibk.akari.utils.ListenerList;
+import at.ac.uibk.akari.view.Cell.State;
 
-public class LevelSelector extends Entity implements IScrollDetectorListener {
+public class LevelSelector extends Entity implements IScrollDetectorListener, TouchListener {
 
 	private static int THRESHOLD_FLING_VELOCITY = 500;
-
-	private static final boolean MOVE_OLD = false;
 
 	private List<LevelItem> levelItems;
 
@@ -35,11 +45,13 @@ public class LevelSelector extends Entity implements IScrollDetectorListener {
 	private SurfaceScrollDetector mScrollDetector;
 	private VelocityTracker mVelocityTracker;
 
-	private IPageChangeListener mPageChangeListener;
-
 	private Entity easeEntity;
 	private IEaseFunction easeFunction;
 	private float easeMultiplicator;
+
+	private VertexBufferObjectManager vertexBufferObjectManager;
+
+	protected ListenerList listeners;
 
 	public int getColumnsOnPages() {
 		return this.columnsOnPages;
@@ -54,36 +66,36 @@ public class LevelSelector extends Entity implements IScrollDetectorListener {
 		return (int) Math.ceil(this.levelItems.size() / maxItemsPerPage);
 	}
 
-	public LevelSelector(final List<LevelItem> items, final int cols, final int rows, final Camera camera) {
-		if ((items == null) || (camera == null)) {
-			throw new NullPointerException();
-		}
-		if ((cols == 0) || (rows == 0) || (items.size() == 0)) {
+	public LevelSelector(final int cols, final int rows, final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager) {
+		if ((cols == 0) || (rows == 0)) {
 			throw new IllegalArgumentException();
 		}
 
-		this.levelItems = items;
+		this.listeners = new ListenerList();
 		this.columnsOnPages = cols;
 		this.rowsOnPages = rows;
 		this.gameCamera = camera;
+		this.levelItems = new ArrayList<LevelItem>();
+		this.vertexBufferObjectManager = vertexBufferObjectManager;
 		this.mScrollDetector = new SurfaceScrollDetector(this);
+
+		this.easeFunction = EaseQuadOut.getInstance();
+		this.easeMultiplicator = 2;
+		this.easeEntity = new Entity();
+		this.attachChild(this.easeEntity);
+	}
+
+	public void start() {
 		this.currentPageIndex = 0; // start at the zeroth page
-		this.buildLevelSelector();
-		if (!LevelSelector.MOVE_OLD) {
-			this.easeFunction = EaseQuadOut.getInstance();
-			this.easeMultiplicator = 2;
-			this.easeEntity = new Entity();
-			this.easeEntity.setPosition(this.gameCamera.getCenterX(), this.gameCamera.getCenterY());
-			this.attachChild(this.easeEntity);
-			this.gameCamera.setChaseEntity(this.easeEntity);
-		}
+		this.moveCameraToPage(this.getCurrentPageIndex());
+		this.gameCamera.setChaseEntity(this.easeEntity);
 	}
 
-	public void setmPageChangeListener(final IPageChangeListener mPageChangeListener) {
-		this.mPageChangeListener = mPageChangeListener;
+	public void stop() {
+		this.gameCamera.setChaseEntity(null);
 	}
 
-	private void buildLevelSelector() {
+	private void initLevelSelector() {
 
 		int column = 0;
 		int row = 0;
@@ -139,6 +151,19 @@ public class LevelSelector extends Entity implements IScrollDetectorListener {
 			this.mVelocityTracker.addMovement(pSceneTouchEvent.getMotionEvent());
 			this.mScrollDetector.onTouchEvent(pSceneTouchEvent);
 		}
+
+		// foreward touch-ecent to level-items
+		for (LevelItem item : this.levelItems) {
+			if (item.contains(pSceneTouchEvent.getX(), pSceneTouchEvent.getY())) {
+
+				final float[] touchAreaLocalCoordinates = item.convertSceneToLocalCoordinates(pSceneTouchEvent.getX(), pSceneTouchEvent.getY());
+				final float touchAreaLocalX = touchAreaLocalCoordinates[Constants.VERTEX_INDEX_X];
+				final float touchAreaLocalY = touchAreaLocalCoordinates[Constants.VERTEX_INDEX_Y];
+
+				item.onAreaTouched(pSceneTouchEvent, touchAreaLocalX, touchAreaLocalY);
+			}
+
+		}
 	}
 
 	@Override
@@ -149,17 +174,13 @@ public class LevelSelector extends Entity implements IScrollDetectorListener {
 	@Override
 	public void onScroll(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
 
-		if (LevelSelector.MOVE_OLD) {
-			this.gameCamera.offsetCenter(-pDistanceX, 0);
-		} else {
-			PointF start = new PointF();
-			start.x = this.easeEntity.getX();
-			start.y = this.easeEntity.getY();
-			PointF end = new PointF();
-			end.x = start.x - (pDistanceX * this.easeMultiplicator);
-			end.y = start.y;
-			this.moveEaseEntity(start, end);
-		}
+		PointF start = new PointF();
+		start.x = this.easeEntity.getX();
+		start.y = this.easeEntity.getY();
+		PointF end = new PointF();
+		end.x = start.x - (pDistanceX * this.easeMultiplicator);
+		end.y = start.y;
+		this.moveEaseEntity(start, end);
 	}
 
 	@Override
@@ -212,6 +233,26 @@ public class LevelSelector extends Entity implements IScrollDetectorListener {
 
 	}
 
+	public void removeLevels() {
+		for (LevelItem item : this.levelItems) {
+			item.removeTouchListener(this);
+			this.detachChild(item);
+		}
+		this.levelItems.clear();
+	}
+
+	public void setLevels(final List<Puzzle> puzzles) {
+		this.removeLevels();
+
+		for (Puzzle puzzle : puzzles) {
+			LevelItem item = new LevelItem(new PointF(0, 0), 100, 100, this.vertexBufferObjectManager, puzzle);
+			item.setCellState(State.LAMP);
+			item.addTouchListener(this);
+			this.levelItems.add(item);
+		}
+		this.initLevelSelector();
+	}
+
 	private boolean moveToCurrentPage() {
 		Log.d(this.getClass().getName(), "Move to current page");
 		return this.moveToPage(this.getCurrentPageIndex());
@@ -243,28 +284,23 @@ public class LevelSelector extends Entity implements IScrollDetectorListener {
 		}
 
 		Log.d(this.getClass().getName(), "Move to current page " + oldPageIndex + " to page " + this.getCurrentPageIndex() + " [" + this.getPagesCount() + " pages with " + this.levelItems.size() + " items]");
-		if (LevelSelector.MOVE_OLD) {
-			float displacementX = (this.gameCamera.getWidth() * this.getCurrentPageIndex()) - this.gameCamera.getXMin();
-			// moving camera to pageIndex
-			this.gameCamera.offsetCenter(displacementX, 0);
 
-		} else {
-			PointF start = new PointF();
-			start.x = this.gameCamera.getCenterX();
-			start.y = this.gameCamera.getCenterY();
-			PointF end = new PointF();
-			end.x = (this.gameCamera.getWidth() * this.getCurrentPageIndex()) + (this.gameCamera.getWidth() / 2);
-			end.y = start.y;
-			this.moveEaseEntity(start, end);
+		this.moveCameraToPage(this.getCurrentPageIndex());
 
+		if (success) {
+			this.fireValueChanged(oldPageIndex, this.getCurrentPageIndex());
 		}
-
-		// register listeners
-		if (this.mPageChangeListener != null) {
-			this.mPageChangeListener.onPageChange(this.currentPageIndex);
-		}
-
 		return success;
+	}
+
+	private void moveCameraToPage(final int pageIndex) {
+		PointF start = new PointF();
+		start.x = this.gameCamera.getCenterX();
+		start.y = this.gameCamera.getCenterY();
+		PointF end = new PointF();
+		end.x = (this.gameCamera.getWidth() * pageIndex) + (this.gameCamera.getWidth() / 2);
+		end.y = start.y;
+		this.moveEaseEntity(start, end);
 	}
 
 	private void moveEaseEntity(final PointF start, final PointF end) {
@@ -281,7 +317,42 @@ public class LevelSelector extends Entity implements IScrollDetectorListener {
 		return (pageIndex >= 0) && (pageIndex < this.getPagesCount());
 	}
 
-	public interface IPageChangeListener {
-		public void onPageChange(int pageIndex);
+	@Override
+	public void touchPerformed(final InputEvent event) {
+		if (event.getSource() instanceof LevelItem) {
+			LevelItem selectedItem = (LevelItem) event.getSource();
+			this.firePuzzleSelected(selectedItem.getPuzzle());
+		}
+	}
+
+	public void addPuzzleSelectionListener(final PuzzleSelectionListener listener) {
+		this.listeners.addListener(PuzzleSelectionListener.class, listener);
+	}
+
+	public void removePuzzleSelectionListener(final PuzzleSelectionListener listener) {
+		this.listeners.removeListener(PuzzleSelectionListener.class, listener);
+	}
+
+	public void addValueChangedListener(final ValueChangedListener<Integer> listener) {
+		this.listeners.addListener(ValueChangedListener.class, listener);
+	}
+
+	public void removeValueChangedListener(final ValueChangedListener<Integer> listener) {
+		this.listeners.removeListener(ValueChangedListener.class, listener);
+	}
+
+	protected void firePuzzleSelected(final Puzzle puzzle) {
+		PuzzleSelectionEvent event = new PuzzleSelectionEvent(this, puzzle);
+		for (PuzzleSelectionListener listener : this.listeners.getListeners(PuzzleSelectionListener.class)) {
+			listener.puzzleSelected(event);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void fireValueChanged(final int oldValue, final int newValue) {
+		ValueChangedEvent<Integer> event = new ValueChangedEvent<Integer>(this, oldValue, newValue);
+		for (ValueChangedListener<Integer> listener : this.listeners.getListeners(ValueChangedListener.class)) {
+			listener.valueChanged(event);
+		}
 	}
 }

@@ -277,6 +277,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 				Log.i(this.getClass().getName(), "RESET-Game pressed");
 				this.stopClock.reset();
 				this.gameFieldController.resetGameField();
+				this.stopClock.start();
 				break;
 			default:
 				break;
