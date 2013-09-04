@@ -1,4 +1,4 @@
-package at.ac.uibk.akari.view.menu.hud;
+package at.ac.uibk.akari.puzzleSelector.view;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -9,6 +9,8 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
 import at.ac.uibk.akari.utils.TextureLoader;
 import at.ac.uibk.akari.utils.TextureLoader.TextureType;
+import at.ac.uibk.akari.view.menu.hud.AbstractHUD;
+import at.ac.uibk.akari.view.menu.hud.HUDButton;
 
 public class PuzzleSelectorHUD extends AbstractHUD {
 
