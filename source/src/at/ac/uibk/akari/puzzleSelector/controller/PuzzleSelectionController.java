@@ -58,6 +58,7 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 		this.hud.addPuzzleControlListener(this);
 		this.camera.setHUD(this.hud);
 		this.levelSelector.start();
+		this.hud.setIndicatorIndex(this.levelSelector.getCurrentPageIndex(), this.levelSelector.getPagesCount());
 		return true;
 	}
 
@@ -133,6 +134,7 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 	public void valueChanged(final ValueChangedEvent<Integer> event) {
 		if (event.getSource().equals(this.levelSelector)) {
 			Log.d(this.getClass().getName(), "Changed page from " + event.getOldValue() + " to " + event.getNewValue());
+			this.hud.setIndicatorIndex(event.getNewValue(), this.levelSelector.getPagesCount());
 		}
 	}
 

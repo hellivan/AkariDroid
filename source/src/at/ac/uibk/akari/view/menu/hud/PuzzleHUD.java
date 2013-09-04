@@ -47,7 +47,7 @@ public class PuzzleHUD extends AbstractHUD implements StopClockUpdateListener {
 
 		int timerWidth = 3 * PuzzleHUD.BUTTONS_SIZE;
 		int timerPos = (desiredWidth / 2) - (timerWidth / 2);
-		this.timerText = new Text(timerPos, PuzzleHUD.BORDER_INSET_Y, FontLoader.getInstance().getFont(FontType.DROID_48_WHITE), "00:00", new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager);
+		this.timerText = new Text(timerPos, PuzzleHUD.BORDER_INSET_Y, FontLoader.getInstance().getFont(FontType.DROID_48_WHITE), "00:00", 11, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager);
 
 		Set<Entity> entities = new HashSet<Entity>();
 		entities.add(this.timerText);
