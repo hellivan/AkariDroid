@@ -26,8 +26,13 @@ import at.ac.uibk.akari.utils.TextureLoader;
 
 public class MainActivity extends SimpleBaseGameActivity {
 
-	private static final String PUZZLE_SYNC_URL = "http://helli.ath.cx/akari/";
-	private static final boolean PUZZLE_SYNC = false;
+	private static String PUZZLE_SYNC_URL = "http://helli.ath.cx/akari/";
+
+	private static boolean PUZZLE_SYNC = true;
+	private static boolean PUZZLE_EXTERNAL = false;
+
+	private static final String PUZZLES_DIR_EXTERNAL = "puzzles";
+	private static final String PUZZLES_DIR_LOCAL = "puzzles";
 
 	private static SimpleBaseGameActivity staticActivity;
 
@@ -36,8 +41,6 @@ public class MainActivity extends SimpleBaseGameActivity {
 
 	private static int SCREEN_WIDTH;
 	private static int SCREEN_HEIGHT;
-
-	private static String puzzlesDir = "puzzles";
 
 	private ZoomCamera gameCamera;
 	private Scene gameScene;
@@ -101,10 +104,21 @@ public class MainActivity extends SimpleBaseGameActivity {
 		Log.d(this.getClass().getName(), "Loading fonts");
 		FontLoader.getInstance().init(this.getTextureManager(), this.getFontManager(), this.getAssets());
 
-		if (MainActivity.PUZZLE_SYNC) {
+		// load levels from assets
+		Log.d(this.getClass().getName(), "Loading asset levels");
+		try {
+			this.puzzles = PuzzleLoader.loadPuzzles(this.getAssets(), MainActivity.PUZZLES_DIR_LOCAL);
+			Log.i(this.getClass().getName(), "Loaded " + this.puzzles.size() + " levels...");
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// synchronize levels from external source if enabled
+		if (MainActivity.PUZZLE_EXTERNAL && MainActivity.PUZZLE_SYNC) {
 			Log.d(this.getClass().getName(), "Synchronizing levels using url '" + MainActivity.PUZZLE_SYNC_URL + "'");
 			try {
-				int syncedPuzzles = PuzzleLoader.synchronizePuzzleList(MainActivity.PUZZLE_SYNC_URL, this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
+				int syncedPuzzles = PuzzleLoader.synchronizePuzzleList(MainActivity.PUZZLE_SYNC_URL, this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.PUZZLES_DIR_EXTERNAL);
 				Log.i(this.getClass().getName(), "Synchronized " + syncedPuzzles + " puzzles");
 				MainActivity.showToast("Synchronized " + syncedPuzzles + " puzzles", Toast.LENGTH_SHORT);
 
@@ -115,14 +129,16 @@ public class MainActivity extends SimpleBaseGameActivity {
 			Log.d(this.getClass().getName(), "Synchronizing levels is disabled");
 		}
 
-		// load local levels
-		Log.d(this.getClass().getName(), "Loading levels from memory");
-		try {
-			this.puzzles = PuzzleLoader.loadPuzzles(this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
-			Log.i(this.getClass().getName(), "Loaded " + this.puzzles.size() + " levels...");
+		// load local levels from external source if enabled
+		if (MainActivity.PUZZLE_EXTERNAL) {
+			Log.d(this.getClass().getName(), "Loading levels from memory");
+			try {
+				this.puzzles = PuzzleLoader.loadPuzzles(this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.PUZZLES_DIR_EXTERNAL);
+				Log.i(this.getClass().getName(), "Loaded " + this.puzzles.size() + " levels...");
 
-		} catch (Exception e) {
-			e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 
 	}

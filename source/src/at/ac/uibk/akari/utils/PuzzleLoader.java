@@ -26,6 +26,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import android.content.res.AssetManager;
 import android.util.Log;
 import at.ac.uibk.akari.core.JsonTools;
 import at.ac.uibk.akari.core.Puzzle;
@@ -189,7 +190,6 @@ public class PuzzleLoader {
 		List<Puzzle> levels = new ArrayList<Puzzle>();
 		File levelDir = new File(puzzlesPath);
 		for (File levelFile : PuzzleLoader.sortFiles(levelDir.listFiles())) {
-
 			levels.add(JsonTools.getInstance().fromJson(Puzzle.class, levelFile));
 		}
 		return levels;
@@ -206,6 +206,28 @@ public class PuzzleLoader {
 			}
 		});
 		return sortedFiles;
+	}
+
+	private static List<String> sortFileNames(final String[] files) {
+		List<String> sortedFiles = Arrays.asList(files);
+
+		Collections.sort(sortedFiles, new Comparator<String>() {
+
+			@Override
+			public int compare(final String lhs, final String rhs) {
+				return lhs.compareTo(rhs);
+			}
+		});
+		return sortedFiles;
+	}
+
+	public static List<Puzzle> loadPuzzles(final AssetManager assetManager, final String puzzlesPath) throws JsonSyntaxException, JsonIOException, IOException {
+		List<Puzzle> levels = new ArrayList<Puzzle>();
+		for (String name : PuzzleLoader.sortFileNames(assetManager.list(puzzlesPath))) {
+			String fileName = puzzlesPath + File.separator + name;
+			levels.add(JsonTools.getInstance().fromJson(Puzzle.class, assetManager.open(fileName)));
+		}
+		return levels;
 	}
 
 }
