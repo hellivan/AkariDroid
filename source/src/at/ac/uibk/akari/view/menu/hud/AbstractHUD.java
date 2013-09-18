@@ -41,7 +41,7 @@ public abstract class AbstractHUD extends HUD implements TouchListener {
 
 	protected abstract Set<Entity> initHUDItems(final int desiredWidth);
 
-	protected abstract int getDesiredHUDHeight();
+	public abstract int getDesiredHUDHeight();
 
 	private void initGUI() {
 		this.hudButtons = this.initHUDButtons(this.desiredWidth);

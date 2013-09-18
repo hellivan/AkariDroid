@@ -51,7 +51,7 @@ public class PuzzleSelectorHUD extends AbstractHUD {
 	}
 
 	@Override
-	protected int getDesiredHUDHeight() {
+	public int getDesiredHUDHeight() {
 		return PuzzleSelectorHUD.BUTTONS_SIZE + (2 * PuzzleSelectorHUD.BORDER_INSET_Y);
 	}
 

@@ -9,6 +9,7 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.util.Log;
+import at.ac.uibk.akari.common.view.Insets;
 import at.ac.uibk.akari.controller.AbstractController;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
@@ -39,11 +40,12 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 	}
 
 	private void init() {
-		this.levelSelector = new LevelSelector(2, 2, this.camera, this.vertexBufferObjectManager);
-		this.scene.attachChild(this.levelSelector);
 
 		this.hud = new PuzzleSelectorHUD((int) this.camera.getWidth(), this.vertexBufferObjectManager);
 
+		this.levelSelector = new LevelSelector(2, 2, new Insets(this.hud.getDesiredHUDHeight(), 0, 0, 0), this.camera, this.vertexBufferObjectManager);
+
+		this.scene.attachChild(this.levelSelector);
 	}
 
 	public void setPuzzles(final List<Puzzle> puzzles) {

@@ -96,7 +96,7 @@ public class PuzzleHUD extends AbstractHUD implements StopClockUpdateListener {
 	}
 
 	@Override
-	protected int getDesiredHUDHeight() {
+	public int getDesiredHUDHeight() {
 		return PuzzleHUD.BUTTONS_SIZE + (2 * PuzzleHUD.BORDER_INSET_Y);
 	}
 

@@ -1,11 +1,16 @@
 package at.ac.uibk.akari.puzzleSelector.view;
 
+import org.andengine.entity.text.Text;
+import org.andengine.entity.text.TextOptions;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
+import org.andengine.util.HorizontalAlign;
 
 import android.graphics.PointF;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.TouchListener;
+import at.ac.uibk.akari.utils.FontLoader;
+import at.ac.uibk.akari.utils.FontLoader.FontType;
 import at.ac.uibk.akari.utils.ListenerList;
 import at.ac.uibk.akari.view.Cell;
 
@@ -19,15 +24,20 @@ public class LevelItem extends Cell {
 	private PointF lastDownPoint;
 	private Puzzle puzzle;
 
-	public LevelItem(final PointF location, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final Puzzle puzzle) {
-		this(location.x, location.y, width, height, vertexBufferObjectManager, puzzle);
-	}
+	private VertexBufferObjectManager vertexBufferObjectManager;
 
-	public LevelItem(final float posX, final float posY, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final Puzzle puzzle) {
-		super(posX, posY, width, height, vertexBufferObjectManager);
+	public LevelItem(final VertexBufferObjectManager vertexBufferObjectManager, final Puzzle puzzle) {
+		super(0, 0, 150, 150, vertexBufferObjectManager);
+		this.vertexBufferObjectManager = vertexBufferObjectManager;
 		this.listeners = new ListenerList();
 		this.setEnabled(true);
 		this.puzzle = puzzle;
+		this.initItem();
+	}
+
+	private void initItem() {
+		Text levelResolution = new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_48_WHITE), this.puzzle.getWidth() + "/" + this.puzzle.getHeight(), 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager);
+		this.attachChild(levelResolution);
 	}
 
 	private boolean wasMoved(final PointF newPoint) {

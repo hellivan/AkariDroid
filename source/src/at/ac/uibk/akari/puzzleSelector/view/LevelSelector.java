@@ -19,6 +19,7 @@ import org.andengine.util.modifier.ease.IEaseFunction;
 import android.graphics.PointF;
 import android.util.Log;
 import android.view.VelocityTracker;
+import at.ac.uibk.akari.common.view.Insets;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.InputEvent;
 import at.ac.uibk.akari.listener.TouchListener;
@@ -53,6 +54,8 @@ public class LevelSelector extends Entity implements IScrollDetectorListener, To
 
 	protected ListenerList listeners;
 
+	private Insets insets;
+
 	public int getColumnsOnPages() {
 		return this.columnsOnPages;
 	}
@@ -67,10 +70,15 @@ public class LevelSelector extends Entity implements IScrollDetectorListener, To
 	}
 
 	public LevelSelector(final int cols, final int rows, final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager) {
+		this(cols, rows, new Insets(0, 0, 0, 0), camera, vertexBufferObjectManager);
+
+	}
+
+	public LevelSelector(final int cols, final int rows, final Insets insets, final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager) {
 		if ((cols == 0) || (rows == 0)) {
 			throw new IllegalArgumentException();
 		}
-
+		this.insets = insets;
 		this.listeners = new ListenerList();
 		this.columnsOnPages = cols;
 		this.rowsOnPages = rows;
@@ -95,6 +103,10 @@ public class LevelSelector extends Entity implements IScrollDetectorListener, To
 		this.gameCamera.setChaseEntity(null);
 	}
 
+	public Insets getInsets() {
+		return this.insets;
+	}
+
 	private void initLevelSelector() {
 
 		int column = 0;
@@ -103,19 +115,21 @@ public class LevelSelector extends Entity implements IScrollDetectorListener, To
 
 		for (Sprite item : this.levelItems) {
 
-			float selectorPosX = this.getX();
-			float selectorPosY = this.getY();
+			float selectorPosX = this.getX() + this.getInsets().getWest();
+			float selectorPosY = this.getY() + this.getInsets().getNorth();
 
-			float cameraWidth = this.gameCamera.getWidth();
-			float cameraHeight = this.gameCamera.getHeight();
+			float cameraWidth = this.gameCamera.getWidth() - (this.getInsets().getWest() + this.getInsets().getEast());
+			float cameraHeight = this.gameCamera.getHeight() - (this.getInsets().getNorth() + this.getInsets().getSouth());
 
 			float itemPosX = selectorPosX;
-			itemPosX += (column + 1) * (cameraWidth / (this.getColumnsOnPages() + 1));
+			itemPosX += (column) * (cameraWidth / (this.getColumnsOnPages()));
+			itemPosX += (cameraWidth / (this.getColumnsOnPages() * 2));
 			itemPosX -= item.getWidth() / 2;
 			itemPosX += pageIndex * cameraWidth;
 
 			float itemPosY = selectorPosY;
-			itemPosY += (row + 1) * (cameraHeight / (this.getRowsOnPages() + 1));
+			itemPosY += (row * (cameraHeight / this.getRowsOnPages()));
+			itemPosY += (cameraHeight / (this.getRowsOnPages() * 2));
 			itemPosY -= item.getHeight() / 2;
 
 			item.setPosition(itemPosX, itemPosY);
@@ -245,7 +259,7 @@ public class LevelSelector extends Entity implements IScrollDetectorListener, To
 		this.removeLevels();
 
 		for (Puzzle puzzle : puzzles) {
-			LevelItem item = new LevelItem(new PointF(0, 0), 100, 100, this.vertexBufferObjectManager, puzzle);
+			LevelItem item = new LevelItem(this.vertexBufferObjectManager, puzzle);
 			item.setCellState(State.LAMP);
 			item.addTouchListener(this);
 			this.levelItems.add(item);
