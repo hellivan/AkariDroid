@@ -28,7 +28,11 @@ public class FontLoader {
 		/**
 		 * Font called PLOK with size 48 and color black
 		 */
-		PLOK_48_BLACK("Plok.ttf", 48, Color.BLACK);
+		PLOK_48_BLACK("Plok.ttf", 48, Color.BLACK),
+		/**
+		 * Font called DROID with size 48 and color white
+		 */
+		DROID_30_WHITE("Droid.ttf", 30, Color.WHITE);
 
 		private String fontPath;
 		private float fontSize;

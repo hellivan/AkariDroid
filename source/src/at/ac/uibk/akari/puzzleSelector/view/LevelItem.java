@@ -1,5 +1,9 @@
 package at.ac.uibk.akari.puzzleSelector.view;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.text.TextOptions;
 import org.andengine.input.touch.TouchEvent;
@@ -12,9 +16,10 @@ import at.ac.uibk.akari.listener.TouchListener;
 import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.FontLoader.FontType;
 import at.ac.uibk.akari.utils.ListenerList;
-import at.ac.uibk.akari.view.Cell;
+import at.ac.uibk.akari.utils.TextureLoader;
+import at.ac.uibk.akari.utils.TextureLoader.TextureType;
 
-public class LevelItem extends Cell {
+public class LevelItem extends Sprite {
 
 	protected ListenerList listeners;
 	private boolean enabled;
@@ -27,7 +32,7 @@ public class LevelItem extends Cell {
 	private VertexBufferObjectManager vertexBufferObjectManager;
 
 	public LevelItem(final VertexBufferObjectManager vertexBufferObjectManager, final Puzzle puzzle) {
-		super(0, 0, 150, 150, vertexBufferObjectManager);
+		super(0, 0, 200, 150, TextureLoader.getInstance().getTextureRegion(TextureType.LEVEL_ITEM_BACKGROUND), vertexBufferObjectManager);
 		this.vertexBufferObjectManager = vertexBufferObjectManager;
 		this.listeners = new ListenerList();
 		this.setEnabled(true);
@@ -36,8 +41,24 @@ public class LevelItem extends Cell {
 	}
 
 	private void initItem() {
-		Text levelResolution = new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_48_WHITE), this.puzzle.getWidth() + "/" + this.puzzle.getHeight(), 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager);
-		this.attachChild(levelResolution);
+		int startY = 22;
+		int hGap = 2;
+
+		List<Text> texts = new ArrayList<Text>();
+
+		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), this.puzzle.getWidth() + "/" + this.puzzle.getHeight(), 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
+		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), this.puzzle.getDifficulty().getDescription(), this.vertexBufferObjectManager));
+		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), "00:00", 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
+
+		for (Text text : texts) {
+			text.setX((this.getWidth() / 2) - (text.getWidth() / 2));
+			text.setY(startY);
+			this.attachChild(text);
+
+			startY += text.getHeight();
+			startY += hGap;
+
+		}
 	}
 
 	private boolean wasMoved(final PointF newPoint) {

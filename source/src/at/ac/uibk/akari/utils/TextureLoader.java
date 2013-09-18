@@ -37,7 +37,11 @@ public class TextureLoader {
 		/**
 		 * Texture for game-HUD-background
 		 */
-		HUD_BACKGROUND("wood_1.png", 700, 700, 1, 1);
+		HUD_BACKGROUND("wood_1.png", 700, 700, 1, 1),
+		/**
+		 * Texture for items of the level-selector
+		 */
+		LEVEL_ITEM_BACKGROUND("levelItemBG.png", 512, 512, 1, 1);
 
 		private String texturePath;
 		private int textureWidth;
@@ -74,7 +78,7 @@ public class TextureLoader {
 		}
 
 		public int getTileNumber(final int posX, final int posY) {
-			return this.getTileColumns() * posY + posX;
+			return (this.getTileColumns() * posY) + posX;
 		}
 	}
 

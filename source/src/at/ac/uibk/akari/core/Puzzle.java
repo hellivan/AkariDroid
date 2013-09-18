@@ -1,6 +1,7 @@
 package at.ac.uibk.akari.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import android.graphics.Point;
 
@@ -69,6 +70,11 @@ public class Puzzle {
 	private CellState[][] cells;
 
 	/**
+	 * Difficulty for the level
+	 */
+	private Difficulty difficulty;
+
+	/**
 	 * Initialize the puzzle with a given width and height. After this, the
 	 * game-field is empty. Therefore the state of all cells on the game-field
 	 * is set to BLANK. The size of the game-field has to be at least 1x1
@@ -79,7 +85,7 @@ public class Puzzle {
 	 *            Height of the puzzle
 	 */
 	public Puzzle(final int width, final int height) {
-		if (width < 1 || height < 1) {
+		if ((width < 1) || (height < 1)) {
 			throw new RuntimeException("Invalid puzzle-size " + width + "x" + height);
 		}
 		this.cells = new CellState[height][width];
@@ -201,7 +207,7 @@ public class Puzzle {
 	 * @return True if the cell-position is valid, otherwise false
 	 */
 	public boolean isCellValid(final int posX, final int posY) {
-		if (posX < 0 || posY < 0 || posX > this.getWidth() - 1 || posY > this.getHeight() - 1) {
+		if ((posX < 0) || (posY < 0) || (posX > (this.getWidth() - 1)) || (posY > (this.getHeight() - 1))) {
 			return false;
 		}
 		return true;
@@ -221,23 +227,81 @@ public class Puzzle {
 	public ArrayList<Point> getNeightbors(final Point location, final CellState state) {
 		ArrayList<Point> list = new ArrayList<Point>(4);
 
-		if ((location.x + 1) < this.getWidth() && (this.getCellState(location.x + 1, location.y).equals(state) || state == null)) {
+		if (((location.x + 1) < this.getWidth()) && (this.getCellState(location.x + 1, location.y).equals(state) || (state == null))) {
 			list.add(new Point(location.x + 1, location.y));
 		}
 
-		if ((location.x - 1) >= 0 && (this.getCellState(location.x - 1, location.y).equals(state) || state == null)) {
+		if (((location.x - 1) >= 0) && (this.getCellState(location.x - 1, location.y).equals(state) || (state == null))) {
 			list.add(new Point(location.x - 1, location.y));
 		}
 
-		if ((location.y + 1) < this.getHeight() && (this.getCellState(location.x, location.y + 1).equals(state) || state == null)) {
+		if (((location.y + 1) < this.getHeight()) && (this.getCellState(location.x, location.y + 1).equals(state) || (state == null))) {
 			list.add(new Point(location.x, location.y + 1));
 		}
 
-		if ((location.y - 1) >= 0 && (this.getCellState(location.x, location.y - 1).equals(state) || state == null)) {
+		if (((location.y - 1) >= 0) && (this.getCellState(location.x, location.y - 1).equals(state) || (state == null))) {
 			list.add(new Point(location.x, location.y - 1));
 		}
 
 		return list;
 
 	}
+
+	public Difficulty getDifficulty() {
+		return this.difficulty;
+	}
+
+	public void setDifficulty(final Difficulty difficulty) {
+		this.difficulty = difficulty;
+	}
+
+	/**
+	 * Class that is used to describe the difficulty of a level
+	 * 
+	 */
+	public enum Difficulty {
+
+		EASY("Easy"),
+
+		MEDIUM("Medium"),
+
+		HARD("Hard");
+
+		private String description;
+
+		private Difficulty(final String description) {
+			this.description = description;
+		}
+
+		public String getDescription() {
+			return this.description;
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = (prime * result) + Arrays.hashCode(this.cells);
+		return result;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (this.getClass() != obj.getClass()) {
+			return false;
+		}
+		Puzzle other = (Puzzle) obj;
+		if (!Arrays.deepEquals(this.cells, other.cells)) {
+			return false;
+		}
+		return true;
+	}
+
 }

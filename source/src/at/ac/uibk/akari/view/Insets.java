@@ -1,4 +1,4 @@
-package at.ac.uibk.akari.common.view;
+package at.ac.uibk.akari.view;
 
 public class Insets {
 

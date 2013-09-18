@@ -9,7 +9,6 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.util.Log;
-import at.ac.uibk.akari.common.view.Insets;
 import at.ac.uibk.akari.controller.AbstractController;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
@@ -21,6 +20,7 @@ import at.ac.uibk.akari.puzzleSelector.listener.ValueChangedListener;
 import at.ac.uibk.akari.puzzleSelector.view.LevelSelector;
 import at.ac.uibk.akari.puzzleSelector.view.PuzzleSelectorHUD;
 import at.ac.uibk.akari.utils.ListenerList;
+import at.ac.uibk.akari.view.Insets;
 
 public class PuzzleSelectionController extends AbstractController implements IOnSceneTouchListener, MenuListener, PuzzleSelectionListener, ValueChangedListener<Integer> {
 
@@ -43,7 +43,7 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 
 		this.hud = new PuzzleSelectorHUD((int) this.camera.getWidth(), this.vertexBufferObjectManager);
 
-		this.levelSelector = new LevelSelector(2, 2, new Insets(this.hud.getDesiredHUDHeight(), 0, 0, 0), this.camera, this.vertexBufferObjectManager);
+		this.levelSelector = new LevelSelector(3, 2, new Insets(this.hud.getDesiredHUDHeight(), 40, 0, 40), this.camera, this.vertexBufferObjectManager);
 
 		this.scene.attachChild(this.levelSelector);
 	}

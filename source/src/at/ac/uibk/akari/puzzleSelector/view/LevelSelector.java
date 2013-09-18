@@ -19,7 +19,6 @@ import org.andengine.util.modifier.ease.IEaseFunction;
 import android.graphics.PointF;
 import android.util.Log;
 import android.view.VelocityTracker;
-import at.ac.uibk.akari.common.view.Insets;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.InputEvent;
 import at.ac.uibk.akari.listener.TouchListener;
@@ -28,7 +27,7 @@ import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionListener;
 import at.ac.uibk.akari.puzzleSelector.listener.ValueChangedEvent;
 import at.ac.uibk.akari.puzzleSelector.listener.ValueChangedListener;
 import at.ac.uibk.akari.utils.ListenerList;
-import at.ac.uibk.akari.view.Cell.State;
+import at.ac.uibk.akari.view.Insets;
 
 public class LevelSelector extends Entity implements IScrollDetectorListener, TouchListener {
 
@@ -118,18 +117,21 @@ public class LevelSelector extends Entity implements IScrollDetectorListener, To
 			float selectorPosX = this.getX() + this.getInsets().getWest();
 			float selectorPosY = this.getY() + this.getInsets().getNorth();
 
-			float cameraWidth = this.gameCamera.getWidth() - (this.getInsets().getWest() + this.getInsets().getEast());
-			float cameraHeight = this.gameCamera.getHeight() - (this.getInsets().getNorth() + this.getInsets().getSouth());
+			float cameraWidth = this.gameCamera.getWidth();
+			float cameraHeight = this.gameCamera.getHeight();
+
+			float selectorWidth = cameraWidth - (this.getInsets().getWest() + this.getInsets().getEast());
+			float selectorHeight = cameraHeight - (this.getInsets().getNorth() + this.getInsets().getSouth());
 
 			float itemPosX = selectorPosX;
-			itemPosX += (column) * (cameraWidth / (this.getColumnsOnPages()));
-			itemPosX += (cameraWidth / (this.getColumnsOnPages() * 2));
+			itemPosX += (column) * (selectorWidth / (this.getColumnsOnPages()));
+			itemPosX += (selectorWidth / (this.getColumnsOnPages() * 2));
 			itemPosX -= item.getWidth() / 2;
 			itemPosX += pageIndex * cameraWidth;
 
 			float itemPosY = selectorPosY;
-			itemPosY += (row * (cameraHeight / this.getRowsOnPages()));
-			itemPosY += (cameraHeight / (this.getRowsOnPages() * 2));
+			itemPosY += (row * (selectorHeight / this.getRowsOnPages()));
+			itemPosY += (selectorHeight / (this.getRowsOnPages() * 2));
 			itemPosY -= item.getHeight() / 2;
 
 			item.setPosition(itemPosX, itemPosY);
@@ -260,7 +262,6 @@ public class LevelSelector extends Entity implements IScrollDetectorListener, To
 
 		for (Puzzle puzzle : puzzles) {
 			LevelItem item = new LevelItem(this.vertexBufferObjectManager, puzzle);
-			item.setCellState(State.LAMP);
 			item.addTouchListener(this);
 			this.levelItems.add(item);
 		}
