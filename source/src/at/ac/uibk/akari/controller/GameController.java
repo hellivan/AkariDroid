@@ -195,7 +195,9 @@ public class GameController extends AbstractController implements GameListener, 
 	public void puzzleSelected(final PuzzleSelectionEvent event) {
 		if (event.getSource().equals(this.puzzleSelectionController)) {
 			this.setCurrentGameScene(this.gameScene);
-			this.startLevel(event.getPuzzle());
+			Puzzle selectedPuzzle = event.getPuzzle();
+			this.currentPuzzleIndex = this.puzzles.indexOf(selectedPuzzle);
+			this.startLevel(selectedPuzzle);
 		}
 	}
 }
