@@ -15,6 +15,7 @@ import at.ac.uibk.akari.listener.StopClockUpdateListener;
 import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.FontLoader.FontType;
 import at.ac.uibk.akari.utils.StopClockModel;
+import at.ac.uibk.akari.utils.StringUtils;
 import at.ac.uibk.akari.utils.TextureLoader;
 import at.ac.uibk.akari.utils.TextureLoader.TextureType;
 
@@ -47,7 +48,7 @@ public class PuzzleHUD extends AbstractHUD implements StopClockUpdateListener {
 
 		int timerWidth = 3 * PuzzleHUD.BUTTONS_SIZE;
 		int timerPos = (desiredWidth / 2) - (timerWidth / 2);
-		this.timerText = new Text(timerPos, PuzzleHUD.BORDER_INSET_Y, FontLoader.getInstance().getFont(FontType.DROID_48_WHITE), "00:00", 11, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager);
+		this.timerText = new Text(timerPos, PuzzleHUD.BORDER_INSET_Y, FontLoader.getInstance().getFont(FontType.DROID_48_WHITE), StringUtils.convertSecondsToTimeString(0), 11, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager);
 
 		Set<Entity> entities = new HashSet<Entity>();
 		entities.add(this.timerText);
@@ -64,34 +65,10 @@ public class PuzzleHUD extends AbstractHUD implements StopClockUpdateListener {
 
 	}
 
-	private String convertSecondsToTimeString(final long secondsTimer) {
-		StringBuffer buffer = new StringBuffer();
-		long mSeconds = secondsTimer;
-		long mMinutes = mSeconds / 60;
-		int mHours = (int) (mMinutes / 60);
-		int mDays = mHours / 24;
-
-		int days = mDays; // days
-		int hours = mHours % 24; // hours
-		int minutes = (int) (mMinutes % 60); // minutes
-		int seconds = (int) (mSeconds % 60); // seconds
-
-		if (days > 0) {
-			buffer.append(String.format("%02d:", days));
-		}
-		if ((days > 0) || (hours > 0)) {
-			buffer.append(String.format("%02d:", hours));
-		}
-		buffer.append(String.format("%02d:", minutes));
-		buffer.append(String.format("%02d", seconds));
-
-		return buffer.toString();
-	}
-
 	@Override
 	public void stopClockUpdated(final StopClockEvent event) {
 		if (event.getSource() == this.currentStopClock) {
-			this.timerText.setText(this.convertSecondsToTimeString(event.getCurrentClockSeconds()));
+			this.timerText.setText(StringUtils.convertSecondsToTimeString(event.getCurrentClockSeconds()));
 		}
 	}
 

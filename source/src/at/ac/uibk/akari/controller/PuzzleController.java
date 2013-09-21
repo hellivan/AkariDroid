@@ -23,6 +23,7 @@ import at.ac.uibk.akari.MainActivity;
 import at.ac.uibk.akari.core.GameFieldModel;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.GameFieldListener;
+import at.ac.uibk.akari.listener.GameFieldModelEvent;
 import at.ac.uibk.akari.listener.GameListener;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
@@ -127,14 +128,16 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	}
 
 	private void firePuzzleSolved() {
+		GameFieldModelEvent event = new GameFieldModelEvent(this, this.puzzle, this.stopClock.getSecondsElapsed());
 		for (GameListener listener : this.listenerList.getListeners(GameListener.class)) {
-			listener.puzzleSolved(this, this.stopClock.getSecondsElapsed());
+			listener.puzzleSolved(event);
 		}
 	}
 
 	private void firePuzzleStopped() {
+		GameFieldModelEvent event = new GameFieldModelEvent(this, this.puzzle, this.stopClock.getSecondsElapsed());
 		for (GameListener listener : this.listenerList.getListeners(GameListener.class)) {
-			listener.puzzleStopped(this);
+			listener.puzzleStopped(event);
 		}
 	}
 

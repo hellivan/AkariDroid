@@ -11,6 +11,7 @@ import org.sat4j.specs.ContradictionException;
 import android.util.Log;
 import at.ac.uibk.akari.MainActivity;
 import at.ac.uibk.akari.core.Puzzle;
+import at.ac.uibk.akari.listener.GameFieldModelEvent;
 import at.ac.uibk.akari.listener.GameListener;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
@@ -20,6 +21,7 @@ import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionEvent;
 import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionListener;
 import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.BackgroundLoader.BackgroundType;
+import at.ac.uibk.akari.utils.ScoreManager;
 import at.ac.uibk.akari.view.menu.AbstractMenuScene;
 import at.ac.uibk.akari.view.menu.MainMenuScene;
 import at.ac.uibk.akari.view.menu.PopupMenuScene;
@@ -100,9 +102,11 @@ public class GameController extends AbstractController implements GameListener, 
 	}
 
 	@Override
-	public void puzzleSolved(final PuzzleController source, final long timeMs) {
-		if (source.equals(this.puzzleController)) {
+	public void puzzleSolved(final GameFieldModelEvent event) {
+		if (event.getSource().equals(this.puzzleController)) {
 			this.puzzleController.stop();
+			// saving score
+			ScoreManager.getInstance().saveScore(event.getGamefieldModel().getPuzzle(), event.getSecondsElapsed());
 			// display game-winning-menu
 			this.gameScene.setChildScene(this.winninMenuScene, false, true, true);
 		}
@@ -164,8 +168,8 @@ public class GameController extends AbstractController implements GameListener, 
 	}
 
 	@Override
-	public void puzzleStopped(final PuzzleController source) {
-		if (source == this.puzzleController) {
+	public void puzzleStopped(final GameFieldModelEvent event) {
+		if (event.getSource() == this.puzzleController) {
 			this.puzzleController.stop();
 			this.winninMenuScene.back();
 			this.setCurrentGameScene(this.mainMenuScene);

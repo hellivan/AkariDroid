@@ -247,10 +247,21 @@ public class Puzzle {
 
 	}
 
+	/**
+	 * Getting the difficulty of the level
+	 * 
+	 * @return Difficulty of the level
+	 */
 	public Difficulty getDifficulty() {
 		return this.difficulty;
 	}
 
+	/**
+	 * Setting the difficulty of the puzzle
+	 * 
+	 * @param difficulty
+	 *            Difficulty of the puzzle
+	 */
 	public void setDifficulty(final Difficulty difficulty) {
 		this.difficulty = difficulty;
 	}
@@ -282,7 +293,9 @@ public class Puzzle {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = (prime * result) + Arrays.hashCode(this.cells);
+		for (int row = 0; row < this.cells.length; row++) {
+			result = (prime * result) + Arrays.hashCode(this.cells[row]);
+		}
 		return result;
 	}
 

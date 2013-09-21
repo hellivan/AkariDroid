@@ -187,7 +187,7 @@ public class GameFieldModel {
 		}
 		if (this.lamps != null) {
 			for (Point lamp : this.lamps) {
-				if (lamp.x == posX && lamp.y == posY) {
+				if ((lamp.x == posX) && (lamp.y == posY)) {
 					return true;
 				}
 			}
@@ -206,19 +206,19 @@ public class GameFieldModel {
 	public ArrayList<Point> getLampNeightbors(final Point location) {
 		ArrayList<Point> list = new ArrayList<Point>(4);
 
-		if ((location.x + 1) < this.getWidth() && this.isLampAt(location.x + 1, location.y)) {
+		if (((location.x + 1) < this.getWidth()) && this.isLampAt(location.x + 1, location.y)) {
 			list.add(new Point(location.x + 1, location.y));
 		}
 
-		if ((location.x - 1) >= 0 && this.isLampAt(location.x - 1, location.y)) {
+		if (((location.x - 1) >= 0) && this.isLampAt(location.x - 1, location.y)) {
 			list.add(new Point(location.x - 1, location.y));
 		}
 
-		if ((location.y + 1) < this.getHeight() && this.isLampAt(location.x, location.y + 1)) {
+		if (((location.y + 1) < this.getHeight()) && this.isLampAt(location.x, location.y + 1)) {
 			list.add(new Point(location.x, location.y + 1));
 		}
 
-		if ((location.y - 1) >= 0 && this.isLampAt(location.x, location.y - 1)) {
+		if (((location.y - 1) >= 0) && this.isLampAt(location.x, location.y - 1)) {
 			list.add(new Point(location.x, location.y - 1));
 		}
 
@@ -301,5 +301,9 @@ public class GameFieldModel {
 
 	public boolean isBlock4At(final int posX, final int posY) {
 		return this.getPuzzleCellState(posX, posY).equals(CellState.BLOCK4);
+	}
+
+	public Puzzle getPuzzle() {
+		return (Puzzle) this.puzzle.clone();
 	}
 }

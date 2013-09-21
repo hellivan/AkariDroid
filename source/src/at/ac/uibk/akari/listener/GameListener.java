@@ -2,12 +2,10 @@ package at.ac.uibk.akari.listener;
 
 import java.util.EventListener;
 
-import at.ac.uibk.akari.controller.PuzzleController;
-
 public interface GameListener extends EventListener {
 
-	public void puzzleSolved(PuzzleController source, long timeMs);
-	
-	public void puzzleStopped(PuzzleController source);
+	public void puzzleSolved(final GameFieldModelEvent event);
+
+	public void puzzleStopped(final GameFieldModelEvent event);
 
 }

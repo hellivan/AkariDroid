@@ -16,6 +16,8 @@ import at.ac.uibk.akari.listener.TouchListener;
 import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.FontLoader.FontType;
 import at.ac.uibk.akari.utils.ListenerList;
+import at.ac.uibk.akari.utils.ScoreManager;
+import at.ac.uibk.akari.utils.StringUtils;
 import at.ac.uibk.akari.utils.TextureLoader;
 import at.ac.uibk.akari.utils.TextureLoader.TextureType;
 
@@ -48,7 +50,11 @@ public class LevelItem extends Sprite {
 
 		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), this.puzzle.getWidth() + "/" + this.puzzle.getHeight(), 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
 		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), this.puzzle.getDifficulty().getDescription(), this.vertexBufferObjectManager));
-		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), "00:00", 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
+		long puzzleScore = ScoreManager.getInstance().loadScore(this.puzzle);
+		if (puzzleScore == ScoreManager.EMPTY_SCORE) {
+			puzzleScore = 0;
+		}
+		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), StringUtils.convertSecondsToTimeString(puzzleScore), 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
 
 		for (Text text : texts) {
 			text.setX((this.getWidth() / 2) - (text.getWidth() / 2));
