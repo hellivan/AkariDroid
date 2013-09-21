@@ -5,7 +5,7 @@ import java.util.List;
 import org.andengine.engine.camera.Camera;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
-import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
+import at.ac.uibk.akari.common.menu.ItemType;
 import at.ac.uibk.akari.utils.FontLoader.FontType;
 
 public class PopupMenuScene extends AbstractMenuScene {

@@ -9,9 +9,9 @@ import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.color.Color;
 
+import at.ac.uibk.akari.common.menu.ItemType;
 import at.ac.uibk.akari.listener.InputEvent;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
-import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
 import at.ac.uibk.akari.listener.MenuListener;
 import at.ac.uibk.akari.listener.TouchListener;
 import at.ac.uibk.akari.utils.ListenerList;

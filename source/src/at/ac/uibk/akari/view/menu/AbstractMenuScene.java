@@ -12,8 +12,8 @@ import org.andengine.entity.scene.menu.item.decorator.ScaleMenuItemDecorator;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.opengl.GLES20;
+import at.ac.uibk.akari.common.menu.ItemType;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
-import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
 import at.ac.uibk.akari.listener.MenuListener;
 import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.FontLoader.FontType;
@@ -46,7 +46,7 @@ public abstract class AbstractMenuScene extends MenuScene implements IOnMenuItem
 		List<IMenuItem> menuItems = new ArrayList<IMenuItem>();
 
 		for (ItemType itemType : this.itemTypes) {
-			IMenuItem menuItem = new ScaleMenuItemDecorator(new TextMenuItem(itemType.ordinal(), FontLoader.getInstance().getFont(fontType), itemType.getItemText(), this.vertexBufferObjectManager), sizePessed, sizeNormal);
+			IMenuItem menuItem = new ScaleMenuItemDecorator(new TextMenuItem(itemType.ordinal(), FontLoader.getInstance().getFont(fontType), itemType.getText(), this.vertexBufferObjectManager), sizePessed, sizeNormal);
 			menuItem.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 			menuItems.add(menuItem);
 		}

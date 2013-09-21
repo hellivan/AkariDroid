@@ -6,7 +6,7 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.graphics.PointF;
-import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
+import at.ac.uibk.akari.common.menu.ItemType;
 import at.ac.uibk.akari.listener.TouchListener;
 import at.ac.uibk.akari.utils.ListenerList;
 

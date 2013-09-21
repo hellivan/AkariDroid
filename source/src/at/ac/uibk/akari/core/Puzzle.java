@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import android.graphics.Point;
+import at.ac.uibk.akari.common.menu.MenuItem;
 
 /**
  * Class that represents the base construction of a puzzle. It only contains the
@@ -270,7 +271,7 @@ public class Puzzle {
 	 * Class that is used to describe the difficulty of a level
 	 * 
 	 */
-	public enum Difficulty {
+	public enum Difficulty implements MenuItem{
 
 		EASY("Easy"),
 
@@ -278,14 +279,14 @@ public class Puzzle {
 
 		HARD("Hard");
 
-		private String description;
+		private String text;
 
-		private Difficulty(final String description) {
-			this.description = description;
+		private Difficulty(final String text) {
+		    this.text = text;
 		}
 
-		public String getDescription() {
-			return this.description;
+		public String getText() {
+		    return this.text;
 		}
 	}
 

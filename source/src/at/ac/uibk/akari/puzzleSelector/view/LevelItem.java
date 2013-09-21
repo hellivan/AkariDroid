@@ -48,13 +48,12 @@ public class LevelItem extends Sprite {
 
 		List<Text> texts = new ArrayList<Text>();
 
-		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), this.puzzle.getWidth() + "/" + this.puzzle.getHeight(), 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
-		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), this.puzzle.getDifficulty().getDescription(), this.vertexBufferObjectManager));
+		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), this.puzzle.getWidth() + "x" + this.puzzle.getHeight(), 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
+		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), this.puzzle.getDifficulty().getText(), this.vertexBufferObjectManager));
 		long puzzleScore = ScoreManager.getInstance().loadScore(this.puzzle);
-		if (puzzleScore == ScoreManager.EMPTY_SCORE) {
-			puzzleScore = 0;
+		if (puzzleScore != ScoreManager.EMPTY_SCORE) {
+		    texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), StringUtils.convertSecondsToTimeString(puzzleScore), 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
 		}
-		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), StringUtils.convertSecondsToTimeString(puzzleScore), 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
 
 		for (Text text : texts) {
 			text.setX((this.getWidth() / 2) - (text.getWidth() / 2));

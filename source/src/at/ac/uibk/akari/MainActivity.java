@@ -22,6 +22,7 @@ import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.PuzzleLoader;
+import at.ac.uibk.akari.utils.SceneManager;
 import at.ac.uibk.akari.utils.ScoreManager;
 import at.ac.uibk.akari.utils.TextureLoader;
 
@@ -92,6 +93,9 @@ public class MainActivity extends SimpleBaseGameActivity {
 	@Override
 	protected void onCreateResources() {
 		Log.d(this.getClass().getName(), "Called create resources");
+
+		Log.d(this.getClass().getName(), "Initializing scene-manager");
+		SceneManager.getInstance().init(this);
 
 		// initialize score-manager
 		Log.d(this.getClass().getName(), "Initializing score-manager");
@@ -173,15 +177,6 @@ public class MainActivity extends SimpleBaseGameActivity {
 			@Override
 			public void run() {
 				Toast.makeText(MainActivity.staticActivity, text, length).show();
-			}
-		});
-	}
-
-	public static void setCurrentScene(final Scene scene) {
-		MainActivity.staticActivity.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				MainActivity.staticActivity.getEngine().setScene(scene);
 			}
 		});
 	}

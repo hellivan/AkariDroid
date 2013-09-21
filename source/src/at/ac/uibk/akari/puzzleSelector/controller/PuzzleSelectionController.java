@@ -20,6 +20,7 @@ import at.ac.uibk.akari.puzzleSelector.listener.ValueChangedListener;
 import at.ac.uibk.akari.puzzleSelector.view.LevelSelector;
 import at.ac.uibk.akari.puzzleSelector.view.PuzzleSelectorHUD;
 import at.ac.uibk.akari.utils.ListenerList;
+import at.ac.uibk.akari.utils.SceneManager;
 import at.ac.uibk.akari.view.Insets;
 
 public class PuzzleSelectionController extends AbstractController implements IOnSceneTouchListener, MenuListener, PuzzleSelectionListener, ValueChangedListener<Integer> {
@@ -61,6 +62,7 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 		this.camera.setHUD(this.hud);
 		this.levelSelector.start();
 		this.hud.setIndicatorIndex(this.levelSelector.getCurrentPageIndex(), this.levelSelector.getPagesCount());
+		SceneManager.getInstance().setCurrentScene(this, this.scene);
 		return true;
 	}
 

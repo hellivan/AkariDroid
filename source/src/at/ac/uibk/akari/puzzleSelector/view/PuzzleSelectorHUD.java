@@ -9,7 +9,7 @@ import org.andengine.entity.text.TextOptions;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.HorizontalAlign;
 
-import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
+import at.ac.uibk.akari.common.menu.ItemType;
 import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.FontLoader.FontType;
 import at.ac.uibk.akari.utils.TextureLoader;

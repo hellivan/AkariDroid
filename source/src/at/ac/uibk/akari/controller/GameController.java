@@ -10,16 +10,17 @@ import org.sat4j.specs.ContradictionException;
 
 import android.util.Log;
 import at.ac.uibk.akari.MainActivity;
+import at.ac.uibk.akari.common.menu.ItemType;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.GameFieldModelEvent;
 import at.ac.uibk.akari.listener.GameListener;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
-import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
 import at.ac.uibk.akari.listener.MenuListener;
 import at.ac.uibk.akari.puzzleSelector.controller.PuzzleSelectionController;
 import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionEvent;
 import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionListener;
 import at.ac.uibk.akari.utils.BackgroundLoader;
+import at.ac.uibk.akari.utils.SceneManager;
 import at.ac.uibk.akari.utils.BackgroundLoader.BackgroundType;
 import at.ac.uibk.akari.utils.ScoreManager;
 import at.ac.uibk.akari.view.menu.AbstractMenuScene;
@@ -155,7 +156,6 @@ public class GameController extends AbstractController implements GameListener, 
 				this.startLevel(this.puzzles.get(this.currentPuzzleIndex));
 				break;
 			case SELECT_PUZZLE:
-				this.setCurrentGameScene(this.puzzleSelectionScene);
 				this.puzzleSelectionController.setPuzzles(this.puzzles);
 				this.puzzleSelectionController.start();
 				break;
@@ -184,7 +184,8 @@ public class GameController extends AbstractController implements GameListener, 
 	private void setCurrentGameScene(final Scene scene) {
 		this.gameCamera.setHUD(null);
 		this.resetGameCamera();
-		MainActivity.setCurrentScene(scene);
+		SceneManager.getInstance().setCurrentScene(this,scene);
+		
 	}
 
 	@Override

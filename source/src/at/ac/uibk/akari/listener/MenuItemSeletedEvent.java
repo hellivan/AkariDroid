@@ -1,40 +1,9 @@
 package at.ac.uibk.akari.listener;
 
+import at.ac.uibk.akari.common.menu.ItemType;
+
+
 public class MenuItemSeletedEvent {
-
-	public enum ItemType {
-		REPLAY("Replay"),
-
-		NEXT("Next"),
-
-		MAIN_MENU("Main Menu"),
-
-		PAUSE("Pause"),
-
-		HELP("Help"),
-
-		CONTINUE("Continue"),
-
-		RESET("Reset"),
-
-		RANDOM_PUZZLE("Ramdom Puzzle"),
-
-		SELECT_PUZZLE("Select Puzzle"),
-
-		QUIT("Quit"),
-
-		BACK("Back");
-
-		private String itemText;
-
-		private ItemType(final String itemText) {
-			this.itemText = itemText;
-		}
-
-		public String getItemText() {
-			return this.itemText;
-		}
-	}
 
 	private Object source;
 	private ItemType itemType;

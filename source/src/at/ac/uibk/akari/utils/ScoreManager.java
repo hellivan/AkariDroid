@@ -27,10 +27,15 @@ public class ScoreManager {
 
 	public void saveScore(final Puzzle puzzle, final long score) {
 		String puzzleID = ScoreManager.generatePuzzleID(puzzle);
-		Log.d(this.getClass().getName(), "Save score " + score + " for puzzle " + puzzleID);
-		SharedPreferences.Editor editor = this.sharedPreferences.edit();
-		editor.putLong(puzzleID, score);
-		editor.commit();
+		long oldScore = this.loadScore(puzzle);
+		if( oldScore==EMPTY_SCORE || score < oldScore ){
+		    Log.d(this.getClass().getName(), "Save score " + score + " for puzzle " + puzzleID);
+		    SharedPreferences.Editor editor = this.sharedPreferences.edit();
+		    editor.putLong(puzzleID, score);
+		    editor.commit();
+		} else {
+		    Log.d(this.getClass().getName(), "New score is worse than new score. Don't save new one");
+		}
 	}
 
 	public long loadScore(final Puzzle puzzle) {
