@@ -20,6 +20,7 @@ import at.ac.uibk.akari.utils.ScoreManager;
 import at.ac.uibk.akari.utils.StringUtils;
 import at.ac.uibk.akari.utils.TextureLoader;
 import at.ac.uibk.akari.utils.TextureLoader.TextureType;
+import at.ac.uibk.akari.view.Insets;
 
 public class LevelItem extends Sprite {
 
@@ -32,6 +33,7 @@ public class LevelItem extends Sprite {
 	private Puzzle puzzle;
 
 	private VertexBufferObjectManager vertexBufferObjectManager;
+	private Insets insets;
 
 	public LevelItem(final VertexBufferObjectManager vertexBufferObjectManager, final Puzzle puzzle) {
 		super(0, 0, 200, 150, TextureLoader.getInstance().getTextureRegion(TextureType.LEVEL_ITEM_BACKGROUND), vertexBufferObjectManager);
@@ -42,28 +44,46 @@ public class LevelItem extends Sprite {
 		this.initItem();
 	}
 
+	public Insets getInsets() {
+		return insets;
+	}
+
 	private void initItem() {
-		int startY = 22;
-		int hGap = 2;
+		this.insets = new Insets(22, 0, 22, 0);
+
+		long puzzleScore = ScoreManager.getInstance().loadScore(this.puzzle);
 
 		List<Text> texts = new ArrayList<Text>();
-
 		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), this.puzzle.getWidth() + "x" + this.puzzle.getHeight(), 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
 		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), this.puzzle.getDifficulty().getText(), this.vertexBufferObjectManager));
-		long puzzleScore = ScoreManager.getInstance().loadScore(this.puzzle);
 		if (puzzleScore != ScoreManager.EMPTY_SCORE) {
-		    texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), StringUtils.convertSecondsToTimeString(puzzleScore), 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
+			texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), StringUtils.convertSecondsToTimeString(puzzleScore), 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
 		}
+
+		int row = 0;
 
 		for (Text text : texts) {
-			text.setX((this.getWidth() / 2) - (text.getWidth() / 2));
-			text.setY(startY);
+
+			float selectorPosY = this.getY() + this.getInsets().getNorth();
+
+			float cameraWidth = this.getWidth();
+			float cameraHeight = this.getHeight();
+
+			float selectorHeight = cameraHeight - (this.getInsets().getNorth() + this.getInsets().getSouth());
+
+			float itemPosX = ((cameraWidth / 2) - (text.getWidth() / 2));
+
+			float itemPosY = selectorPosY;
+			itemPosY += (row * (selectorHeight / texts.size()));
+			itemPosY += (selectorHeight / (texts.size() * 2));
+			itemPosY -= text.getHeight() / 2;
+
+			text.setPosition(itemPosX, itemPosY);
+
 			this.attachChild(text);
-
-			startY += text.getHeight();
-			startY += hGap;
-
+			row++;
 		}
+
 	}
 
 	private boolean wasMoved(final PointF newPoint) {
