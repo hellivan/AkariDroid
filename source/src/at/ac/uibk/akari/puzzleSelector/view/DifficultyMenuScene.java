@@ -1,4 +1,4 @@
-package at.ac.uibk.akari.view.menu;
+package at.ac.uibk.akari.puzzleSelector.view;
 
 import java.util.List;
 
@@ -9,10 +9,11 @@ import at.ac.uibk.akari.common.menu.MenuItem;
 import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.BackgroundLoader.BackgroundType;
 import at.ac.uibk.akari.utils.FontLoader.FontType;
+import at.ac.uibk.akari.view.menu.AbstractMenuScene;
 
-public class MainMenuScene extends AbstractMenuScene {
+public class DifficultyMenuScene extends AbstractMenuScene {
 
-	public MainMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, List<MenuItem> menuItems) {
+	public DifficultyMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, List<MenuItem> menuItems) {
 		super(camera, vertexBufferObjectManager, menuItems);
 	}
 

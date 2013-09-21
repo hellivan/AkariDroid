@@ -11,6 +11,7 @@ import org.sat4j.specs.ContradictionException;
 import android.util.Log;
 import at.ac.uibk.akari.MainActivity;
 import at.ac.uibk.akari.common.menu.ItemType;
+import at.ac.uibk.akari.common.menu.MenuItem;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.GameFieldModelEvent;
 import at.ac.uibk.akari.listener.GameListener;
@@ -57,7 +58,7 @@ public class GameController extends AbstractController implements GameListener, 
 		this.puzzleController = new PuzzleController(this.gameCamera, this.gameScene, this.vertexBufferObjectManager);
 
 		// initialize main-menu-scene
-		List<ItemType> mainMenuItems = new ArrayList<ItemType>();
+		List<MenuItem> mainMenuItems = new ArrayList<MenuItem>();
 		mainMenuItems.add(ItemType.RANDOM_PUZZLE);
 		mainMenuItems.add(ItemType.SELECT_PUZZLE);
 		mainMenuItems.add(ItemType.QUIT);
@@ -68,7 +69,7 @@ public class GameController extends AbstractController implements GameListener, 
 		this.gameScene.setBackground(BackgroundLoader.getInstance().getBackground(BackgroundType.GAME_FIELD_BACKGROUND));
 
 		// initialize winning-menu-scene
-		List<ItemType> winningMenuItems = new ArrayList<ItemType>();
+		List<MenuItem> winningMenuItems = new ArrayList<MenuItem>();
 		winningMenuItems.add(ItemType.NEXT);
 		winningMenuItems.add(ItemType.REPLAY);
 		winningMenuItems.add(ItemType.MAIN_MENU);
@@ -129,7 +130,8 @@ public class GameController extends AbstractController implements GameListener, 
 			this.puzzleController.stop();
 			this.winninMenuScene.back();
 
-			switch (event.getItemType()) {
+			ItemType selectedItem = (ItemType) event.getMenuItem();
+			switch (selectedItem) {
 			case REPLAY:
 				Log.i(this.getClass().getName(), "REPLAY-Game pressed");
 				this.startLevel(this.puzzles.get(this.currentPuzzleIndex));
@@ -149,7 +151,8 @@ public class GameController extends AbstractController implements GameListener, 
 		}
 		// source was the main-menu-scene
 		else if (event.getSource() == this.mainMenuScene) {
-			switch (event.getItemType()) {
+			ItemType selectedItem = (ItemType) event.getMenuItem();
+			switch (selectedItem) {
 			case RANDOM_PUZZLE:
 				this.setCurrentGameScene(this.gameScene);
 				this.currentPuzzleIndex = 0;
@@ -184,8 +187,8 @@ public class GameController extends AbstractController implements GameListener, 
 	private void setCurrentGameScene(final Scene scene) {
 		this.gameCamera.setHUD(null);
 		this.resetGameCamera();
-		SceneManager.getInstance().setCurrentScene(this,scene);
-		
+		SceneManager.getInstance().setCurrentScene(this, scene);
+
 	}
 
 	@Override

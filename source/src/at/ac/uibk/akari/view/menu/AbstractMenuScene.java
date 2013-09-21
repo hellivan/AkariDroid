@@ -13,6 +13,7 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.opengl.GLES20;
 import at.ac.uibk.akari.common.menu.ItemType;
+import at.ac.uibk.akari.common.menu.MenuItem;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.listener.MenuListener;
 import at.ac.uibk.akari.utils.FontLoader;
@@ -25,11 +26,11 @@ public abstract class AbstractMenuScene extends MenuScene implements IOnMenuItem
 
 	private VertexBufferObjectManager vertexBufferObjectManager;
 
-	private List<ItemType> itemTypes;
+	private List<MenuItem> menuItems;
 
-	public AbstractMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, List<ItemType> itemTypes) {
+	public AbstractMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, List<MenuItem> menuItems) {
 		super(camera);
-		this.itemTypes = itemTypes;
+		this.menuItems = menuItems;
 		this.listeners = new ListenerList();
 		this.vertexBufferObjectManager = vertexBufferObjectManager;
 		this.initGUI();
@@ -45,8 +46,8 @@ public abstract class AbstractMenuScene extends MenuScene implements IOnMenuItem
 
 		List<IMenuItem> menuItems = new ArrayList<IMenuItem>();
 
-		for (ItemType itemType : this.itemTypes) {
-			IMenuItem menuItem = new ScaleMenuItemDecorator(new TextMenuItem(itemType.ordinal(), FontLoader.getInstance().getFont(fontType), itemType.getText(), this.vertexBufferObjectManager), sizePessed, sizeNormal);
+		for (MenuItem item : this.menuItems) {
+			IMenuItem menuItem = new ScaleMenuItemDecorator(new TextMenuItem(item.ordinal(), FontLoader.getInstance().getFont(fontType), item.getText(), this.vertexBufferObjectManager), sizePessed, sizeNormal);
 			menuItem.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 			menuItems.add(menuItem);
 		}
@@ -64,14 +65,14 @@ public abstract class AbstractMenuScene extends MenuScene implements IOnMenuItem
 
 	protected abstract FontType getItemsFontType();
 
-	public List<ItemType> getItemTypes() {
-		return this.itemTypes;
+	public List<MenuItem> getItemTypes() {
+		return this.menuItems;
 	}
 
 	@Override
 	public boolean onMenuItemClicked(final MenuScene pMenuScene, final IMenuItem pMenuItem, final float pMenuItemLocalX, final float pMenuItemLocalY) {
 		if (pMenuScene == this) {
-			for (ItemType itemType : this.itemTypes) {
+			for (MenuItem itemType : this.menuItems) {
 				if (pMenuItem.getID() == itemType.ordinal()) {
 					this.fireMenuItemSelected(itemType);
 					break;
@@ -81,7 +82,7 @@ public abstract class AbstractMenuScene extends MenuScene implements IOnMenuItem
 		return true;
 	}
 
-	protected void fireMenuItemSelected(final ItemType itemType) {
+	protected void fireMenuItemSelected(final MenuItem itemType) {
 		MenuItemSeletedEvent event = new MenuItemSeletedEvent(this, itemType);
 		for (MenuListener listener : this.listeners.getListeners(MenuListener.class)) {
 			listener.menuItemSelected(event);

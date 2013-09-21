@@ -1,5 +1,6 @@
 package at.ac.uibk.akari.puzzleSelector.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.andengine.engine.camera.Camera;
@@ -9,6 +10,8 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.util.Log;
+import at.ac.uibk.akari.common.menu.ItemType;
+import at.ac.uibk.akari.common.menu.MenuItem;
 import at.ac.uibk.akari.controller.AbstractController;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
@@ -17,6 +20,7 @@ import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionEvent;
 import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionListener;
 import at.ac.uibk.akari.puzzleSelector.listener.ValueChangedEvent;
 import at.ac.uibk.akari.puzzleSelector.listener.ValueChangedListener;
+import at.ac.uibk.akari.puzzleSelector.view.DifficultyMenuScene;
 import at.ac.uibk.akari.puzzleSelector.view.LevelSelector;
 import at.ac.uibk.akari.puzzleSelector.view.PuzzleSelectorHUD;
 import at.ac.uibk.akari.utils.ListenerList;
@@ -25,7 +29,8 @@ import at.ac.uibk.akari.view.Insets;
 
 public class PuzzleSelectionController extends AbstractController implements IOnSceneTouchListener, MenuListener, PuzzleSelectionListener, ValueChangedListener<Integer> {
 
-	private Scene scene;
+	private Scene selectorScene;
+	private DifficultyMenuScene difficultyScene;
 	private Camera camera;
 	private VertexBufferObjectManager vertexBufferObjectManager;
 	private LevelSelector levelSelector;
@@ -35,18 +40,24 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 
 	public PuzzleSelectionController(final Scene scene, final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager) {
 		this.listeners = new ListenerList();
-		this.scene = scene;
+		this.selectorScene = scene;
 		this.camera = camera;
 		this.init();
 	}
 
 	private void init() {
 
+		List<MenuItem> itemTypes = new ArrayList<MenuItem>();
+		itemTypes.add(Puzzle.Difficulty.EASY);
+		itemTypes.add(Puzzle.Difficulty.MEDIUM);
+		itemTypes.add(Puzzle.Difficulty.HARD);
+		this.difficultyScene = new DifficultyMenuScene(this.camera, this.vertexBufferObjectManager, itemTypes);
+
 		this.hud = new PuzzleSelectorHUD((int) this.camera.getWidth(), this.vertexBufferObjectManager);
 
 		this.levelSelector = new LevelSelector(3, 2, new Insets(this.hud.getDesiredHUDHeight(), 40, 0, 40), this.camera, this.vertexBufferObjectManager);
 
-		this.scene.attachChild(this.levelSelector);
+		this.selectorScene.attachChild(this.levelSelector);
 	}
 
 	public void setPuzzles(final List<Puzzle> puzzles) {
@@ -55,20 +66,20 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 
 	@Override
 	public boolean start() {
-		this.scene.setOnSceneTouchListener(this);
+		this.selectorScene.setOnSceneTouchListener(this);
 		this.levelSelector.addPuzzleSelectionListener(this);
 		this.levelSelector.addValueChangedListener(this);
 		this.hud.addPuzzleControlListener(this);
 		this.camera.setHUD(this.hud);
 		this.levelSelector.start();
 		this.hud.setIndicatorIndex(this.levelSelector.getCurrentPageIndex(), this.levelSelector.getPagesCount());
-		SceneManager.getInstance().setCurrentScene(this, this.scene);
+		SceneManager.getInstance().setCurrentScene(this, this.selectorScene);
 		return true;
 	}
 
 	@Override
 	public boolean stop() {
-		this.scene.setOnSceneTouchListener(null);
+		this.selectorScene.setOnSceneTouchListener(null);
 		this.levelSelector.removePuzzleSelectionListener(this);
 		this.levelSelector.removeValueChangedListener(this);
 		this.hud.removePuzzleControlListener(this);
@@ -86,7 +97,8 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 	@Override
 	public void menuItemSelected(final MenuItemSeletedEvent event) {
 		if (event.getSource().equals(this.hud)) {
-			switch (event.getItemType()) {
+			ItemType selectedItem = (ItemType) event.getMenuItem();
+			switch (selectedItem) {
 			case BACK:
 				this.stop();
 				this.firePuzzleSelectionCanceled();

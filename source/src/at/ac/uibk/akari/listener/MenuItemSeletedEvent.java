@@ -1,24 +1,25 @@
 package at.ac.uibk.akari.listener;
 
 import at.ac.uibk.akari.common.menu.ItemType;
+import at.ac.uibk.akari.common.menu.MenuItem;
 
 
 public class MenuItemSeletedEvent {
 
 	private Object source;
-	private ItemType itemType;
+	private MenuItem menuItem;
 
-	public MenuItemSeletedEvent(final Object source, final ItemType itemType) {
+	public MenuItemSeletedEvent(final Object source, final MenuItem menuItem) {
 		this.source = source;
-		this.itemType = itemType;
+		this.menuItem = menuItem;
 	}
 
 	public Object getSource() {
 		return this.source;
 	}
 
-	public ItemType getItemType() {
-		return this.itemType;
+	public MenuItem getMenuItem() {
+		return this.menuItem;
 	}
 
 }

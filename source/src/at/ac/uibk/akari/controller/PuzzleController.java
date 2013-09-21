@@ -21,6 +21,7 @@ import android.util.Log;
 import android.widget.Toast;
 import at.ac.uibk.akari.MainActivity;
 import at.ac.uibk.akari.common.menu.ItemType;
+import at.ac.uibk.akari.common.menu.MenuItem;
 import at.ac.uibk.akari.core.GameFieldModel;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.GameFieldListener;
@@ -73,7 +74,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		this.gameScene.registerTouchArea(this.gameField);
 
 		// initializing pause-menu
-		List<ItemType> pauseMenuItems = new ArrayList<ItemType>();
+		List<MenuItem> pauseMenuItems = new ArrayList<MenuItem>();
 		pauseMenuItems.add(ItemType.CONTINUE);
 		pauseMenuItems.add(ItemType.RESET);
 		pauseMenuItems.add(ItemType.MAIN_MENU);
@@ -241,7 +242,8 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 
 			this.stopClock.stop();
 
-			switch (event.getItemType()) {
+			ItemType selectedItem = (ItemType) event.getMenuItem();
+			switch (selectedItem) {
 			case PAUSE:
 				Log.i(this.getClass().getName(), "PAUSE-Game pressed");
 				this.gameScene.setChildScene(this.pauseScene, false, true, true);
@@ -266,7 +268,8 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 			this.pauseScene.back();
 			this.gameHUD.setEnabled(true);
 
-			switch (event.getItemType()) {
+			ItemType selectedItem = (ItemType) event.getMenuItem();
+			switch (selectedItem) {
 			case CONTINUE:
 				Log.i(this.getClass().getName(), "CONTINUE-Game pressed");
 				this.stopClock.start();

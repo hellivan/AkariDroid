@@ -5,13 +5,13 @@ import java.util.List;
 import org.andengine.engine.camera.Camera;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
-import at.ac.uibk.akari.common.menu.ItemType;
+import at.ac.uibk.akari.common.menu.MenuItem;
 import at.ac.uibk.akari.utils.FontLoader.FontType;
 
 public class PopupMenuScene extends AbstractMenuScene {
 
-	public PopupMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, final List<ItemType> itemTypes) {
-		super(camera, vertexBufferObjectManager, itemTypes);
+	public PopupMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, final List<MenuItem> menuItems) {
+		super(camera, vertexBufferObjectManager, menuItems);
 	}
 
 	@Override
