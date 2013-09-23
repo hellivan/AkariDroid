@@ -45,7 +45,7 @@ public class LevelItem extends Sprite {
 	}
 
 	public Insets getInsets() {
-		return insets;
+		return this.insets;
 	}
 
 	private void initItem() {
@@ -55,7 +55,6 @@ public class LevelItem extends Sprite {
 
 		List<Text> texts = new ArrayList<Text>();
 		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), this.puzzle.getWidth() + "x" + this.puzzle.getHeight(), 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
-		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), this.puzzle.getDifficulty().getText(), this.vertexBufferObjectManager));
 		if (puzzleScore != ScoreManager.EMPTY_SCORE) {
 			texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), StringUtils.convertSecondsToTimeString(puzzleScore), 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
 		}
