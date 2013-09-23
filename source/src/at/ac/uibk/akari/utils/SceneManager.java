@@ -62,4 +62,10 @@ public class SceneManager {
 	public HUD getCurrentHUD() {
 		return this.currentHUD;
 	}
+
+	public void onBackPressed() {
+		if (this.currentController != null) {
+			this.currentController.onBackKeyPressed();
+		}
+	}
 }

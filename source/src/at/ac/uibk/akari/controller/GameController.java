@@ -202,4 +202,10 @@ public class GameController extends AbstractController implements GameListener, 
 			this.startLevel(selectedPuzzle);
 		}
 	}
+
+	@Override
+	public void onBackKeyPressed() {
+		// TODO Auto-generated method stub
+
+	}
 }

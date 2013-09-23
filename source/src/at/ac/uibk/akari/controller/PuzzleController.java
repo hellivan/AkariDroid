@@ -297,4 +297,10 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		}
 		return null;
 	}
+
+	@Override
+	public void onBackKeyPressed() {
+		// TODO Auto-generated method stub
+
+	}
 }

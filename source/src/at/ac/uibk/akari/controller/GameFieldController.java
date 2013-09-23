@@ -86,4 +86,10 @@ public class GameFieldController extends AbstractController implements GameField
 	public void resetGameField() {
 		this.gameField.clearField();
 	}
+
+	@Override
+	public void onBackKeyPressed() {
+		// TODO Auto-generated method stub
+
+	}
 }

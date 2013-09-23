@@ -14,6 +14,7 @@ import at.ac.uibk.akari.common.menu.DefaultMenuItem;
 import at.ac.uibk.akari.common.menu.MenuItem;
 import at.ac.uibk.akari.controller.AbstractController;
 import at.ac.uibk.akari.core.Puzzle;
+import at.ac.uibk.akari.core.Puzzle.Difficulty;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.listener.MenuListener;
 import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionEvent;
@@ -70,12 +71,11 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 		this.levelSelector.addPuzzleSelectionListener(this);
 		this.levelSelector.addValueChangedListener(this);
 		this.puzzleSelectorHUD.addPuzzleControlListener(this);
-		this.levelSelector.start();
 
 		this.difficultyScene.addMenuListener(this);
 		this.difficultySelectorHUD.addPuzzleControlListener(this);
 
-		SceneManager.getInstance().setCurrentScene(this, this.difficultyScene, this.difficultySelectorHUD);
+		this.startDifficultySelector();
 		return true;
 	}
 
@@ -85,7 +85,10 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 		this.levelSelector.removePuzzleSelectionListener(this);
 		this.levelSelector.removeValueChangedListener(this);
 		this.puzzleSelectorHUD.removePuzzleControlListener(this);
-		this.levelSelector.stop();
+
+		this.difficultyScene.removeMenuListener(this);
+		this.difficultySelectorHUD.removePuzzleControlListener(this);
+
 		return true;
 	}
 
@@ -101,8 +104,7 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 			DefaultMenuItem selectedItem = (DefaultMenuItem) event.getMenuItem();
 			switch (selectedItem) {
 			case BACK:
-				this.levelSelector.stop();
-				SceneManager.getInstance().setCurrentScene(this, this.difficultyScene, this.difficultySelectorHUD);
+				this.stopPuzzleSelector();
 				break;
 			default:
 				break;
@@ -111,8 +113,7 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 			DefaultMenuItem selectedItem = (DefaultMenuItem) event.getMenuItem();
 			switch (selectedItem) {
 			case BACK:
-				this.stop();
-				this.firePuzzleSelectionCanceled();
+				this.stopDifficultySelector();
 				break;
 			default:
 				break;
@@ -120,11 +121,29 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 		} else if (event.getSource().equals(this.difficultyScene)) {
 			Puzzle.Difficulty difficulty = (Puzzle.Difficulty) event.getMenuItem();
 			Log.i(this.getClass().getName(), "Selected difficulty " + difficulty);
-			this.levelSelector.setLevels(PuzzleManager.getInstance().getPuzzles(difficulty));
-			this.levelSelector.start();
-			this.puzzleSelectorHUD.setIndicatorIndex(this.levelSelector.getCurrentPageIndex(), this.levelSelector.getPagesCount());
-			SceneManager.getInstance().setCurrentScene(this, this.puzzleSelectorScene, this.puzzleSelectorHUD);
+			this.startPuzzleSelector(difficulty);
 		}
+	}
+
+	public void startPuzzleSelector(final Difficulty difficulty) {
+		this.levelSelector.setLevels(PuzzleManager.getInstance().getPuzzles(difficulty));
+		this.levelSelector.start();
+		this.puzzleSelectorHUD.setIndicatorIndex(this.levelSelector.getCurrentPageIndex(), this.levelSelector.getPagesCount());
+		SceneManager.getInstance().setCurrentScene(this, this.puzzleSelectorScene, this.puzzleSelectorHUD);
+	}
+
+	public void stopPuzzleSelector() {
+		this.levelSelector.stop();
+		this.startDifficultySelector();
+	}
+
+	public void startDifficultySelector() {
+		SceneManager.getInstance().setCurrentScene(this, this.difficultyScene, this.difficultySelectorHUD);
+	}
+
+	public void stopDifficultySelector() {
+		this.stop();
+		this.firePuzzleSelectionCanceled();
 	}
 
 	public void addPuzzleSelectionListener(final PuzzleSelectionListener listener) {
@@ -168,6 +187,16 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 		if (event.getSource().equals(this.levelSelector)) {
 			Log.d(this.getClass().getName(), "Changed page from " + event.getOldValue() + " to " + event.getNewValue());
 			this.puzzleSelectorHUD.setIndicatorIndex(event.getNewValue(), this.levelSelector.getPagesCount());
+		}
+	}
+
+	@Override
+	public void onBackKeyPressed() {
+		Scene currentScene = SceneManager.getInstance().getCurrentScene();
+		if (currentScene.equals(this.puzzleSelectorScene)) {
+			this.stopPuzzleSelector();
+		} else if (currentScene.equals(this.difficultyScene)) {
+			this.stopDifficultySelector();
 		}
 	}
 

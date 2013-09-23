@@ -1,8 +1,6 @@
 package at.ac.uibk.akari.listener;
 
-import at.ac.uibk.akari.common.menu.DefaultMenuItem;
 import at.ac.uibk.akari.common.menu.MenuItem;
-
 
 public class MenuItemSeletedEvent {
 

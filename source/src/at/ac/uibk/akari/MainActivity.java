@@ -176,6 +176,11 @@ public class MainActivity extends SimpleBaseGameActivity {
 		return this.mEngine;
 	}
 
+	@Override
+	public void onBackPressed() {
+		SceneManager.getInstance().onBackPressed();
+	}
+
 	public static void showToast(final String text, final int length) {
 		MainActivity.staticActivity.runOnUiThread(new Runnable() {
 			@Override
