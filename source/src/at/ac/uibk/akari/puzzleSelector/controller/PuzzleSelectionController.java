@@ -22,7 +22,6 @@ import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionListener;
 import at.ac.uibk.akari.puzzleSelector.listener.ValueChangedEvent;
 import at.ac.uibk.akari.puzzleSelector.listener.ValueChangedListener;
 import at.ac.uibk.akari.puzzleSelector.view.DifficultyMenuScene;
-import at.ac.uibk.akari.puzzleSelector.view.DifficultySelectorHUD;
 import at.ac.uibk.akari.puzzleSelector.view.LevelSelector;
 import at.ac.uibk.akari.puzzleSelector.view.PuzzleSelectorHUD;
 import at.ac.uibk.akari.utils.ListenerList;
@@ -38,7 +37,6 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 	private VertexBufferObjectManager vertexBufferObjectManager;
 	private LevelSelector levelSelector;
 	private PuzzleSelectorHUD puzzleSelectorHUD;
-	private DifficultySelectorHUD difficultySelectorHUD;
 
 	protected ListenerList listeners;
 
@@ -56,7 +54,6 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 		itemTypes.add(Puzzle.Difficulty.MEDIUM);
 		itemTypes.add(Puzzle.Difficulty.HARD);
 
-		this.difficultySelectorHUD = new DifficultySelectorHUD((int) this.camera.getWidth(), this.vertexBufferObjectManager);
 		this.difficultyScene = new DifficultyMenuScene(this.camera, this.vertexBufferObjectManager, itemTypes);
 
 		this.puzzleSelectorHUD = new PuzzleSelectorHUD((int) this.camera.getWidth(), this.vertexBufferObjectManager);
@@ -73,7 +70,6 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 		this.puzzleSelectorHUD.addPuzzleControlListener(this);
 
 		this.difficultyScene.addMenuListener(this);
-		this.difficultySelectorHUD.addPuzzleControlListener(this);
 
 		this.startDifficultySelector();
 		return true;
@@ -87,7 +83,6 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 		this.puzzleSelectorHUD.removePuzzleControlListener(this);
 
 		this.difficultyScene.removeMenuListener(this);
-		this.difficultySelectorHUD.removePuzzleControlListener(this);
 
 		return true;
 	}
@@ -107,15 +102,11 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 				this.stopPuzzleSelector();
 				this.startDifficultySelector();
 				break;
-			default:
+			case FOREWARD:
+				this.levelSelector.movePagesRight(5);
 				break;
-			}
-		} else if (event.getSource().equals(this.difficultySelectorHUD)) {
-			DefaultMenuItem selectedItem = (DefaultMenuItem) event.getMenuItem();
-			switch (selectedItem) {
-			case BACK:
-				this.stop();
-				this.firePuzzleSelectionCanceled();
+			case BACKWARD:
+				this.levelSelector.movePagesLeft(5);
 				break;
 			default:
 				break;
@@ -139,7 +130,7 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 	}
 
 	private void startDifficultySelector() {
-		SceneManager.getInstance().setCurrentScene(this, this.difficultyScene, this.difficultySelectorHUD);
+		SceneManager.getInstance().setCurrentScene(this, this.difficultyScene);
 	}
 
 	public void addPuzzleSelectionListener(final PuzzleSelectionListener listener) {
@@ -192,6 +183,7 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 		Scene currentScene = SceneManager.getInstance().getCurrentScene();
 		if (currentScene.equals(this.puzzleSelectorScene)) {
 			this.stopPuzzleSelector();
+			this.startDifficultySelector();
 		} else if (currentScene.equals(this.difficultyScene)) {
 			this.stop();
 			this.firePuzzleSelectionCanceled();

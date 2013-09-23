@@ -33,7 +33,9 @@ public class PuzzleSelectorHUD extends AbstractHUD {
 	protected Set<HUDButton> initHUDButtons(final int desiredWidth) {
 		Set<HUDButton> buttons = new HashSet<HUDButton>();
 
-		buttons.add(new HUDButton(PuzzleSelectorHUD.BORDER_INSET_X, PuzzleSelectorHUD.BORDER_INSET_Y, PuzzleSelectorHUD.BUTTONS_SIZE, PuzzleSelectorHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTexture(TextureType.MENU_ICONS, 0, 1), DefaultMenuItem.BACK));
+		buttons.add(new HUDButton(PuzzleSelectorHUD.BORDER_INSET_X, PuzzleSelectorHUD.BORDER_INSET_Y, PuzzleSelectorHUD.BUTTONS_SIZE, PuzzleSelectorHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTexture(TextureType.MENU_ICONS, 1, 1), DefaultMenuItem.BACKWARD));
+
+		buttons.add(new HUDButton(desiredWidth - PuzzleSelectorHUD.BUTTONS_SIZE - PuzzleSelectorHUD.BORDER_INSET_X, PuzzleSelectorHUD.BORDER_INSET_Y, PuzzleSelectorHUD.BUTTONS_SIZE, PuzzleSelectorHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTexture(TextureType.MENU_ICONS, 1, 0), DefaultMenuItem.FOREWARD));
 
 		return buttons;
 	}

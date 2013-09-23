@@ -1,7 +1,6 @@
 package at.ac.uibk.akari.common.menu;
 
-
-public enum DefaultMenuItem implements MenuItem{
+public enum DefaultMenuItem implements MenuItem {
 	REPLAY("Replay"),
 
 	NEXT("Next"),
@@ -22,7 +21,11 @@ public enum DefaultMenuItem implements MenuItem{
 
 	QUIT("Quit"),
 
-	BACK("Back");
+	BACK("Back"),
+
+	FOREWARD("Foreward"),
+
+	BACKWARD("Backward");
 
 	private String text;
 
@@ -30,6 +33,7 @@ public enum DefaultMenuItem implements MenuItem{
 		this.text = text;
 	}
 
+	@Override
 	public String getText() {
 		return this.text;
 	}

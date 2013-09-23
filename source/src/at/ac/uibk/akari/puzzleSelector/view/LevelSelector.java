@@ -273,14 +273,23 @@ public class LevelSelector extends Entity implements IScrollDetectorListener, To
 		return this.moveToPage(this.getCurrentPageIndex());
 	}
 
-	private boolean movePageLeft() {
+	public boolean movePageLeft() {
 		Log.d(this.getClass().getName(), "Move page left");
-		return this.moveToPage(this.getCurrentPageIndex() - 1);
+		return this.movePagesLeft(1);
 	}
 
-	private boolean movePageRight() {
-		Log.d(this.getClass().getName(), "Move page right");
-		return this.moveToPage(this.getCurrentPageIndex() + 1);
+	public boolean movePagesLeft(final int pagesCount) {
+		Log.d(this.getClass().getName(), "Move " + pagesCount + " pages left");
+		return this.moveToPage(this.getCurrentPageIndex() - pagesCount);
+	}
+
+	public boolean movePagesRight(final int pagesCount) {
+		Log.d(this.getClass().getName(), "Move " + pagesCount + " pages right");
+		return this.moveToPage(this.getCurrentPageIndex() + pagesCount);
+	}
+
+	public boolean movePageRight() {
+		return this.movePagesRight(1);
 	}
 
 	public int getCurrentPageIndex() {
@@ -290,15 +299,15 @@ public class LevelSelector extends Entity implements IScrollDetectorListener, To
 	private boolean moveToPage(final int pageIndex) {
 		boolean success = false;
 		int oldPageIndex = this.getCurrentPageIndex();
-		if (this.isValidPageIndex(pageIndex)) {
-			this.currentPageIndex = pageIndex;
+		this.currentPageIndex = this.getNearestValidPageIndex(pageIndex);
+		if (oldPageIndex != this.currentPageIndex) {
 			success = true;
 		} else {
 			Log.d(this.getClass().getName(), "Invalid page-index " + pageIndex);
 			success = false;
 		}
 
-		Log.d(this.getClass().getName(), "Move to current page " + oldPageIndex + " to page " + this.getCurrentPageIndex() + " [" + this.getPagesCount() + " pages with " + this.levelItems.size() + " items]");
+		Log.d(this.getClass().getName(), "Move from current page " + oldPageIndex + " to page " + this.getCurrentPageIndex() + " [" + this.getPagesCount() + " pages with " + this.levelItems.size() + " items]");
 
 		this.moveCameraToPage(this.getCurrentPageIndex());
 
@@ -328,8 +337,14 @@ public class LevelSelector extends Entity implements IScrollDetectorListener, To
 		this.easeEntity.registerEntityModifier(moveModiefier);
 	}
 
-	private boolean isValidPageIndex(final int pageIndex) {
-		return (pageIndex >= 0) && (pageIndex < this.getPagesCount());
+	private int getNearestValidPageIndex(final int pageIndex) {
+		if (pageIndex < 0) {
+			return 0;
+		} else if (pageIndex >= this.getPagesCount()) {
+			return this.getPagesCount() - 1;
+		} else {
+			return pageIndex;
+		}
 	}
 
 	@Override
