@@ -25,12 +25,15 @@ import at.ac.uibk.akari.common.menu.MenuItem;
 import at.ac.uibk.akari.core.GameFieldModel;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.GameFieldListener;
-import at.ac.uibk.akari.listener.GameFieldModelEvent;
 import at.ac.uibk.akari.listener.GameListener;
+import at.ac.uibk.akari.listener.InputEvent;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.listener.MenuListener;
 import at.ac.uibk.akari.solver.AkariSolverFull;
 import at.ac.uibk.akari.utils.ListenerList;
+import at.ac.uibk.akari.utils.PuzzleManager;
+import at.ac.uibk.akari.utils.SceneManager;
+import at.ac.uibk.akari.utils.ScoreManager;
 import at.ac.uibk.akari.utils.StopClockModel;
 import at.ac.uibk.akari.view.GameField;
 import at.ac.uibk.akari.view.menu.PopupMenuScene;
@@ -44,6 +47,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	private ZoomCamera gameCamera;
 	private PuzzleHUD gameHUD;
 	private PopupMenuScene pauseScene;
+	private PopupMenuScene winninMenuScene;
 
 	private GameFieldModel puzzle;
 	private VertexBufferObjectManager vertexBufferObjectManager;
@@ -80,6 +84,13 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		pauseMenuItems.add(DefaultMenuItem.MAIN_MENU);
 		this.pauseScene = new PopupMenuScene(this.gameCamera, this.vertexBufferObjectManager, pauseMenuItems);
 
+		// initialize winning-menu-scene
+		List<MenuItem> winningMenuItems = new ArrayList<MenuItem>();
+		winningMenuItems.add(DefaultMenuItem.NEXT);
+		winningMenuItems.add(DefaultMenuItem.REPLAY);
+		winningMenuItems.add(DefaultMenuItem.MAIN_MENU);
+		this.winninMenuScene = new PopupMenuScene(this.gameCamera, this.vertexBufferObjectManager, winningMenuItems);
+
 		// initializing game-field-touch-control
 		this.mScrollDetector = new SurfaceScrollDetector(this);
 		this.mPinchZoomDetector = new PinchZoomDetector(this);
@@ -103,14 +114,12 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	@Override
 	public boolean start() {
 		Log.d(this.getClass().getName(), "Start puzzle-controller");
-		// setting the game-HUD if it was not already set
-		if (this.gameCamera.getHUD() != this.gameHUD) {
-			this.gameCamera.setHUD(this.gameHUD);
-		}
+		SceneManager.getInstance().setCurrentScene(this, this.gameScene, this.gameHUD);
 		this.gameFieldController.addGameFieldListener(this);
 		this.gameHUD.addPuzzleControlListener(this);
 		this.gameScene.setOnSceneTouchListener(this);
 		this.pauseScene.addMenuListener(this);
+		this.winninMenuScene.addMenuListener(this);
 		this.stopClock.reset();
 		this.stopClock.start();
 		return this.gameFieldController.start();
@@ -123,22 +132,23 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		this.gameFieldController.removeGameFieldListener(this);
 		this.gameHUD.removePuzzleControlListener(this);
 		this.gameScene.setOnSceneTouchListener(null);
-		this.pauseScene.addMenuListener(this);
+		this.pauseScene.removeMenuListener(this);
+		this.winninMenuScene.removeMenuListener(this);
 		this.stopClock.stop();
 		return this.gameFieldController.stop();
 	}
 
-	private void firePuzzleSolved() {
-		GameFieldModelEvent event = new GameFieldModelEvent(this, this.puzzle, this.stopClock.getSecondsElapsed());
-		for (GameListener listener : this.listenerList.getListeners(GameListener.class)) {
-			listener.puzzleSolved(event);
-		}
+	private void onPuzzleSolved() {
+		// saving score
+		ScoreManager.getInstance().saveScore(this.getCurrentPuzzle(), this.stopClock.getSecondsElapsed());
+		this.gameHUD.setEnabled(false);
+		this.gameScene.setChildScene(this.winninMenuScene, false, true, true);
 	}
 
-	private void firePuzzleStopped() {
-		GameFieldModelEvent event = new GameFieldModelEvent(this, this.puzzle, this.stopClock.getSecondsElapsed());
+	private void fireGameStopped() {
+		InputEvent event = new InputEvent(this);
 		for (GameListener listener : this.listenerList.getListeners(GameListener.class)) {
-			listener.puzzleStopped(event);
+			listener.gameStopped(event);
 		}
 	}
 
@@ -154,7 +164,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		try {
 			if (this.solver.isSolved()) {
 				this.stopClock.stop();
-				this.firePuzzleSolved();
+				this.onPuzzleSolved();
 			}
 		} catch (TimeoutException e) {
 			e.printStackTrace();
@@ -276,14 +286,47 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 				break;
 			case MAIN_MENU:
 				Log.i(this.getClass().getName(), "MAIN_MENU pressed");
-				this.stopClock.stop();
-				this.firePuzzleStopped();
+				this.stop();
+				this.fireGameStopped();
 				break;
 			case RESET:
 				Log.i(this.getClass().getName(), "RESET-Game pressed");
 				this.stopClock.reset();
 				this.gameFieldController.resetGameField();
 				this.stopClock.start();
+				break;
+			default:
+				break;
+			}
+		}
+		// source was the winning-menu-scene
+		else if (event.getSource() == this.winninMenuScene) {
+
+			this.winninMenuScene.back();
+			DefaultMenuItem selectedItem = (DefaultMenuItem) event.getMenuItem();
+			switch (selectedItem) {
+			case REPLAY:
+				Log.i(this.getClass().getName(), "REPLAY-Game pressed");
+				this.stopClock.reset();
+				this.gameFieldController.resetGameField();
+				this.stopClock.start();
+				this.gameHUD.setEnabled(true);
+				break;
+			case NEXT:
+				Log.i(this.getClass().getName(), "NEXT-Game pressed");
+				try {
+					this.setPuzzle(PuzzleManager.getInstance().getNextPuzzle(this.getCurrentPuzzle()));
+					this.stopClock.reset();
+					this.stopClock.start();
+					this.gameHUD.setEnabled(true);
+				} catch (ContradictionException e) {
+					e.printStackTrace();
+				}
+				break;
+			case MAIN_MENU:
+				Log.i(this.getClass().getName(), "MAIN_MENU pressed");
+				this.stop();
+				this.fireGameStopped();
 				break;
 			default:
 				break;

@@ -36,10 +36,18 @@ public class SceneManager {
 	}
 
 	public void setCurrentScene(final AbstractController controller, final Scene scene) {
-		this.setCurrentScene(controller, scene, null);
+		this.setCurrentScene(controller, scene, null, true);
+	}
+
+	public void setCurrentScene(final AbstractController controller, final Scene scene, final boolean resetCamera) {
+		this.setCurrentScene(controller, scene, null, resetCamera);
 	}
 
 	public void setCurrentScene(final AbstractController controller, final Scene scene, final HUD hud) {
+		this.setCurrentScene(controller, scene, hud, true);
+	}
+
+	public void setCurrentScene(final AbstractController controller, final Scene scene, final HUD hud, final boolean resetCamera) {
 		this.currentController = controller;
 		this.currentScene = scene;
 		this.baseGameActivity.runOnUiThread(new Runnable() {
@@ -47,6 +55,10 @@ public class SceneManager {
 			public void run() {
 				SceneManager.this.baseGameActivity.getEngine().setScene(scene);
 				SceneManager.this.camera.setHUD(hud);
+				if (resetCamera) {
+					SceneManager.this.camera.setZoomFactor(1);
+					SceneManager.this.camera.setCenter(SceneManager.this.camera.getWidth() / 2, SceneManager.this.camera.getHeight() / 2);
+				}
 			}
 		});
 	}

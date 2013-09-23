@@ -13,8 +13,8 @@ import at.ac.uibk.akari.MainActivity;
 import at.ac.uibk.akari.common.menu.DefaultMenuItem;
 import at.ac.uibk.akari.common.menu.MenuItem;
 import at.ac.uibk.akari.core.Puzzle;
-import at.ac.uibk.akari.listener.GameFieldModelEvent;
 import at.ac.uibk.akari.listener.GameListener;
+import at.ac.uibk.akari.listener.InputEvent;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.listener.MenuListener;
 import at.ac.uibk.akari.puzzleSelector.controller.PuzzleSelectionController;
@@ -24,10 +24,8 @@ import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.BackgroundLoader.BackgroundType;
 import at.ac.uibk.akari.utils.PuzzleManager;
 import at.ac.uibk.akari.utils.SceneManager;
-import at.ac.uibk.akari.utils.ScoreManager;
 import at.ac.uibk.akari.view.menu.AbstractMenuScene;
 import at.ac.uibk.akari.view.menu.MainMenuScene;
-import at.ac.uibk.akari.view.menu.PopupMenuScene;
 
 public class GameController extends AbstractController implements GameListener, MenuListener, PuzzleSelectionListener {
 
@@ -38,7 +36,6 @@ public class GameController extends AbstractController implements GameListener, 
 
 	private Scene gameScene;
 	private Scene puzzleSelectionScene;
-	private PopupMenuScene winninMenuScene;
 	private AbstractMenuScene mainMenuScene;
 
 	private VertexBufferObjectManager vertexBufferObjectManager;
@@ -65,13 +62,6 @@ public class GameController extends AbstractController implements GameListener, 
 		this.gameScene.setBackgroundEnabled(true);
 		this.gameScene.setBackground(BackgroundLoader.getInstance().getBackground(BackgroundType.GAME_FIELD_BACKGROUND));
 
-		// initialize winning-menu-scene
-		List<MenuItem> winningMenuItems = new ArrayList<MenuItem>();
-		winningMenuItems.add(DefaultMenuItem.NEXT);
-		winningMenuItems.add(DefaultMenuItem.REPLAY);
-		winningMenuItems.add(DefaultMenuItem.MAIN_MENU);
-		this.winninMenuScene = new PopupMenuScene(this.gameCamera, this.vertexBufferObjectManager, winningMenuItems);
-
 		// initialize puzzle-selection-scene and controller
 		this.puzzleSelectionScene = new Scene();
 		this.puzzleSelectionScene.setBackgroundEnabled(true);
@@ -82,33 +72,19 @@ public class GameController extends AbstractController implements GameListener, 
 	@Override
 	public boolean start() {
 		this.puzzleController.addGameListener(this);
-		this.winninMenuScene.addMenuListener(this);
 		this.mainMenuScene.addMenuListener(this);
 		this.puzzleSelectionController.addPuzzleSelectionListener(this);
-
-		this.setCurrentGameScene(this.mainMenuScene);
+		SceneManager.getInstance().setCurrentScene(this, this.mainMenuScene);
 		return true;
 	}
 
 	@Override
 	public boolean stop() {
 		this.puzzleController.removeGameListener(this);
-		this.winninMenuScene.removeMenuListener(this);
 		this.mainMenuScene.removeMenuListener(this);
 		this.puzzleSelectionController.removePuzzleSelectionListener(this);
 
 		return true;
-	}
-
-	@Override
-	public void puzzleSolved(final GameFieldModelEvent event) {
-		if (event.getSource().equals(this.puzzleController)) {
-			this.puzzleController.stop();
-			// saving score
-			ScoreManager.getInstance().saveScore(event.getGamefieldModel().getPuzzle(), event.getSecondsElapsed());
-			// display game-winning-menu
-			this.gameScene.setChildScene(this.winninMenuScene, false, true, true);
-		}
 	}
 
 	public void startLevel(final Puzzle puzzle) {
@@ -122,36 +98,10 @@ public class GameController extends AbstractController implements GameListener, 
 
 	@Override
 	public void menuItemSelected(final MenuItemSeletedEvent event) {
-		// source was the winning-menu-scene
-		if (event.getSource() == this.winninMenuScene) {
-			this.puzzleController.stop();
-			this.winninMenuScene.back();
-
-			DefaultMenuItem selectedItem = (DefaultMenuItem) event.getMenuItem();
-			switch (selectedItem) {
-			case REPLAY:
-				Log.i(this.getClass().getName(), "REPLAY-Game pressed");
-				this.startLevel(this.puzzleController.getCurrentPuzzle());
-				break;
-			case NEXT:
-				Log.i(this.getClass().getName(), "NEXT-Game pressed");
-				this.resetGameCamera();
-				this.startLevel(PuzzleManager.getInstance().getNextPuzzle(this.puzzleController.getCurrentPuzzle()));
-				break;
-			case MAIN_MENU:
-				Log.i(this.getClass().getName(), "MAIN_MENU pressed");
-				this.setCurrentGameScene(this.mainMenuScene);
-				break;
-			default:
-				break;
-			}
-		}
-		// source was the main-menu-scene
-		else if (event.getSource() == this.mainMenuScene) {
+		if (event.getSource() == this.mainMenuScene) {
 			DefaultMenuItem selectedItem = (DefaultMenuItem) event.getMenuItem();
 			switch (selectedItem) {
 			case RANDOM_PUZZLE:
-				this.setCurrentGameScene(this.gameScene);
 				this.startLevel(PuzzleManager.getInstance().getRandomPuzzle());
 				break;
 			case SELECT_PUZZLE:
@@ -166,40 +116,24 @@ public class GameController extends AbstractController implements GameListener, 
 	}
 
 	@Override
-	public void puzzleStopped(final GameFieldModelEvent event) {
+	public void gameStopped(final InputEvent event) {
 		if (event.getSource() == this.puzzleController) {
-			this.puzzleController.stop();
-			this.winninMenuScene.back();
-			this.setCurrentGameScene(this.mainMenuScene);
+			SceneManager.getInstance().setCurrentScene(this, this.mainMenuScene);
 		}
-	}
-
-	private void resetGameCamera() {
-		this.gameCamera.setZoomFactor(1);
-		this.gameCamera.setCenter(this.gameCamera.getWidth() / 2, this.gameCamera.getHeight() / 2);
-	}
-
-	private void setCurrentGameScene(final Scene scene) {
-		this.gameCamera.setHUD(null);
-		this.resetGameCamera();
-		SceneManager.getInstance().setCurrentScene(this, scene);
-
 	}
 
 	@Override
 	public void puzzleSelectionCanceled(final PuzzleSelectionEvent event) {
 		if (event.getSource().equals(this.puzzleSelectionController)) {
 			Log.i(this.getClass().getName(), "Puzzle-selection cancelled");
-			this.setCurrentGameScene(this.mainMenuScene);
+			SceneManager.getInstance().setCurrentScene(this, this.mainMenuScene);
 		}
 	}
 
 	@Override
 	public void puzzleSelected(final PuzzleSelectionEvent event) {
 		if (event.getSource().equals(this.puzzleSelectionController)) {
-			this.setCurrentGameScene(this.gameScene);
-			Puzzle selectedPuzzle = event.getPuzzle();
-			this.startLevel(selectedPuzzle);
+			this.startLevel(event.getPuzzle());
 		}
 	}
 

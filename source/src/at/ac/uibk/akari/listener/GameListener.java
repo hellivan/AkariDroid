@@ -4,8 +4,6 @@ import java.util.EventListener;
 
 public interface GameListener extends EventListener {
 
-	public void puzzleSolved(final GameFieldModelEvent event);
-
-	public void puzzleStopped(final GameFieldModelEvent event);
+	public void gameStopped(final InputEvent event);
 
 }
