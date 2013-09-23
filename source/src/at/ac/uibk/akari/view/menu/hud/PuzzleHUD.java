@@ -9,7 +9,7 @@ import org.andengine.entity.text.TextOptions;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.HorizontalAlign;
 
-import at.ac.uibk.akari.common.menu.ItemType;
+import at.ac.uibk.akari.common.menu.DefaultMenuItem;
 import at.ac.uibk.akari.listener.StopClockEvent;
 import at.ac.uibk.akari.listener.StopClockUpdateListener;
 import at.ac.uibk.akari.utils.FontLoader;
@@ -36,9 +36,9 @@ public class PuzzleHUD extends AbstractHUD implements StopClockUpdateListener {
 	protected Set<HUDButton> initHUDButtons(final int desiredWidth) {
 		Set<HUDButton> buttons = new HashSet<HUDButton>();
 
-		buttons.add(new HUDButton(PuzzleHUD.BORDER_INSET_X, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTexture(TextureType.MENU_ICONS, 0, 1), ItemType.PAUSE));
+		buttons.add(new HUDButton(PuzzleHUD.BORDER_INSET_X, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTexture(TextureType.MENU_ICONS, 0, 1), DefaultMenuItem.PAUSE));
 
-		buttons.add(new HUDButton(desiredWidth - PuzzleHUD.BUTTONS_SIZE - PuzzleHUD.BORDER_INSET_X, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTexture(TextureType.MENU_ICONS, 0, 0), ItemType.HELP));
+		buttons.add(new HUDButton(desiredWidth - PuzzleHUD.BUTTONS_SIZE - PuzzleHUD.BORDER_INSET_X, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTexture(TextureType.MENU_ICONS, 0, 0), DefaultMenuItem.HELP));
 
 		return buttons;
 	}

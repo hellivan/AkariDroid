@@ -22,6 +22,7 @@ import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.PuzzleLoader;
+import at.ac.uibk.akari.utils.PuzzleManager;
 import at.ac.uibk.akari.utils.SceneManager;
 import at.ac.uibk.akari.utils.ScoreManager;
 import at.ac.uibk.akari.utils.TextureLoader;
@@ -94,8 +95,11 @@ public class MainActivity extends SimpleBaseGameActivity {
 	protected void onCreateResources() {
 		Log.d(this.getClass().getName(), "Called create resources");
 
+		Log.d(this.getClass().getName(), "Initializing puzzle-manager");
+		PuzzleManager.getInstance().init(MainActivity.PUZZLES_DIR_LOCAL, this.getAssets());
+
 		Log.d(this.getClass().getName(), "Initializing scene-manager");
-		SceneManager.getInstance().init(this);
+		SceneManager.getInstance().init(this, this.gameCamera);
 
 		// initialize score-manager
 		Log.d(this.getClass().getName(), "Initializing score-manager");
@@ -161,7 +165,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 		this.gameScene.setTouchAreaBindingOnActionDownEnabled(true);
 		this.gameScene.setBackground(new Background(0.2f, 0.6f, 0.8f, 0.1f));
 
-		GameController gameController = new GameController(this.gameCamera, this.gameScene, this.getVertexBufferObjectManager(), this.puzzles);
+		GameController gameController = new GameController(this.gameCamera, this.gameScene, this.getVertexBufferObjectManager());
 		gameController.start();
 		return this.gameScene;
 

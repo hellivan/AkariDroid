@@ -10,7 +10,7 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.util.Log;
-import at.ac.uibk.akari.common.menu.ItemType;
+import at.ac.uibk.akari.common.menu.DefaultMenuItem;
 import at.ac.uibk.akari.common.menu.MenuItem;
 import at.ac.uibk.akari.controller.AbstractController;
 import at.ac.uibk.akari.core.Puzzle;
@@ -21,26 +21,29 @@ import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionListener;
 import at.ac.uibk.akari.puzzleSelector.listener.ValueChangedEvent;
 import at.ac.uibk.akari.puzzleSelector.listener.ValueChangedListener;
 import at.ac.uibk.akari.puzzleSelector.view.DifficultyMenuScene;
+import at.ac.uibk.akari.puzzleSelector.view.DifficultySelectorHUD;
 import at.ac.uibk.akari.puzzleSelector.view.LevelSelector;
 import at.ac.uibk.akari.puzzleSelector.view.PuzzleSelectorHUD;
 import at.ac.uibk.akari.utils.ListenerList;
+import at.ac.uibk.akari.utils.PuzzleManager;
 import at.ac.uibk.akari.utils.SceneManager;
 import at.ac.uibk.akari.view.Insets;
 
 public class PuzzleSelectionController extends AbstractController implements IOnSceneTouchListener, MenuListener, PuzzleSelectionListener, ValueChangedListener<Integer> {
 
-	private Scene selectorScene;
+	private Scene puzzleSelectorScene;
 	private DifficultyMenuScene difficultyScene;
 	private Camera camera;
 	private VertexBufferObjectManager vertexBufferObjectManager;
 	private LevelSelector levelSelector;
-	private PuzzleSelectorHUD hud;
+	private PuzzleSelectorHUD puzzleSelectorHUD;
+	private DifficultySelectorHUD difficultySelectorHUD;
 
 	protected ListenerList listeners;
 
 	public PuzzleSelectionController(final Scene scene, final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager) {
 		this.listeners = new ListenerList();
-		this.selectorScene = scene;
+		this.puzzleSelectorScene = scene;
 		this.camera = camera;
 		this.init();
 	}
@@ -51,39 +54,37 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 		itemTypes.add(Puzzle.Difficulty.EASY);
 		itemTypes.add(Puzzle.Difficulty.MEDIUM);
 		itemTypes.add(Puzzle.Difficulty.HARD);
+
+		this.difficultySelectorHUD = new DifficultySelectorHUD((int) this.camera.getWidth(), this.vertexBufferObjectManager);
 		this.difficultyScene = new DifficultyMenuScene(this.camera, this.vertexBufferObjectManager, itemTypes);
 
-		this.hud = new PuzzleSelectorHUD((int) this.camera.getWidth(), this.vertexBufferObjectManager);
-
-		this.levelSelector = new LevelSelector(3, 2, new Insets(this.hud.getDesiredHUDHeight(), 40, 0, 40), this.camera, this.vertexBufferObjectManager);
-
-		this.selectorScene.attachChild(this.levelSelector);
-	}
-
-	public void setPuzzles(final List<Puzzle> puzzles) {
-		this.levelSelector.setLevels(puzzles);
+		this.puzzleSelectorHUD = new PuzzleSelectorHUD((int) this.camera.getWidth(), this.vertexBufferObjectManager);
+		this.levelSelector = new LevelSelector(3, 2, new Insets(this.puzzleSelectorHUD.getDesiredHUDHeight(), 40, 0, 40), this.camera, this.vertexBufferObjectManager);
+		this.puzzleSelectorScene.attachChild(this.levelSelector);
 	}
 
 	@Override
 	public boolean start() {
-		this.selectorScene.setOnSceneTouchListener(this);
+		// puzzle-selector
+		this.puzzleSelectorScene.setOnSceneTouchListener(this);
 		this.levelSelector.addPuzzleSelectionListener(this);
 		this.levelSelector.addValueChangedListener(this);
-		this.hud.addPuzzleControlListener(this);
-		this.camera.setHUD(this.hud);
+		this.puzzleSelectorHUD.addPuzzleControlListener(this);
 		this.levelSelector.start();
-		this.hud.setIndicatorIndex(this.levelSelector.getCurrentPageIndex(), this.levelSelector.getPagesCount());
-		SceneManager.getInstance().setCurrentScene(this, this.selectorScene);
+
+		this.difficultyScene.addMenuListener(this);
+		this.difficultySelectorHUD.addPuzzleControlListener(this);
+
+		SceneManager.getInstance().setCurrentScene(this, this.difficultyScene, this.difficultySelectorHUD);
 		return true;
 	}
 
 	@Override
 	public boolean stop() {
-		this.selectorScene.setOnSceneTouchListener(null);
+		this.puzzleSelectorScene.setOnSceneTouchListener(null);
 		this.levelSelector.removePuzzleSelectionListener(this);
 		this.levelSelector.removeValueChangedListener(this);
-		this.hud.removePuzzleControlListener(this);
-		this.camera.setHUD(null);
+		this.puzzleSelectorHUD.removePuzzleControlListener(this);
 		this.levelSelector.stop();
 		return true;
 	}
@@ -96,8 +97,18 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 
 	@Override
 	public void menuItemSelected(final MenuItemSeletedEvent event) {
-		if (event.getSource().equals(this.hud)) {
-			ItemType selectedItem = (ItemType) event.getMenuItem();
+		if (event.getSource().equals(this.puzzleSelectorHUD)) {
+			DefaultMenuItem selectedItem = (DefaultMenuItem) event.getMenuItem();
+			switch (selectedItem) {
+			case BACK:
+				this.levelSelector.stop();
+				SceneManager.getInstance().setCurrentScene(this, this.difficultyScene, this.difficultySelectorHUD);
+				break;
+			default:
+				break;
+			}
+		} else if (event.getSource().equals(this.difficultySelectorHUD)) {
+			DefaultMenuItem selectedItem = (DefaultMenuItem) event.getMenuItem();
 			switch (selectedItem) {
 			case BACK:
 				this.stop();
@@ -106,7 +117,13 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 			default:
 				break;
 			}
-
+		} else if (event.getSource().equals(this.difficultyScene)) {
+			Puzzle.Difficulty difficulty = (Puzzle.Difficulty) event.getMenuItem();
+			Log.i(this.getClass().getName(), "Selected difficulty " + difficulty);
+			this.levelSelector.setLevels(PuzzleManager.getInstance().getPuzzles(difficulty));
+			this.levelSelector.start();
+			this.puzzleSelectorHUD.setIndicatorIndex(this.levelSelector.getCurrentPageIndex(), this.levelSelector.getPagesCount());
+			SceneManager.getInstance().setCurrentScene(this, this.puzzleSelectorScene, this.puzzleSelectorHUD);
 		}
 	}
 
@@ -150,7 +167,7 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 	public void valueChanged(final ValueChangedEvent<Integer> event) {
 		if (event.getSource().equals(this.levelSelector)) {
 			Log.d(this.getClass().getName(), "Changed page from " + event.getOldValue() + " to " + event.getNewValue());
-			this.hud.setIndicatorIndex(event.getNewValue(), this.levelSelector.getPagesCount());
+			this.puzzleSelectorHUD.setIndicatorIndex(event.getNewValue(), this.levelSelector.getPagesCount());
 		}
 	}
 

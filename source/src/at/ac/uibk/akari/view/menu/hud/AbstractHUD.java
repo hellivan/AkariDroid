@@ -9,7 +9,7 @@ import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.color.Color;
 
-import at.ac.uibk.akari.common.menu.ItemType;
+import at.ac.uibk.akari.common.menu.DefaultMenuItem;
 import at.ac.uibk.akari.listener.InputEvent;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.listener.MenuListener;
@@ -76,7 +76,7 @@ public abstract class AbstractHUD extends HUD implements TouchListener {
 		this.listeners.removeListener(MenuListener.class, listener);
 	}
 
-	protected void fireMenuItemSelected(final ItemType type) {
+	protected void fireMenuItemSelected(final DefaultMenuItem type) {
 		if (!this.isEnabled()) {
 			return;
 		}

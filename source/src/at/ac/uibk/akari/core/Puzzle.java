@@ -222,6 +222,7 @@ public class Puzzle {
 				clone.setCellState(posX, posY, this.getCellState(posX, posY));
 			}
 		}
+		clone.setDifficulty(this.getDifficulty());
 		return clone;
 	}
 
@@ -271,7 +272,7 @@ public class Puzzle {
 	 * Class that is used to describe the difficulty of a level
 	 * 
 	 */
-	public enum Difficulty implements MenuItem{
+	public enum Difficulty implements MenuItem {
 
 		EASY("Easy"),
 
@@ -282,11 +283,12 @@ public class Puzzle {
 		private String text;
 
 		private Difficulty(final String text) {
-		    this.text = text;
+			this.text = text;
 		}
 
+		@Override
 		public String getText() {
-		    return this.text;
+			return this.text;
 		}
 	}
 
@@ -294,9 +296,7 @@ public class Puzzle {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		for (int row = 0; row < this.cells.length; row++) {
-			result = (prime * result) + Arrays.hashCode(this.cells[row]);
-		}
+		result = (prime * result) + Arrays.deepHashCode(this.cells);
 		return result;
 	}
 

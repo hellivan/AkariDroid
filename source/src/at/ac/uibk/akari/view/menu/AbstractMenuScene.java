@@ -12,7 +12,6 @@ import org.andengine.entity.scene.menu.item.decorator.ScaleMenuItemDecorator;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.opengl.GLES20;
-import at.ac.uibk.akari.common.menu.ItemType;
 import at.ac.uibk.akari.common.menu.MenuItem;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.listener.MenuListener;
@@ -28,7 +27,7 @@ public abstract class AbstractMenuScene extends MenuScene implements IOnMenuItem
 
 	private List<MenuItem> menuItems;
 
-	public AbstractMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, List<MenuItem> menuItems) {
+	public AbstractMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, final List<MenuItem> menuItems) {
 		super(camera);
 		this.menuItems = menuItems;
 		this.listeners = new ListenerList();

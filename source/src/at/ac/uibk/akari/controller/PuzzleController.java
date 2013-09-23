@@ -20,7 +20,7 @@ import android.graphics.Point;
 import android.util.Log;
 import android.widget.Toast;
 import at.ac.uibk.akari.MainActivity;
-import at.ac.uibk.akari.common.menu.ItemType;
+import at.ac.uibk.akari.common.menu.DefaultMenuItem;
 import at.ac.uibk.akari.common.menu.MenuItem;
 import at.ac.uibk.akari.core.GameFieldModel;
 import at.ac.uibk.akari.core.Puzzle;
@@ -75,9 +75,9 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 
 		// initializing pause-menu
 		List<MenuItem> pauseMenuItems = new ArrayList<MenuItem>();
-		pauseMenuItems.add(ItemType.CONTINUE);
-		pauseMenuItems.add(ItemType.RESET);
-		pauseMenuItems.add(ItemType.MAIN_MENU);
+		pauseMenuItems.add(DefaultMenuItem.CONTINUE);
+		pauseMenuItems.add(DefaultMenuItem.RESET);
+		pauseMenuItems.add(DefaultMenuItem.MAIN_MENU);
 		this.pauseScene = new PopupMenuScene(this.gameCamera, this.vertexBufferObjectManager, pauseMenuItems);
 
 		// initializing game-field-touch-control
@@ -242,7 +242,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 
 			this.stopClock.stop();
 
-			ItemType selectedItem = (ItemType) event.getMenuItem();
+			DefaultMenuItem selectedItem = (DefaultMenuItem) event.getMenuItem();
 			switch (selectedItem) {
 			case PAUSE:
 				Log.i(this.getClass().getName(), "PAUSE-Game pressed");
@@ -268,7 +268,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 			this.pauseScene.back();
 			this.gameHUD.setEnabled(true);
 
-			ItemType selectedItem = (ItemType) event.getMenuItem();
+			DefaultMenuItem selectedItem = (DefaultMenuItem) event.getMenuItem();
 			switch (selectedItem) {
 			case CONTINUE:
 				Log.i(this.getClass().getName(), "CONTINUE-Game pressed");
@@ -289,5 +289,12 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 				break;
 			}
 		}
+	}
+
+	public Puzzle getCurrentPuzzle() {
+		if (this.puzzle != null) {
+			return this.puzzle.getPuzzle();
+		}
+		return null;
 	}
 }

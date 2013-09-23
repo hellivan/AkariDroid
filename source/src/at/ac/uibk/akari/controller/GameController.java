@@ -10,7 +10,7 @@ import org.sat4j.specs.ContradictionException;
 
 import android.util.Log;
 import at.ac.uibk.akari.MainActivity;
-import at.ac.uibk.akari.common.menu.ItemType;
+import at.ac.uibk.akari.common.menu.DefaultMenuItem;
 import at.ac.uibk.akari.common.menu.MenuItem;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.listener.GameFieldModelEvent;
@@ -21,8 +21,9 @@ import at.ac.uibk.akari.puzzleSelector.controller.PuzzleSelectionController;
 import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionEvent;
 import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionListener;
 import at.ac.uibk.akari.utils.BackgroundLoader;
-import at.ac.uibk.akari.utils.SceneManager;
 import at.ac.uibk.akari.utils.BackgroundLoader.BackgroundType;
+import at.ac.uibk.akari.utils.PuzzleManager;
+import at.ac.uibk.akari.utils.SceneManager;
 import at.ac.uibk.akari.utils.ScoreManager;
 import at.ac.uibk.akari.view.menu.AbstractMenuScene;
 import at.ac.uibk.akari.view.menu.MainMenuScene;
@@ -30,11 +31,8 @@ import at.ac.uibk.akari.view.menu.PopupMenuScene;
 
 public class GameController extends AbstractController implements GameListener, MenuListener, PuzzleSelectionListener {
 
-	private List<Puzzle> puzzles;
 	private PuzzleController puzzleController;
 	private PuzzleSelectionController puzzleSelectionController;
-
-	private int currentPuzzleIndex;
 
 	private ZoomCamera gameCamera;
 
@@ -45,8 +43,7 @@ public class GameController extends AbstractController implements GameListener, 
 
 	private VertexBufferObjectManager vertexBufferObjectManager;
 
-	public GameController(final ZoomCamera gameCamera, final Scene gameScene, final VertexBufferObjectManager vertexBufferObjectManager, final List<Puzzle> puzzles) {
-		this.puzzles = puzzles;
+	public GameController(final ZoomCamera gameCamera, final Scene gameScene, final VertexBufferObjectManager vertexBufferObjectManager) {
 		this.gameCamera = gameCamera;
 		this.gameScene = gameScene;
 		this.vertexBufferObjectManager = vertexBufferObjectManager;
@@ -59,9 +56,9 @@ public class GameController extends AbstractController implements GameListener, 
 
 		// initialize main-menu-scene
 		List<MenuItem> mainMenuItems = new ArrayList<MenuItem>();
-		mainMenuItems.add(ItemType.RANDOM_PUZZLE);
-		mainMenuItems.add(ItemType.SELECT_PUZZLE);
-		mainMenuItems.add(ItemType.QUIT);
+		mainMenuItems.add(DefaultMenuItem.RANDOM_PUZZLE);
+		mainMenuItems.add(DefaultMenuItem.SELECT_PUZZLE);
+		mainMenuItems.add(DefaultMenuItem.QUIT);
 		this.mainMenuScene = new MainMenuScene(this.gameCamera, this.vertexBufferObjectManager, mainMenuItems);
 
 		// initialize game-scene
@@ -70,9 +67,9 @@ public class GameController extends AbstractController implements GameListener, 
 
 		// initialize winning-menu-scene
 		List<MenuItem> winningMenuItems = new ArrayList<MenuItem>();
-		winningMenuItems.add(ItemType.NEXT);
-		winningMenuItems.add(ItemType.REPLAY);
-		winningMenuItems.add(ItemType.MAIN_MENU);
+		winningMenuItems.add(DefaultMenuItem.NEXT);
+		winningMenuItems.add(DefaultMenuItem.REPLAY);
+		winningMenuItems.add(DefaultMenuItem.MAIN_MENU);
 		this.winninMenuScene = new PopupMenuScene(this.gameCamera, this.vertexBufferObjectManager, winningMenuItems);
 
 		// initialize puzzle-selection-scene and controller
@@ -130,16 +127,16 @@ public class GameController extends AbstractController implements GameListener, 
 			this.puzzleController.stop();
 			this.winninMenuScene.back();
 
-			ItemType selectedItem = (ItemType) event.getMenuItem();
+			DefaultMenuItem selectedItem = (DefaultMenuItem) event.getMenuItem();
 			switch (selectedItem) {
 			case REPLAY:
 				Log.i(this.getClass().getName(), "REPLAY-Game pressed");
-				this.startLevel(this.puzzles.get(this.currentPuzzleIndex));
+				this.startLevel(this.puzzleController.getCurrentPuzzle());
 				break;
 			case NEXT:
 				Log.i(this.getClass().getName(), "NEXT-Game pressed");
 				this.resetGameCamera();
-				this.startLevel(this.puzzles.get(++this.currentPuzzleIndex));
+				this.startLevel(PuzzleManager.getInstance().getNextPuzzle(this.puzzleController.getCurrentPuzzle()));
 				break;
 			case MAIN_MENU:
 				Log.i(this.getClass().getName(), "MAIN_MENU pressed");
@@ -151,15 +148,13 @@ public class GameController extends AbstractController implements GameListener, 
 		}
 		// source was the main-menu-scene
 		else if (event.getSource() == this.mainMenuScene) {
-			ItemType selectedItem = (ItemType) event.getMenuItem();
+			DefaultMenuItem selectedItem = (DefaultMenuItem) event.getMenuItem();
 			switch (selectedItem) {
 			case RANDOM_PUZZLE:
 				this.setCurrentGameScene(this.gameScene);
-				this.currentPuzzleIndex = 0;
-				this.startLevel(this.puzzles.get(this.currentPuzzleIndex));
+				this.startLevel(PuzzleManager.getInstance().getRandomPuzzle());
 				break;
 			case SELECT_PUZZLE:
-				this.puzzleSelectionController.setPuzzles(this.puzzles);
 				this.puzzleSelectionController.start();
 				break;
 			case QUIT:
@@ -204,7 +199,6 @@ public class GameController extends AbstractController implements GameListener, 
 		if (event.getSource().equals(this.puzzleSelectionController)) {
 			this.setCurrentGameScene(this.gameScene);
 			Puzzle selectedPuzzle = event.getPuzzle();
-			this.currentPuzzleIndex = this.puzzles.indexOf(selectedPuzzle);
 			this.startLevel(selectedPuzzle);
 		}
 	}

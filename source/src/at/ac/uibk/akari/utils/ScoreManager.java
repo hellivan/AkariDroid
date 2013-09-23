@@ -21,6 +21,10 @@ public class ScoreManager {
 		return ScoreManager.scoreManager;
 	}
 
+	private ScoreManager() {
+
+	}
+
 	public void init(final Context context) {
 		this.sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 	}
@@ -28,13 +32,13 @@ public class ScoreManager {
 	public void saveScore(final Puzzle puzzle, final long score) {
 		String puzzleID = ScoreManager.generatePuzzleID(puzzle);
 		long oldScore = this.loadScore(puzzle);
-		if( oldScore==EMPTY_SCORE || score < oldScore ){
-		    Log.d(this.getClass().getName(), "Save score " + score + " for puzzle " + puzzleID);
-		    SharedPreferences.Editor editor = this.sharedPreferences.edit();
-		    editor.putLong(puzzleID, score);
-		    editor.commit();
+		if ((oldScore == ScoreManager.EMPTY_SCORE) || (score < oldScore)) {
+			Log.d(this.getClass().getName(), "Save score " + score + " for puzzle " + puzzleID);
+			SharedPreferences.Editor editor = this.sharedPreferences.edit();
+			editor.putLong(puzzleID, score);
+			editor.commit();
 		} else {
-		    Log.d(this.getClass().getName(), "New score is worse than new score. Don't save new one");
+			Log.d(this.getClass().getName(), "New score is worse than new score. Don't save new one");
 		}
 	}
 

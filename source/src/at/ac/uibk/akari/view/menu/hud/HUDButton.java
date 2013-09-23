@@ -6,7 +6,7 @@ import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.graphics.PointF;
-import at.ac.uibk.akari.common.menu.ItemType;
+import at.ac.uibk.akari.common.menu.DefaultMenuItem;
 import at.ac.uibk.akari.listener.TouchListener;
 import at.ac.uibk.akari.utils.ListenerList;
 
@@ -14,20 +14,20 @@ public class HUDButton extends Sprite {
 
 	protected ListenerList listeners;
 	private boolean enabled;
-	private ItemType itemType;
+	private DefaultMenuItem itemType;
 
-	public HUDButton(final PointF location, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final ITextureRegion texture, final ItemType itemType) {
+	public HUDButton(final PointF location, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final ITextureRegion texture, final DefaultMenuItem itemType) {
 		this(location.x, location.y, width, height, vertexBufferObjectManager, texture, itemType);
 	}
 
-	public HUDButton(final float posX, final float posY, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final ITextureRegion texture, final ItemType itemType) {
+	public HUDButton(final float posX, final float posY, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final ITextureRegion texture, final DefaultMenuItem itemType) {
 		super(posX, posY, width, height, texture, vertexBufferObjectManager);
 		this.listeners = new ListenerList();
 		this.setEnabled(true);
 		this.itemType = itemType;
 	}
 
-	public ItemType getItemType() {
+	public DefaultMenuItem getItemType() {
 		return this.itemType;
 	}
 

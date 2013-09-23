@@ -64,21 +64,22 @@ public class LevelItem extends Sprite {
 
 		for (Text text : texts) {
 
-			float selectorPosY = this.getY() + this.getInsets().getNorth();
+			float drawablePosY = this.getInsets().getNorth();
+			float drawablePosX = this.getInsets().getWest();
 
-			float cameraWidth = this.getWidth();
-			float cameraHeight = this.getHeight();
+			float drawableHeight = this.getHeight() - (this.getInsets().getNorth() + this.getInsets().getSouth());
+			float drawableWidth = this.getWidth() - (this.getInsets().getWest() + this.getInsets().getEast());
 
-			float selectorHeight = cameraHeight - (this.getInsets().getNorth() + this.getInsets().getSouth());
+			float textPosX = drawablePosX;
+			textPosX += (drawableWidth / 2);
+			textPosX -= (text.getWidth() / 2);
 
-			float itemPosX = ((cameraWidth / 2) - (text.getWidth() / 2));
+			float textPosY = drawablePosY;
+			textPosY += (row * (drawableHeight / texts.size()));
+			textPosY += (drawableHeight / (texts.size() * 2));
+			textPosY -= text.getHeight() / 2;
 
-			float itemPosY = selectorPosY;
-			itemPosY += (row * (selectorHeight / texts.size()));
-			itemPosY += (selectorHeight / (texts.size() * 2));
-			itemPosY -= text.getHeight() / 2;
-
-			text.setPosition(itemPosX, itemPosY);
+			text.setPosition(textPosX, textPosY);
 
 			this.attachChild(text);
 			row++;
