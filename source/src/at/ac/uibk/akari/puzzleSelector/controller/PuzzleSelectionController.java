@@ -105,6 +105,7 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 			switch (selectedItem) {
 			case BACK:
 				this.stopPuzzleSelector();
+				this.startDifficultySelector();
 				break;
 			default:
 				break;
@@ -113,7 +114,8 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 			DefaultMenuItem selectedItem = (DefaultMenuItem) event.getMenuItem();
 			switch (selectedItem) {
 			case BACK:
-				this.stopDifficultySelector();
+				this.stop();
+				this.firePuzzleSelectionCanceled();
 				break;
 			default:
 				break;
@@ -125,25 +127,19 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 		}
 	}
 
-	public void startPuzzleSelector(final Difficulty difficulty) {
+	private void startPuzzleSelector(final Difficulty difficulty) {
 		this.levelSelector.setLevels(PuzzleManager.getInstance().getPuzzles(difficulty));
 		this.levelSelector.start();
 		this.puzzleSelectorHUD.setIndicatorIndex(this.levelSelector.getCurrentPageIndex(), this.levelSelector.getPagesCount());
 		SceneManager.getInstance().setCurrentScene(this, this.puzzleSelectorScene, this.puzzleSelectorHUD);
 	}
 
-	public void stopPuzzleSelector() {
+	private void stopPuzzleSelector() {
 		this.levelSelector.stop();
-		this.startDifficultySelector();
 	}
 
-	public void startDifficultySelector() {
+	private void startDifficultySelector() {
 		SceneManager.getInstance().setCurrentScene(this, this.difficultyScene, this.difficultySelectorHUD);
-	}
-
-	public void stopDifficultySelector() {
-		this.stop();
-		this.firePuzzleSelectionCanceled();
 	}
 
 	public void addPuzzleSelectionListener(final PuzzleSelectionListener listener) {
@@ -177,6 +173,7 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 	@Override
 	public void puzzleSelected(final PuzzleSelectionEvent event) {
 		if (event.getSource().equals(this.levelSelector)) {
+			this.stopPuzzleSelector();
 			this.stop();
 			this.firePuzzleSelected(event.getPuzzle());
 		}
@@ -196,7 +193,8 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 		if (currentScene.equals(this.puzzleSelectorScene)) {
 			this.stopPuzzleSelector();
 		} else if (currentScene.equals(this.difficultyScene)) {
-			this.stopDifficultySelector();
+			this.stop();
+			this.firePuzzleSelectionCanceled();
 		}
 	}
 
