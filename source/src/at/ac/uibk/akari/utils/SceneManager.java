@@ -51,6 +51,10 @@ public class SceneManager {
 		});
 	}
 
+	public ZoomCamera getCurrentCamera() {
+		return this.camera;
+	}
+
 	public AbstractController getCurrentController() {
 		return this.currentController;
 	}
@@ -67,5 +71,9 @@ public class SceneManager {
 		if (this.currentController != null) {
 			this.currentController.onBackKeyPressed();
 		}
+	}
+
+	public void refreshCurrenScene() {
+		this.setCurrentScene(this.currentController, this.currentScene, this.currentHUD);
 	}
 }
