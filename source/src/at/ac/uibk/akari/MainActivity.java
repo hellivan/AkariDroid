@@ -17,7 +17,7 @@ import org.andengine.ui.activity.SimpleBaseGameActivity;
 import android.util.Log;
 import android.view.Display;
 import android.widget.Toast;
-import at.ac.uibk.akari.controller.GameController;
+import at.ac.uibk.akari.controller.MainController;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.FontLoader;
@@ -165,7 +165,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 		this.gameScene.setTouchAreaBindingOnActionDownEnabled(true);
 		this.gameScene.setBackground(new Background(0.2f, 0.6f, 0.8f, 0.1f));
 
-		GameController gameController = new GameController(this.gameCamera, this.gameScene, this.getVertexBufferObjectManager());
+		MainController gameController = new MainController(this.gameCamera, this.gameScene, this.getVertexBufferObjectManager());
 		gameController.start();
 		return this.gameScene;
 

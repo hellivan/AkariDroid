@@ -27,7 +27,7 @@ import at.ac.uibk.akari.utils.SceneManager;
 import at.ac.uibk.akari.view.menu.AbstractMenuScene;
 import at.ac.uibk.akari.view.menu.MainMenuScene;
 
-public class GameController extends AbstractController implements GameListener, MenuListener, PuzzleSelectionListener {
+public class MainController extends AbstractController implements GameListener, MenuListener, PuzzleSelectionListener {
 
 	private PuzzleController puzzleController;
 	private PuzzleSelectionController puzzleSelectionController;
@@ -40,7 +40,7 @@ public class GameController extends AbstractController implements GameListener, 
 
 	private VertexBufferObjectManager vertexBufferObjectManager;
 
-	public GameController(final ZoomCamera gameCamera, final Scene gameScene, final VertexBufferObjectManager vertexBufferObjectManager) {
+	public MainController(final ZoomCamera gameCamera, final Scene gameScene, final VertexBufferObjectManager vertexBufferObjectManager) {
 		this.gameCamera = gameCamera;
 		this.gameScene = gameScene;
 		this.vertexBufferObjectManager = vertexBufferObjectManager;
