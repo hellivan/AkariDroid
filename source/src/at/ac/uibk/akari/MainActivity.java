@@ -182,12 +182,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 	}
 
 	public static void showToast(final String text, final int length) {
-		MainActivity.staticActivity.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				Toast.makeText(MainActivity.staticActivity, text, length).show();
-			}
-		});
+		MainActivity.staticActivity.toastOnUIThread(text, length);
 	}
 
 	public static void quit() {
