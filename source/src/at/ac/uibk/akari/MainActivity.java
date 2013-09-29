@@ -14,6 +14,7 @@ import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 
+import android.content.Intent;
 import android.util.Log;
 import android.view.Display;
 import android.widget.Toast;
@@ -49,6 +50,8 @@ public class MainActivity extends SimpleBaseGameActivity {
 	private Scene gameScene;
 
 	private List<Puzzle> puzzles;
+
+	private boolean firstStart = true;
 
 	// @Override
 	// public Engine onCreateEngine(final EngineOptions pEngineOptions) {
@@ -196,5 +199,26 @@ public class MainActivity extends SimpleBaseGameActivity {
 
 	public static void unregisterUpdateHandler(final IUpdateHandler updateHandler) {
 		MainActivity.staticActivity.getEngine().unregisterUpdateHandler(updateHandler);
+	}
+
+	@Override
+	public synchronized void onPauseGame() {
+		this.firstStart = false;
+		super.onPauseGame();
+	}
+
+	public static void restartGame() {
+		Intent intent = MainActivity.staticActivity.getIntent();
+		MainActivity.staticActivity.finish();
+		MainActivity.staticActivity.startActivity(intent);
+	}
+
+	@Override
+	public synchronized void onResumeGame() {
+		if (!this.firstStart) {
+			MainActivity.restartGame();
+		} else {
+			super.onResumeGame();
+		}
 	}
 }

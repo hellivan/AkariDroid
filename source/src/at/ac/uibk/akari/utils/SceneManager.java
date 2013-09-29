@@ -5,6 +5,7 @@ import org.andengine.engine.camera.hud.HUD;
 import org.andengine.entity.scene.Scene;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 
+import at.ac.uibk.akari.MainActivity;
 import at.ac.uibk.akari.controller.AbstractController;
 
 public class SceneManager {
@@ -53,11 +54,15 @@ public class SceneManager {
 		this.baseGameActivity.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				SceneManager.this.baseGameActivity.getEngine().setScene(scene);
-				SceneManager.this.camera.setHUD(hud);
-				if (resetCamera) {
-					SceneManager.this.camera.setZoomFactor(1);
-					SceneManager.this.camera.setCenter(SceneManager.this.camera.getWidth() / 2, SceneManager.this.camera.getHeight() / 2);
+				if (SceneManager.this.baseGameActivity.getEngine() == null) {
+					MainActivity.restartGame();
+				} else {
+					SceneManager.this.baseGameActivity.getEngine().setScene(scene);
+					SceneManager.this.camera.setHUD(hud);
+					if (resetCamera) {
+						SceneManager.this.camera.setZoomFactor(1);
+						SceneManager.this.camera.setCenter(SceneManager.this.camera.getWidth() / 2, SceneManager.this.camera.getHeight() / 2);
+					}
 				}
 			}
 		});
