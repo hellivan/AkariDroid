@@ -36,6 +36,10 @@ public class StopClockModel implements ITimerCallback {
 		return this.secondsElapsed;
 	}
 
+	public void setSecondsElapsed(final long secondsElapsed) {
+		this.secondsElapsed = secondsElapsed;
+	}
+
 	@Override
 	public synchronized void onTimePassed(final TimerHandler handler) {
 		if (this.currentTimerHandler != handler) {

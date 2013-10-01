@@ -223,7 +223,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 	@Override
 	public synchronized void onResumeGame() {
 		Log.d(this.getClass().getName(), "Called onResumeGame()");
-		if (!this.firstStart) {
+		if (!this.firstStart || (this.mEngine == null)) {
 			MainActivity.restartGame();
 		} else {
 			super.onResumeGame();

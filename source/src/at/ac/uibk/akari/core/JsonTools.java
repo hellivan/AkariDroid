@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 
 import at.ac.uibk.akari.core.annotations.JsonIgnorePermanent;
 
@@ -65,6 +66,10 @@ public class JsonTools {
 	}
 
 	public <T> T fromJson(final Class<T> t, final String jsonObject) {
+		return this.permanentSerializer.fromJson(jsonObject, t);
+	}
+
+	public <T> T fromJson(final Type t, final String jsonObject) {
 		return this.permanentSerializer.fromJson(jsonObject, t);
 	}
 

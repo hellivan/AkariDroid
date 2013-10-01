@@ -30,6 +30,7 @@ import at.ac.uibk.akari.listener.InputEvent;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.listener.MenuListener;
 import at.ac.uibk.akari.solver.AkariSolverFull;
+import at.ac.uibk.akari.utils.GameFieldSaveState;
 import at.ac.uibk.akari.utils.ListenerList;
 import at.ac.uibk.akari.utils.PuzzleManager;
 import at.ac.uibk.akari.utils.SceneManager;
@@ -107,6 +108,14 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 
 	public void setPuzzle(final Puzzle puzzle) throws ContradictionException {
 		this.puzzle = new GameFieldModel(puzzle);
+		GameFieldSaveState oldSaveState = ScoreManager.getInstance().loadGameFiledState(puzzle);
+		if (oldSaveState != null) {
+			MainActivity.showToast("Could be resumed at time " + oldSaveState.getSecondsElapsed(), Toast.LENGTH_LONG);
+			this.puzzle.setLamps(oldSaveState.getLamps());
+			this.stopClock.setSecondsElapsed(oldSaveState.getSecondsElapsed());
+		} else {
+			this.stopClock.reset();
+		}
 		this.solver = new AkariSolverFull(this.puzzle);
 		this.gameField.setPuzzle(this.puzzle);
 	}
@@ -120,7 +129,6 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		this.gameScene.setOnSceneTouchListener(this);
 		this.pauseScene.addMenuListener(this);
 		this.winninMenuScene.addMenuListener(this);
-		this.stopClock.reset();
 		this.stopClock.start();
 		return this.gameFieldController.start();
 
@@ -349,6 +357,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 
 	@Override
 	public void onGameStop() {
-		Log.i(this.getClass().getName(), "Saving gamestate for " + this.getCurrentPuzzle().hashCode());
+		GameFieldSaveState saveState = GameFieldSaveState.generate(this.puzzle, this.stopClock.getSecondsElapsed());
+		ScoreManager.getInstance().saveGameFiledState(saveState);
 	}
 }
