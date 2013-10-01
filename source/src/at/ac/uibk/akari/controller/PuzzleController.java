@@ -346,4 +346,9 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		// TODO Auto-generated method stub
 
 	}
+
+	@Override
+	public void onGameStop() {
+		Log.i(this.getClass().getName(), "Saving gamestate for " + this.getCurrentPuzzle().hashCode());
+	}
 }

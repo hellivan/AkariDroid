@@ -92,4 +92,9 @@ public class GameFieldController extends AbstractController implements GameField
 		// TODO Auto-generated method stub
 
 	}
+
+	@Override
+	public void onGameStop() {
+		// TODO Auto-generated method stub
+	}
 }

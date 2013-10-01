@@ -141,4 +141,9 @@ public class MainController extends AbstractController implements GameListener, 
 	public void onBackKeyPressed() {
 		MainActivity.quit();
 	}
+
+	@Override
+	public void onGameStop() {
+		// TODO Auto-generated method stub
+	}
 }

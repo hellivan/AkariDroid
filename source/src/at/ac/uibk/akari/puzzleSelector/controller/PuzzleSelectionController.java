@@ -190,4 +190,9 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 		}
 	}
 
+	@Override
+	public void onGameStop() {
+		// TODO Auto-generated method stub
+	}
+
 }

@@ -1,8 +1,5 @@
 package at.ac.uibk.akari;
 
-import java.io.File;
-import java.util.List;
-
 import org.andengine.engine.Engine;
 import org.andengine.engine.camera.ZoomCamera;
 import org.andengine.engine.handler.IUpdateHandler;
@@ -17,12 +14,9 @@ import org.andengine.ui.activity.SimpleBaseGameActivity;
 import android.content.Intent;
 import android.util.Log;
 import android.view.Display;
-import android.widget.Toast;
 import at.ac.uibk.akari.controller.MainController;
-import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.FontLoader;
-import at.ac.uibk.akari.utils.PuzzleLoader;
 import at.ac.uibk.akari.utils.PuzzleManager;
 import at.ac.uibk.akari.utils.SceneManager;
 import at.ac.uibk.akari.utils.ScoreManager;
@@ -30,12 +24,12 @@ import at.ac.uibk.akari.utils.TextureLoader;
 
 public class MainActivity extends SimpleBaseGameActivity {
 
-	private static String PUZZLE_SYNC_URL = "http://helli.ath.cx/akari/";
+	// private static String PUZZLE_SYNC_URL = "http://helli.ath.cx/akari/";
 
-	private static boolean PUZZLE_SYNC = true;
-	private static boolean PUZZLE_EXTERNAL = false;
+	// private static boolean PUZZLE_SYNC = true;
+	// private static boolean PUZZLE_EXTERNAL = false;
 
-	private static final String PUZZLES_DIR_EXTERNAL = "puzzles";
+	// private static final String PUZZLES_DIR_EXTERNAL = "puzzles";
 	private static final String PUZZLES_DIR_LOCAL = "puzzles";
 
 	private static SimpleBaseGameActivity staticActivity;
@@ -49,7 +43,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 	private ZoomCamera gameCamera;
 	private Scene gameScene;
 
-	private List<Puzzle> puzzles;
+	// private List<Puzzle> puzzles;
 
 	private boolean firstStart = true;
 
@@ -121,41 +115,52 @@ public class MainActivity extends SimpleBaseGameActivity {
 		FontLoader.getInstance().init(this.getTextureManager(), this.getFontManager(), this.getAssets());
 
 		// load levels from assets
-		Log.d(this.getClass().getName(), "Loading asset levels");
-		try {
-			this.puzzles = PuzzleLoader.loadPuzzles(this.getAssets(), MainActivity.PUZZLES_DIR_LOCAL);
-			Log.i(this.getClass().getName(), "Loaded " + this.puzzles.size() + " levels...");
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		// Log.d(this.getClass().getName(), "Loading asset levels");
+		// try {
+		// this.puzzles = PuzzleLoader.loadPuzzles(this.getAssets(),
+		// MainActivity.PUZZLES_DIR_LOCAL);
+		// Log.i(this.getClass().getName(), "Loaded " + this.puzzles.size() +
+		// " levels...");
+		//
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
 
 		// synchronize levels from external source if enabled
-		if (MainActivity.PUZZLE_EXTERNAL && MainActivity.PUZZLE_SYNC) {
-			Log.d(this.getClass().getName(), "Synchronizing levels using url '" + MainActivity.PUZZLE_SYNC_URL + "'");
-			try {
-				int syncedPuzzles = PuzzleLoader.synchronizePuzzleList(MainActivity.PUZZLE_SYNC_URL, this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.PUZZLES_DIR_EXTERNAL);
-				Log.i(this.getClass().getName(), "Synchronized " + syncedPuzzles + " puzzles");
-				MainActivity.showToast("Synchronized " + syncedPuzzles + " puzzles", Toast.LENGTH_SHORT);
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		} else {
-			Log.d(this.getClass().getName(), "Synchronizing levels is disabled");
-		}
+		// if (MainActivity.PUZZLE_EXTERNAL && MainActivity.PUZZLE_SYNC) {
+		// Log.d(this.getClass().getName(), "Synchronizing levels using url '" +
+		// MainActivity.PUZZLE_SYNC_URL + "'");
+		// try {
+		// int syncedPuzzles =
+		// PuzzleLoader.synchronizePuzzleList(MainActivity.PUZZLE_SYNC_URL,
+		// this.getFilesDir().getAbsolutePath() + File.separator +
+		// MainActivity.PUZZLES_DIR_EXTERNAL);
+		// Log.i(this.getClass().getName(), "Synchronized " + syncedPuzzles +
+		// " puzzles");
+		// MainActivity.showToast("Synchronized " + syncedPuzzles + " puzzles",
+		// Toast.LENGTH_SHORT);
+		//
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
+		// } else {
+		// Log.d(this.getClass().getName(), "Synchronizing levels is disabled");
+		// }
 
 		// load local levels from external source if enabled
-		if (MainActivity.PUZZLE_EXTERNAL) {
-			Log.d(this.getClass().getName(), "Loading levels from memory");
-			try {
-				this.puzzles = PuzzleLoader.loadPuzzles(this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.PUZZLES_DIR_EXTERNAL);
-				Log.i(this.getClass().getName(), "Loaded " + this.puzzles.size() + " levels...");
-
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+		// if (MainActivity.PUZZLE_EXTERNAL) {
+		// Log.d(this.getClass().getName(), "Loading levels from memory");
+		// try {
+		// this.puzzles =
+		// PuzzleLoader.loadPuzzles(this.getFilesDir().getAbsolutePath() +
+		// File.separator + MainActivity.PUZZLES_DIR_EXTERNAL);
+		// Log.i(this.getClass().getName(), "Loaded " + this.puzzles.size() +
+		// " levels...");
+		//
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
+		// }
 
 	}
 
@@ -201,12 +206,6 @@ public class MainActivity extends SimpleBaseGameActivity {
 		MainActivity.staticActivity.getEngine().unregisterUpdateHandler(updateHandler);
 	}
 
-	@Override
-	public synchronized void onPauseGame() {
-		this.firstStart = false;
-		super.onPauseGame();
-	}
-
 	public static void restartGame() {
 		Intent intent = MainActivity.staticActivity.getIntent();
 		MainActivity.staticActivity.finish();
@@ -214,7 +213,16 @@ public class MainActivity extends SimpleBaseGameActivity {
 	}
 
 	@Override
+	public synchronized void onPauseGame() {
+		Log.d(this.getClass().getName(), "Called onPauseGame()");
+		this.firstStart = false;
+		SceneManager.getInstance().getCurrentController().onGameStop();
+		super.onPauseGame();
+	}
+
+	@Override
 	public synchronized void onResumeGame() {
+		Log.d(this.getClass().getName(), "Called onResumeGame()");
 		if (!this.firstStart) {
 			MainActivity.restartGame();
 		} else {
