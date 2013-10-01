@@ -14,6 +14,10 @@ public class ScoreManager {
 
 	public static final int EMPTY_SCORE = -1;
 
+	private static final String LAMPS_SUFFIX = "_LAMPS";
+
+	private static final String TIME_SUFFIX = "_TIME";
+
 	public static ScoreManager getInstance() {
 		if (ScoreManager.scoreManager == null) {
 			ScoreManager.scoreManager = new ScoreManager();
@@ -63,7 +67,17 @@ public class ScoreManager {
 		editor.commit();
 	}
 
+	public void saveGameFiledState(final GamefieldSaveState gameFieldSaveState) {
+		String puzzleID = ScoreManager.generatePuzzleID(gameFieldSaveState.getPuzzle());
+		Log.d(this.getClass().getName(), "Save game-field-state for puzzle " + puzzleID);
+		SharedPreferences.Editor editor = this.sharedPreferences.edit();
+		editor.putString(puzzleID + ScoreManager.LAMPS_SUFFIX, gameFieldSaveState.getLampsAsString());
+		editor.putLong(puzzleID + ScoreManager.TIME_SUFFIX, gameFieldSaveState.getTimeElapsed());
+		editor.commit();
+	}
+
 	private static String generatePuzzleID(final Puzzle puzzle) {
 		return Integer.toString(puzzle.hashCode());
 	}
+
 }
