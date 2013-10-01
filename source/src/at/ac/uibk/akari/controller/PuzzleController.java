@@ -295,6 +295,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 			case MAIN_MENU:
 				Log.i(this.getClass().getName(), "MAIN_MENU pressed");
 				this.stop();
+				ScoreManager.getInstance().saveGameFiledState(GameFieldSaveState.generate(this.puzzle, this.stopClock.getSecondsElapsed()));
 				this.fireGameStopped();
 				break;
 			case RESET:
@@ -357,7 +358,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 
 	@Override
 	public void onGameStop() {
-		GameFieldSaveState saveState = GameFieldSaveState.generate(this.puzzle, this.stopClock.getSecondsElapsed());
-		ScoreManager.getInstance().saveGameFiledState(saveState);
+		ScoreManager.getInstance().saveGameFiledState(GameFieldSaveState.generate(this.puzzle, this.stopClock.getSecondsElapsed()));
+		ScoreManager.getInstance().savePuzzleToResume(this.getCurrentPuzzle());
 	}
 }

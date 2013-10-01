@@ -25,7 +25,9 @@ public enum DefaultMenuItem implements MenuItem {
 
 	FOREWARD("Foreward"),
 
-	BACKWARD("Backward");
+	BACKWARD("Backward"),
+
+	RESUME_PUZZLE("Resume puzzle");
 
 	private String text;
 
