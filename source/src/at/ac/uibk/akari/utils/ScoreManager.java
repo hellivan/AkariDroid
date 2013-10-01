@@ -67,7 +67,7 @@ public class ScoreManager {
 		editor.commit();
 	}
 
-	public void saveGameFiledState(final GamefieldSaveState gameFieldSaveState) {
+	public void saveGameFiledState(final GameFieldSaveState gameFieldSaveState) {
 		String puzzleID = ScoreManager.generatePuzzleID(gameFieldSaveState.getPuzzle());
 		Log.d(this.getClass().getName(), "Save game-field-state for puzzle " + puzzleID);
 		SharedPreferences.Editor editor = this.sharedPreferences.edit();

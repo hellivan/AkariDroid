@@ -6,12 +6,12 @@ import android.graphics.Point;
 import at.ac.uibk.akari.core.JsonTools;
 import at.ac.uibk.akari.core.Puzzle;
 
-public class GamefieldSaveState {
+public class GameFieldSaveState {
 	private Puzzle puzzle;
 	private List<Point> lamps;
 	private long timeElapsed;
 
-	public GamefieldSaveState(final Puzzle puzzle, final List<Point> lamps, final long timeElapsed) {
+	public GameFieldSaveState(final Puzzle puzzle, final List<Point> lamps, final long timeElapsed) {
 		super();
 		this.puzzle = puzzle;
 		// todo: use clone to avoid changing list
