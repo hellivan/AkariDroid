@@ -23,8 +23,8 @@ import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionListener;
 import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.BackgroundLoader.BackgroundType;
 import at.ac.uibk.akari.utils.PuzzleManager;
-import at.ac.uibk.akari.utils.SceneManager;
 import at.ac.uibk.akari.utils.SaveGameManager;
+import at.ac.uibk.akari.utils.SceneManager;
 import at.ac.uibk.akari.view.menu.AbstractMenuScene;
 import at.ac.uibk.akari.view.menu.MainMenuScene;
 
@@ -53,14 +53,8 @@ public class MainController extends AbstractController implements GameListener, 
 		this.puzzleController = new PuzzleController(this.gameCamera, this.gameScene, this.vertexBufferObjectManager);
 
 		// initialize main-menu-scene
-		List<MenuItem> mainMenuItems = new ArrayList<MenuItem>();
-		if (SaveGameManager.getInstance().loadPuzzleToResume() != null) {
-			mainMenuItems.add(DefaultMenuItem.RESUME_PUZZLE);
-		}
-		mainMenuItems.add(DefaultMenuItem.RANDOM_PUZZLE);
-		mainMenuItems.add(DefaultMenuItem.SELECT_PUZZLE);
-		mainMenuItems.add(DefaultMenuItem.QUIT);
-		this.mainMenuScene = new MainMenuScene(this.gameCamera, this.vertexBufferObjectManager, mainMenuItems);
+		this.mainMenuScene = new MainMenuScene(this.gameCamera, this.vertexBufferObjectManager);
+		this.initMainMenuItems(true);
 
 		// initialize game-scene
 		this.gameScene.setBackgroundEnabled(true);
@@ -71,6 +65,17 @@ public class MainController extends AbstractController implements GameListener, 
 		this.puzzleSelectionScene.setBackgroundEnabled(true);
 		this.puzzleSelectionScene.setBackground(BackgroundLoader.getInstance().getBackground(BackgroundType.GAME_FIELD_BACKGROUND));
 		this.puzzleSelectionController = new PuzzleSelectionController(this.puzzleSelectionScene, this.gameCamera, this.vertexBufferObjectManager);
+	}
+
+	private void initMainMenuItems(final boolean hasResumeItem) {
+		List<MenuItem> mainMenuItems = new ArrayList<MenuItem>();
+		if (hasResumeItem && (SaveGameManager.getInstance().loadPuzzleToResume() != null)) {
+			mainMenuItems.add(DefaultMenuItem.RESUME_PUZZLE);
+		}
+		mainMenuItems.add(DefaultMenuItem.RANDOM_PUZZLE);
+		mainMenuItems.add(DefaultMenuItem.SELECT_PUZZLE);
+		mainMenuItems.add(DefaultMenuItem.QUIT);
+		this.mainMenuScene.setItemTypes(mainMenuItems);
 	}
 
 	@Override
@@ -95,6 +100,7 @@ public class MainController extends AbstractController implements GameListener, 
 		try {
 			this.puzzleController.setPuzzle(puzzle);
 			this.puzzleController.start();
+			this.initMainMenuItems(false);
 		} catch (ContradictionException e) {
 			e.printStackTrace();
 		}

@@ -12,15 +12,19 @@ import at.ac.uibk.akari.utils.FontLoader.FontType;
 
 public class MainMenuScene extends AbstractMenuScene {
 
-	public MainMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, List<MenuItem> menuItems) {
-		super(camera, vertexBufferObjectManager, menuItems);
+	public MainMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, final List<MenuItem> itmeTypes) {
+		super(camera, vertexBufferObjectManager, itmeTypes);
+	}
+
+	public MainMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager) {
+		super(camera, vertexBufferObjectManager);
 	}
 
 	@Override
 	protected FontType getItemsFontType() {
 		return FontType.DROID_48_BLACK;
 	}
-	
+
 	@Override
 	protected void setSceneOptions() {
 		this.setBackground(BackgroundLoader.getInstance().getBackground(BackgroundType.GAME_FIELD_BACKGROUND));

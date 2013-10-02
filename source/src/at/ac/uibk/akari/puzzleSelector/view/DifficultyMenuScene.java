@@ -13,8 +13,8 @@ import at.ac.uibk.akari.view.menu.AbstractMenuScene;
 
 public class DifficultyMenuScene extends AbstractMenuScene {
 
-	public DifficultyMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, List<MenuItem> menuItems) {
-		super(camera, vertexBufferObjectManager, menuItems);
+	public DifficultyMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, List<MenuItem> itemTypes) {
+		super(camera, vertexBufferObjectManager, itemTypes);
 	}
 
 	@Override

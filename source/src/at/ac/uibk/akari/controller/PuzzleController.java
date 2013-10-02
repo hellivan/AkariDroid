@@ -33,8 +33,8 @@ import at.ac.uibk.akari.solver.AkariSolverFull;
 import at.ac.uibk.akari.utils.GameFieldSaveState;
 import at.ac.uibk.akari.utils.ListenerList;
 import at.ac.uibk.akari.utils.PuzzleManager;
-import at.ac.uibk.akari.utils.SceneManager;
 import at.ac.uibk.akari.utils.SaveGameManager;
+import at.ac.uibk.akari.utils.SceneManager;
 import at.ac.uibk.akari.utils.StopClockModel;
 import at.ac.uibk.akari.view.GameField;
 import at.ac.uibk.akari.view.menu.PopupMenuScene;
@@ -109,7 +109,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	public void setPuzzle(final Puzzle puzzle) throws ContradictionException {
 		this.puzzle = new GameFieldModel(puzzle);
 		GameFieldSaveState oldSaveState = SaveGameManager.getInstance().loadGameFiledState(puzzle);
-		if (oldSaveState != null) {
+		if ((oldSaveState != null) && (oldSaveState.getLamps().size() > 0)) {
 			MainActivity.showToast("Could be resumed at time " + oldSaveState.getSecondsElapsed(), Toast.LENGTH_LONG);
 			this.puzzle.setLamps(oldSaveState.getLamps());
 			this.stopClock.setSecondsElapsed(oldSaveState.getSecondsElapsed());
@@ -149,6 +149,8 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	private void onPuzzleSolved() {
 		// saving score
 		SaveGameManager.getInstance().saveScore(this.getCurrentPuzzle(), this.stopClock.getSecondsElapsed());
+		SaveGameManager.getInstance().clearGameFiledState(this.getCurrentPuzzle());
+		SaveGameManager.getInstance().clearPuzzleToResume();
 		this.gameHUD.setEnabled(false);
 		this.gameScene.setChildScene(this.winninMenuScene, false, true, true);
 	}

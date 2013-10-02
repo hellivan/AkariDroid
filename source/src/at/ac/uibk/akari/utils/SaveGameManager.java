@@ -100,26 +100,12 @@ public class SaveGameManager {
 		return GameFieldSaveState.generate(puzzle, SaveGameManager.convertStringToPoints(lampsLoaded), timeLoaded);
 	}
 
-	private static String generatePuzzleID(final Puzzle puzzle) {
-		return Integer.toString(puzzle.hashCode());
-	}
-
-	private static String convertPointsToString(final List<Point> points) {
-		StringBuffer result = new StringBuffer();
-		for (Point point : points) {
-			result.append("[" + point.x + "," + point.y + "]");
-		}
-		return result.toString();
-	}
-
-	private static List<Point> convertStringToPoints(final String points) {
-		List<Point> result = new ArrayList<Point>();
-		Pattern pattern = Pattern.compile("\\[(\\d*),(\\d*)\\]");
-		Matcher matcher = pattern.matcher(points);
-		while (matcher.find()) {
-			result.add(new Point(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2))));
-		}
-		return result;
+	public void clearGameFiledState(final Puzzle puzzle) {
+		String puzzleID = SaveGameManager.generatePuzzleID(puzzle);
+		Log.d(this.getClass().getName(), "Delete game-field-state for puzzle " + puzzleID);
+		SharedPreferences.Editor editor = this.sharedPreferences.edit();
+		editor.remove(puzzleID + SaveGameManager.LAMPS_SUFFIX);
+		editor.commit();
 	}
 
 	public void savePuzzleToResume(final Puzzle puzzle) {
@@ -148,5 +134,27 @@ public class SaveGameManager {
 		SharedPreferences.Editor editor = this.sharedPreferences.edit();
 		editor.remove(SaveGameManager.KEY_RESUME);
 		editor.commit();
+	}
+
+	private static String generatePuzzleID(final Puzzle puzzle) {
+		return Integer.toString(puzzle.hashCode());
+	}
+
+	private static String convertPointsToString(final List<Point> points) {
+		StringBuffer result = new StringBuffer();
+		for (Point point : points) {
+			result.append("[" + point.x + "," + point.y + "]");
+		}
+		return result.toString();
+	}
+
+	private static List<Point> convertStringToPoints(final String points) {
+		List<Point> result = new ArrayList<Point>();
+		Pattern pattern = Pattern.compile("\\[(\\d*),(\\d*)\\]");
+		Matcher matcher = pattern.matcher(points);
+		while (matcher.find()) {
+			result.add(new Point(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2))));
+		}
+		return result;
 	}
 }

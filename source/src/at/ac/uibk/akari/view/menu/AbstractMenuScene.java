@@ -25,39 +25,52 @@ public abstract class AbstractMenuScene extends MenuScene implements IOnMenuItem
 
 	private VertexBufferObjectManager vertexBufferObjectManager;
 
-	private List<MenuItem> menuItems;
+	private List<MenuItem> itemTypes;
 
-	public AbstractMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, final List<MenuItem> menuItems) {
+	public AbstractMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, final List<MenuItem> itemTypes) {
 		super(camera);
-		this.menuItems = menuItems;
+		this.itemTypes = itemTypes;
 		this.listeners = new ListenerList();
 		this.vertexBufferObjectManager = vertexBufferObjectManager;
 		this.initGUI();
+	}
+
+	public AbstractMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager) {
+		this(camera, vertexBufferObjectManager, null);
 	}
 
 	private void initGUI() {
 
 		this.setSceneOptions();
 
-		FontType fontType = this.getItemsFontType();
-		float sizePessed = 1.1f;
-		float sizeNormal = 1f;
-
-		List<IMenuItem> menuItems = new ArrayList<IMenuItem>();
-
-		for (MenuItem item : this.menuItems) {
-			IMenuItem menuItem = new ScaleMenuItemDecorator(new TextMenuItem(item.ordinal(), FontLoader.getInstance().getFont(fontType), item.getText(), this.vertexBufferObjectManager), sizePessed, sizeNormal);
-			menuItem.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-			menuItems.add(menuItem);
-		}
-
-		for (IMenuItem menuItem : menuItems) {
-			this.addMenuItem(menuItem);
-		}
-
-		this.buildAnimations();
-
+		this.setItemTypes(this.getItemTypes());
 		this.setOnMenuItemClickListener(this);
+	}
+
+	public void setItemTypes(final List<MenuItem> itemTypes) {
+		if (!this.getItemTypes().equals(itemTypes)) {
+			this.itemTypes = itemTypes;
+			this.clearMenuItems();
+
+			// add items to menu
+			FontType fontType = this.getItemsFontType();
+			float sizePessed = 1.1f;
+			float sizeNormal = 1f;
+
+			List<IMenuItem> menuItems = new ArrayList<IMenuItem>();
+
+			for (MenuItem item : this.getItemTypes()) {
+				IMenuItem menuItem = new ScaleMenuItemDecorator(new TextMenuItem(item.ordinal(), FontLoader.getInstance().getFont(fontType), item.getText(), this.vertexBufferObjectManager), sizePessed, sizeNormal);
+				menuItem.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+				menuItems.add(menuItem);
+			}
+
+			for (IMenuItem menuItem : menuItems) {
+				this.addMenuItem(menuItem);
+			}
+
+			this.buildAnimations();
+		}
 	}
 
 	protected abstract void setSceneOptions();
@@ -65,13 +78,16 @@ public abstract class AbstractMenuScene extends MenuScene implements IOnMenuItem
 	protected abstract FontType getItemsFontType();
 
 	public List<MenuItem> getItemTypes() {
-		return this.menuItems;
+		if (this.itemTypes == null) {
+			this.itemTypes = new ArrayList<MenuItem>();
+		}
+		return this.itemTypes;
 	}
 
 	@Override
 	public boolean onMenuItemClicked(final MenuScene pMenuScene, final IMenuItem pMenuItem, final float pMenuItemLocalX, final float pMenuItemLocalY) {
 		if (pMenuScene == this) {
-			for (MenuItem itemType : this.menuItems) {
+			for (MenuItem itemType : this.getItemTypes()) {
 				if (pMenuItem.getID() == itemType.ordinal()) {
 					this.fireMenuItemSelected(itemType);
 					break;

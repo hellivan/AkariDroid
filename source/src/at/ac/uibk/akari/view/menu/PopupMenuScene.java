@@ -10,8 +10,8 @@ import at.ac.uibk.akari.utils.FontLoader.FontType;
 
 public class PopupMenuScene extends AbstractMenuScene {
 
-	public PopupMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, final List<MenuItem> menuItems) {
-		super(camera, vertexBufferObjectManager, menuItems);
+	public PopupMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, final List<MenuItem> itemTypes) {
+		super(camera, vertexBufferObjectManager, itemTypes);
 	}
 
 	@Override
