@@ -19,7 +19,7 @@ import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.PuzzleManager;
 import at.ac.uibk.akari.utils.SceneManager;
-import at.ac.uibk.akari.utils.ScoreManager;
+import at.ac.uibk.akari.utils.SaveGameManager;
 import at.ac.uibk.akari.utils.TextureLoader;
 
 public class MainActivity extends SimpleBaseGameActivity {
@@ -100,7 +100,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 
 		// initialize score-manager
 		Log.d(this.getClass().getName(), "Initializing score-manager");
-		ScoreManager.getInstance().init(this);
+		SaveGameManager.getInstance().init(this);
 
 		// load textures
 		Log.d(this.getClass().getName(), "Loading textures");

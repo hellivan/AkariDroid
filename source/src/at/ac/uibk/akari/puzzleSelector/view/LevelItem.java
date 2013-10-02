@@ -16,7 +16,7 @@ import at.ac.uibk.akari.listener.TouchListener;
 import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.FontLoader.FontType;
 import at.ac.uibk.akari.utils.ListenerList;
-import at.ac.uibk.akari.utils.ScoreManager;
+import at.ac.uibk.akari.utils.SaveGameManager;
 import at.ac.uibk.akari.utils.StringUtils;
 import at.ac.uibk.akari.utils.TextureLoader;
 import at.ac.uibk.akari.utils.TextureLoader.TextureType;
@@ -51,11 +51,11 @@ public class LevelItem extends Sprite {
 	private void initItem() {
 		this.insets = new Insets(22, 0, 22, 0);
 
-		long puzzleScore = ScoreManager.getInstance().loadScore(this.puzzle);
+		long puzzleScore = SaveGameManager.getInstance().loadScore(this.puzzle);
 
 		List<Text> texts = new ArrayList<Text>();
 		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), this.puzzle.getWidth() + "x" + this.puzzle.getHeight(), 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
-		if (puzzleScore != ScoreManager.EMPTY_SCORE) {
+		if (puzzleScore != SaveGameManager.EMPTY_SCORE) {
 			texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), StringUtils.convertSecondsToTimeString(puzzleScore), 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
 		}
 

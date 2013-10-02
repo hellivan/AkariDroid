@@ -34,7 +34,7 @@ import at.ac.uibk.akari.utils.GameFieldSaveState;
 import at.ac.uibk.akari.utils.ListenerList;
 import at.ac.uibk.akari.utils.PuzzleManager;
 import at.ac.uibk.akari.utils.SceneManager;
-import at.ac.uibk.akari.utils.ScoreManager;
+import at.ac.uibk.akari.utils.SaveGameManager;
 import at.ac.uibk.akari.utils.StopClockModel;
 import at.ac.uibk.akari.view.GameField;
 import at.ac.uibk.akari.view.menu.PopupMenuScene;
@@ -108,7 +108,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 
 	public void setPuzzle(final Puzzle puzzle) throws ContradictionException {
 		this.puzzle = new GameFieldModel(puzzle);
-		GameFieldSaveState oldSaveState = ScoreManager.getInstance().loadGameFiledState(puzzle);
+		GameFieldSaveState oldSaveState = SaveGameManager.getInstance().loadGameFiledState(puzzle);
 		if (oldSaveState != null) {
 			MainActivity.showToast("Could be resumed at time " + oldSaveState.getSecondsElapsed(), Toast.LENGTH_LONG);
 			this.puzzle.setLamps(oldSaveState.getLamps());
@@ -148,7 +148,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 
 	private void onPuzzleSolved() {
 		// saving score
-		ScoreManager.getInstance().saveScore(this.getCurrentPuzzle(), this.stopClock.getSecondsElapsed());
+		SaveGameManager.getInstance().saveScore(this.getCurrentPuzzle(), this.stopClock.getSecondsElapsed());
 		this.gameHUD.setEnabled(false);
 		this.gameScene.setChildScene(this.winninMenuScene, false, true, true);
 	}
@@ -295,7 +295,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 			case MAIN_MENU:
 				Log.i(this.getClass().getName(), "MAIN_MENU pressed");
 				this.stop();
-				ScoreManager.getInstance().saveGameFiledState(GameFieldSaveState.generate(this.puzzle, this.stopClock.getSecondsElapsed()));
+				SaveGameManager.getInstance().saveGameFiledState(GameFieldSaveState.generate(this.puzzle, this.stopClock.getSecondsElapsed()));
 				this.fireGameStopped();
 				break;
 			case RESET:
@@ -358,7 +358,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 
 	@Override
 	public void onGameStop() {
-		ScoreManager.getInstance().saveGameFiledState(GameFieldSaveState.generate(this.puzzle, this.stopClock.getSecondsElapsed()));
-		ScoreManager.getInstance().savePuzzleToResume(this.getCurrentPuzzle());
+		SaveGameManager.getInstance().saveGameFiledState(GameFieldSaveState.generate(this.puzzle, this.stopClock.getSecondsElapsed()));
+		SaveGameManager.getInstance().savePuzzleToResume(this.getCurrentPuzzle());
 	}
 }

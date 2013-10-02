@@ -24,7 +24,7 @@ import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.BackgroundLoader.BackgroundType;
 import at.ac.uibk.akari.utils.PuzzleManager;
 import at.ac.uibk.akari.utils.SceneManager;
-import at.ac.uibk.akari.utils.ScoreManager;
+import at.ac.uibk.akari.utils.SaveGameManager;
 import at.ac.uibk.akari.view.menu.AbstractMenuScene;
 import at.ac.uibk.akari.view.menu.MainMenuScene;
 
@@ -54,7 +54,7 @@ public class MainController extends AbstractController implements GameListener, 
 
 		// initialize main-menu-scene
 		List<MenuItem> mainMenuItems = new ArrayList<MenuItem>();
-		if (ScoreManager.getInstance().loadPuzzleToResume() != null) {
+		if (SaveGameManager.getInstance().loadPuzzleToResume() != null) {
 			mainMenuItems.add(DefaultMenuItem.RESUME_PUZZLE);
 		}
 		mainMenuItems.add(DefaultMenuItem.RANDOM_PUZZLE);
@@ -112,13 +112,13 @@ public class MainController extends AbstractController implements GameListener, 
 				this.puzzleSelectionController.start();
 				break;
 			case RESUME_PUZZLE:
-				Puzzle puzzle = ScoreManager.getInstance().loadPuzzleToResume();
+				Puzzle puzzle = SaveGameManager.getInstance().loadPuzzleToResume();
 				if (puzzle != null) {
 					this.startLevel(puzzle);
 				}
 				break;
 			case QUIT:
-				ScoreManager.getInstance().clearPuzzleToResume();
+				SaveGameManager.getInstance().clearPuzzleToResume();
 				MainActivity.quit();
 			default:
 				break;
