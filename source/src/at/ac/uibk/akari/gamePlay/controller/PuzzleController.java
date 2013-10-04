@@ -51,6 +51,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	private PuzzleHUD gameHUD;
 	private PopupMenuScene pauseScene;
 	private PopupMenuScene winninMenuScene;
+	private PopupMenuScene resumeMenuScene;
 
 	private GameFieldModel puzzle;
 	private VertexBufferObjectManager vertexBufferObjectManager;
@@ -94,6 +95,12 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		winningMenuItems.add(DefaultMenuItem.MAIN_MENU);
 		this.winninMenuScene = new PopupMenuScene(this.gameCamera, this.vertexBufferObjectManager, winningMenuItems);
 
+		// initialize resume-menu-scene
+		List<MenuItem> resumeMenuItems = new ArrayList<MenuItem>();
+		resumeMenuItems.add(DefaultMenuItem.RESUME_PUZZLE);
+		resumeMenuItems.add(DefaultMenuItem.RESTART_PUZZLE);
+		this.resumeMenuScene = new PopupMenuScene(this.gameCamera, this.vertexBufferObjectManager, resumeMenuItems);
+
 		// initializing game-field-touch-control
 		this.mScrollDetector = new SurfaceScrollDetector(this);
 		this.mPinchZoomDetector = new PinchZoomDetector(this);
@@ -110,16 +117,9 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 
 	public void setPuzzle(final Puzzle puzzle) throws ContradictionException {
 		this.puzzle = new GameFieldModel(puzzle);
-		GameFieldSaveState oldSaveState = SaveGameManager.getInstance().loadGameFiledState(puzzle);
-		if ((oldSaveState != null) && (oldSaveState.getLamps().size() > 0)) {
-			MainActivity.showToast("Could be resumed at time " + oldSaveState.getSecondsElapsed(), Toast.LENGTH_LONG);
-			this.puzzle.setLamps(oldSaveState.getLamps());
-			this.stopClock.setSecondsElapsed(oldSaveState.getSecondsElapsed());
-		} else {
-			this.stopClock.reset();
-		}
-		this.solver = new AkariSolverFull(this.puzzle);
 		this.gameField.setPuzzle(this.puzzle);
+		this.solver = new AkariSolverFull(this.puzzle);
+		this.stopClock.reset();
 	}
 
 	@Override
@@ -131,7 +131,16 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		this.gameScene.setOnSceneTouchListener(this);
 		this.pauseScene.addMenuListener(this);
 		this.winninMenuScene.addMenuListener(this);
-		this.stopClock.start();
+		this.resumeMenuScene.addMenuListener(this);
+		// only if game-can be resumed
+		if (this.canResumePuzzle(this.getCurrentPuzzle())) {
+			this.gameScene.setChildScene(this.resumeMenuScene, false, true, true);
+			this.gameHUD.setEnabled(false);
+		} else {
+			this.gameHUD.setEnabled(true);
+			this.stopClock.reset();
+			this.stopClock.start();
+		}
 		return this.gameFieldController.start();
 
 	}
@@ -144,6 +153,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		this.gameScene.setOnSceneTouchListener(null);
 		this.pauseScene.removeMenuListener(this);
 		this.winninMenuScene.removeMenuListener(this);
+		this.resumeMenuScene.removeMenuListener(this);
 		this.stopClock.stop();
 		return this.gameFieldController.stop();
 	}
@@ -151,8 +161,11 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	private void onPuzzleSolved() {
 		// saving score
 		SaveGameManager.getInstance().saveScore(this.getCurrentPuzzle(), this.stopClock.getSecondsElapsed());
+		// clear game-fieldstate and game-to-resume, so that the current puzzle
+		// will not be provided to resume
 		SaveGameManager.getInstance().clearGameFiledState(this.getCurrentPuzzle());
 		SaveGameManager.getInstance().clearPuzzleToResume();
+
 		this.gameHUD.setEnabled(false);
 		this.gameScene.setChildScene(this.winninMenuScene, false, true, true);
 	}
@@ -299,7 +312,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 			case MAIN_MENU:
 				Log.i(this.getClass().getName(), "MAIN_MENU pressed");
 				this.stop();
-				SaveGameManager.getInstance().saveGameFiledState(GameFieldSaveState.generate(this.puzzle, this.stopClock.getSecondsElapsed()));
+				this.saveCurrentGameState();
 				this.fireGameStopped();
 				break;
 			case RESET:
@@ -345,9 +358,44 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 				break;
 			}
 		}
+
+		else if (event.getSource() == this.resumeMenuScene) {
+			this.resumeMenuScene.back();
+			this.gameHUD.setEnabled(true);
+
+			DefaultMenuItem selectedItem = (DefaultMenuItem) event.getMenuItem();
+			switch (selectedItem) {
+			case RESUME_PUZZLE:
+				if (this.canResumePuzzle(this.getCurrentPuzzle())) {
+					GameFieldSaveState oldSaveState = SaveGameManager.getInstance().loadGameFiledState(this.getCurrentPuzzle());
+					MainActivity.showToast("Could be resumed at time " + oldSaveState.getSecondsElapsed(), Toast.LENGTH_LONG);
+					this.puzzle.setLamps(oldSaveState.getLamps());
+					this.stopClock.setSecondsElapsed(oldSaveState.getSecondsElapsed());
+				} else {
+					this.stopClock.reset();
+				}
+				try {
+					this.solver = new AkariSolverFull(this.puzzle);
+				} catch (ContradictionException e) {
+					e.printStackTrace();
+				}
+				this.gameField.setPuzzle(this.puzzle);
+				this.stopClock.start();
+				break;
+
+			case RESTART_PUZZLE:
+				this.gameField.setPuzzle(this.puzzle);
+				this.stopClock.reset();
+				this.stopClock.start();
+				break;
+			default:
+				break;
+			}
+
+		}
 	}
 
-	public Puzzle getCurrentPuzzle() {
+	private Puzzle getCurrentPuzzle() {
 		if (this.puzzle != null) {
 			return this.puzzle.getPuzzle();
 		}
@@ -362,7 +410,36 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 
 	@Override
 	public void onGameStop() {
-		SaveGameManager.getInstance().saveGameFiledState(GameFieldSaveState.generate(this.puzzle, this.stopClock.getSecondsElapsed()));
-		SaveGameManager.getInstance().savePuzzleToResume(this.getCurrentPuzzle());
+		this.saveCurrentPuzzleToResume();
+
+	}
+
+	private boolean saveCurrentGameState() {
+		try {
+			if (!this.solver.isSolved()) {
+				SaveGameManager.getInstance().saveGameFiledState(GameFieldSaveState.generate(this.puzzle, this.stopClock.getSecondsElapsed()));
+				return true;
+			}
+		} catch (TimeoutException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	private boolean saveCurrentPuzzleToResume() {
+		if (this.saveCurrentGameState()) {
+			SaveGameManager.getInstance().savePuzzleToResume(this.getCurrentPuzzle());
+			return true;
+		}
+		return false;
+	}
+
+	private boolean canResumePuzzle(final Puzzle puzzle) {
+		GameFieldSaveState oldSaveState = SaveGameManager.getInstance().loadGameFiledState(puzzle);
+		if ((oldSaveState != null) && (oldSaveState.getLamps().size() > 0)) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
