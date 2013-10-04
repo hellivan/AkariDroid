@@ -12,6 +12,7 @@ import org.andengine.entity.scene.menu.item.decorator.ScaleMenuItemDecorator;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.opengl.GLES20;
+import android.util.Log;
 import at.ac.uibk.akari.common.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.common.listener.MenuListener;
 import at.ac.uibk.akari.utils.FontLoader;
@@ -28,25 +29,26 @@ public abstract class AbstractMenuScene extends MenuScene implements IOnMenuItem
 
 	public AbstractMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, final List<MenuItem> itemTypes) {
 		super(camera);
-		this.itemTypes = itemTypes;
 		this.listeners = new ListenerList();
 		this.vertexBufferObjectManager = vertexBufferObjectManager;
-		this.initGUI();
+		this.initGUI(itemTypes);
 	}
 
 	public AbstractMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager) {
 		this(camera, vertexBufferObjectManager, null);
 	}
 
-	private void initGUI() {
+	private void initGUI(final List<MenuItem> itemTypes) {
 
 		this.setSceneOptions();
 
-		this.setItemTypes(this.getItemTypes());
+		this.setItemTypes(itemTypes);
 		this.setOnMenuItemClickListener(this);
 	}
 
 	public void setItemTypes(final List<MenuItem> itemTypes) {
+
+		Log.d(this.getClass().getName(), "Setting item-types " + (itemTypes == null ? "[]" : itemTypes.toString()) + " for menu-scene");
 		if (!this.getItemTypes().equals(itemTypes)) {
 			this.itemTypes = itemTypes;
 			this.clearMenuItems();
