@@ -11,8 +11,9 @@ import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.HorizontalAlign;
 
 import android.graphics.PointF;
+import at.ac.uibk.akari.common.listener.TouchListener;
+import at.ac.uibk.akari.common.view.Insets;
 import at.ac.uibk.akari.core.Puzzle;
-import at.ac.uibk.akari.listener.TouchListener;
 import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.FontLoader.FontType;
 import at.ac.uibk.akari.utils.ListenerList;
@@ -20,7 +21,6 @@ import at.ac.uibk.akari.utils.SaveGameManager;
 import at.ac.uibk.akari.utils.StringUtils;
 import at.ac.uibk.akari.utils.TextureLoader;
 import at.ac.uibk.akari.utils.TextureLoader.TextureType;
-import at.ac.uibk.akari.view.Insets;
 
 public class LevelItem extends Sprite {
 
@@ -136,7 +136,7 @@ public class LevelItem extends Sprite {
 	}
 
 	protected void fireTouched() {
-		at.ac.uibk.akari.listener.InputEvent event = new at.ac.uibk.akari.listener.InputEvent(this);
+		at.ac.uibk.akari.common.listener.InputEvent event = new at.ac.uibk.akari.common.listener.InputEvent(this);
 		for (TouchListener listener : this.listeners.getListeners(TouchListener.class)) {
 			listener.touchPerformed(event);
 		}

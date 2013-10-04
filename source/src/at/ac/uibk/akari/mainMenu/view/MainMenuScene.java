@@ -1,4 +1,4 @@
-package at.ac.uibk.akari.puzzleSelector.view;
+package at.ac.uibk.akari.mainMenu.view;
 
 import java.util.List;
 
@@ -11,17 +11,21 @@ import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.BackgroundLoader.BackgroundType;
 import at.ac.uibk.akari.utils.FontLoader.FontType;
 
-public class DifficultyMenuScene extends AbstractMenuScene {
+public class MainMenuScene extends AbstractMenuScene {
 
-	public DifficultyMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, List<MenuItem> itemTypes) {
-		super(camera, vertexBufferObjectManager, itemTypes);
+	public MainMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager, final List<MenuItem> itmeTypes) {
+		super(camera, vertexBufferObjectManager, itmeTypes);
+	}
+
+	public MainMenuScene(final Camera camera, final VertexBufferObjectManager vertexBufferObjectManager) {
+		super(camera, vertexBufferObjectManager);
 	}
 
 	@Override
 	protected FontType getItemsFontType() {
 		return FontType.DROID_48_BLACK;
 	}
-	
+
 	@Override
 	protected void setSceneOptions() {
 		this.setBackground(BackgroundLoader.getInstance().getBackground(BackgroundType.GAME_FIELD_BACKGROUND));

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import android.graphics.Point;
-import at.ac.uibk.akari.common.menu.MenuItem;
+import at.ac.uibk.akari.common.view.MenuItem;
 
 /**
  * Class that represents the base construction of a puzzle. It only contains the

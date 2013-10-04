@@ -14,7 +14,7 @@ import org.andengine.ui.activity.SimpleBaseGameActivity;
 import android.content.Intent;
 import android.util.Log;
 import android.view.Display;
-import at.ac.uibk.akari.controller.MainController;
+import at.ac.uibk.akari.mainMenu.controller.MainController;
 import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.PuzzleManager;

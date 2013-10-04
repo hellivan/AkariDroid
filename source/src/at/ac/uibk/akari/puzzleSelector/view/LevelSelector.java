@@ -19,15 +19,15 @@ import org.andengine.util.modifier.ease.IEaseFunction;
 import android.graphics.PointF;
 import android.util.Log;
 import android.view.VelocityTracker;
+import at.ac.uibk.akari.common.listener.InputEvent;
+import at.ac.uibk.akari.common.listener.TouchListener;
+import at.ac.uibk.akari.common.view.Insets;
 import at.ac.uibk.akari.core.Puzzle;
-import at.ac.uibk.akari.listener.InputEvent;
-import at.ac.uibk.akari.listener.TouchListener;
 import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionEvent;
 import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionListener;
 import at.ac.uibk.akari.puzzleSelector.listener.ValueChangedEvent;
 import at.ac.uibk.akari.puzzleSelector.listener.ValueChangedListener;
 import at.ac.uibk.akari.utils.ListenerList;
-import at.ac.uibk.akari.view.Insets;
 
 public class LevelSelector extends Entity implements IScrollDetectorListener, TouchListener {
 

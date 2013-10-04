@@ -6,7 +6,7 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 
 import at.ac.uibk.akari.MainActivity;
-import at.ac.uibk.akari.controller.AbstractController;
+import at.ac.uibk.akari.common.controller.AbstractController;
 
 public class SceneManager {
 

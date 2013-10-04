@@ -10,13 +10,14 @@ import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.util.Log;
-import at.ac.uibk.akari.common.menu.DefaultMenuItem;
-import at.ac.uibk.akari.common.menu.MenuItem;
-import at.ac.uibk.akari.controller.AbstractController;
+import at.ac.uibk.akari.common.controller.AbstractController;
+import at.ac.uibk.akari.common.listener.MenuItemSeletedEvent;
+import at.ac.uibk.akari.common.listener.MenuListener;
+import at.ac.uibk.akari.common.view.DefaultMenuItem;
+import at.ac.uibk.akari.common.view.Insets;
+import at.ac.uibk.akari.common.view.MenuItem;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.core.Puzzle.Difficulty;
-import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
-import at.ac.uibk.akari.listener.MenuListener;
 import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionEvent;
 import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionListener;
 import at.ac.uibk.akari.puzzleSelector.listener.ValueChangedEvent;
@@ -27,7 +28,6 @@ import at.ac.uibk.akari.puzzleSelector.view.PuzzleSelectorHUD;
 import at.ac.uibk.akari.utils.ListenerList;
 import at.ac.uibk.akari.utils.PuzzleManager;
 import at.ac.uibk.akari.utils.SceneManager;
-import at.ac.uibk.akari.view.Insets;
 
 public class PuzzleSelectionController extends AbstractController implements IOnSceneTouchListener, MenuListener, PuzzleSelectionListener, ValueChangedListener<Integer> {
 

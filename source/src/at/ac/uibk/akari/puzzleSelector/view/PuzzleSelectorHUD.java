@@ -9,13 +9,13 @@ import org.andengine.entity.text.TextOptions;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.HorizontalAlign;
 
-import at.ac.uibk.akari.common.menu.DefaultMenuItem;
+import at.ac.uibk.akari.common.view.AbstractHUD;
+import at.ac.uibk.akari.common.view.DefaultMenuItem;
+import at.ac.uibk.akari.common.view.HUDButton;
 import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.FontLoader.FontType;
 import at.ac.uibk.akari.utils.TextureLoader;
 import at.ac.uibk.akari.utils.TextureLoader.TextureType;
-import at.ac.uibk.akari.view.menu.hud.AbstractHUD;
-import at.ac.uibk.akari.view.menu.hud.HUDButton;
 
 public class PuzzleSelectorHUD extends AbstractHUD {
 
