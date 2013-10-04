@@ -14,12 +14,12 @@ import org.andengine.ui.activity.SimpleBaseGameActivity;
 import android.content.Intent;
 import android.util.Log;
 import android.view.Display;
-import at.ac.uibk.akari.mainMenu.controller.MainController;
+import at.ac.uibk.akari.mainMenu.controller.MainMenuController;
 import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.PuzzleManager;
-import at.ac.uibk.akari.utils.SceneManager;
 import at.ac.uibk.akari.utils.SaveGameManager;
+import at.ac.uibk.akari.utils.SceneManager;
 import at.ac.uibk.akari.utils.TextureLoader;
 
 public class MainActivity extends SimpleBaseGameActivity {
@@ -173,7 +173,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 		this.gameScene.setTouchAreaBindingOnActionDownEnabled(true);
 		this.gameScene.setBackground(new Background(0.2f, 0.6f, 0.8f, 0.1f));
 
-		MainController gameController = new MainController(this.gameCamera, this.gameScene, this.getVertexBufferObjectManager());
+		MainMenuController gameController = new MainMenuController(this.gameCamera, this.gameScene, this.getVertexBufferObjectManager());
 		gameController.start();
 		return this.gameScene;
 

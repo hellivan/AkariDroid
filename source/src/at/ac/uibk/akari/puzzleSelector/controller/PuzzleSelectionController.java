@@ -13,7 +13,9 @@ import android.util.Log;
 import at.ac.uibk.akari.common.controller.AbstractController;
 import at.ac.uibk.akari.common.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.common.listener.MenuListener;
+import at.ac.uibk.akari.common.view.AbstractMenuScene;
 import at.ac.uibk.akari.common.view.DefaultMenuItem;
+import at.ac.uibk.akari.common.view.DefaultMenuScene;
 import at.ac.uibk.akari.common.view.Insets;
 import at.ac.uibk.akari.common.view.MenuItem;
 import at.ac.uibk.akari.core.Puzzle;
@@ -22,7 +24,6 @@ import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionEvent;
 import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionListener;
 import at.ac.uibk.akari.puzzleSelector.listener.ValueChangedEvent;
 import at.ac.uibk.akari.puzzleSelector.listener.ValueChangedListener;
-import at.ac.uibk.akari.puzzleSelector.view.DifficultyMenuScene;
 import at.ac.uibk.akari.puzzleSelector.view.LevelSelector;
 import at.ac.uibk.akari.puzzleSelector.view.PuzzleSelectorHUD;
 import at.ac.uibk.akari.utils.ListenerList;
@@ -32,7 +33,7 @@ import at.ac.uibk.akari.utils.SceneManager;
 public class PuzzleSelectionController extends AbstractController implements IOnSceneTouchListener, MenuListener, PuzzleSelectionListener, ValueChangedListener<Integer> {
 
 	private Scene puzzleSelectorScene;
-	private DifficultyMenuScene difficultyScene;
+	private AbstractMenuScene difficultyScene;
 	private Camera camera;
 	private VertexBufferObjectManager vertexBufferObjectManager;
 	private LevelSelector levelSelector;
@@ -54,7 +55,7 @@ public class PuzzleSelectionController extends AbstractController implements IOn
 		itemTypes.add(Puzzle.Difficulty.MEDIUM);
 		itemTypes.add(Puzzle.Difficulty.HARD);
 
-		this.difficultyScene = new DifficultyMenuScene(this.camera, this.vertexBufferObjectManager, itemTypes);
+		this.difficultyScene = new DefaultMenuScene(this.camera, this.vertexBufferObjectManager, itemTypes);
 
 		this.puzzleSelectorHUD = new PuzzleSelectorHUD((int) this.camera.getWidth(), this.vertexBufferObjectManager);
 		this.levelSelector = new LevelSelector(3, 2, new Insets(this.puzzleSelectorHUD.getDesiredHUDHeight(), 40, 0, 40), this.camera, this.vertexBufferObjectManager);

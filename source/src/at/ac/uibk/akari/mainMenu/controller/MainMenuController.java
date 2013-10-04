@@ -16,11 +16,11 @@ import at.ac.uibk.akari.common.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.common.listener.MenuListener;
 import at.ac.uibk.akari.common.view.AbstractMenuScene;
 import at.ac.uibk.akari.common.view.DefaultMenuItem;
+import at.ac.uibk.akari.common.view.DefaultMenuScene;
 import at.ac.uibk.akari.common.view.MenuItem;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.gamePlay.controller.PuzzleController;
 import at.ac.uibk.akari.gamePlay.listener.GameListener;
-import at.ac.uibk.akari.mainMenu.view.MainMenuScene;
 import at.ac.uibk.akari.puzzleSelector.controller.PuzzleSelectionController;
 import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionEvent;
 import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionListener;
@@ -30,7 +30,7 @@ import at.ac.uibk.akari.utils.PuzzleManager;
 import at.ac.uibk.akari.utils.SaveGameManager;
 import at.ac.uibk.akari.utils.SceneManager;
 
-public class MainController extends AbstractController implements GameListener, MenuListener, PuzzleSelectionListener {
+public class MainMenuController extends AbstractController implements GameListener, MenuListener, PuzzleSelectionListener {
 
 	private PuzzleController puzzleController;
 	private PuzzleSelectionController puzzleSelectionController;
@@ -43,7 +43,7 @@ public class MainController extends AbstractController implements GameListener, 
 
 	private VertexBufferObjectManager vertexBufferObjectManager;
 
-	public MainController(final ZoomCamera gameCamera, final Scene gameScene, final VertexBufferObjectManager vertexBufferObjectManager) {
+	public MainMenuController(final ZoomCamera gameCamera, final Scene gameScene, final VertexBufferObjectManager vertexBufferObjectManager) {
 		this.gameCamera = gameCamera;
 		this.gameScene = gameScene;
 		this.vertexBufferObjectManager = vertexBufferObjectManager;
@@ -55,7 +55,7 @@ public class MainController extends AbstractController implements GameListener, 
 		this.puzzleController = new PuzzleController(this.gameCamera, this.gameScene, this.vertexBufferObjectManager);
 
 		// initialize main-menu-scene
-		this.mainMenuScene = new MainMenuScene(this.gameCamera, this.vertexBufferObjectManager);
+		this.mainMenuScene = new DefaultMenuScene(this.gameCamera, this.vertexBufferObjectManager);
 		this.initMainMenuItems(true);
 
 		// initialize game-scene
