@@ -44,6 +44,13 @@ public class StopClockModel implements ITimerCallback {
 		}
 	}
 
+	public void increaseSecondsElapsed(final long amoutnS) {
+		if (amoutnS != 0) {
+			this.secondsElapsed += amoutnS;
+			this.fireClockUpdated();
+		}
+	}
+
 	@Override
 	public synchronized void onTimePassed(final TimerHandler handler) {
 		if (this.currentTimerHandler != handler) {

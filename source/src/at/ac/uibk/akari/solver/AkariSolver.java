@@ -94,7 +94,7 @@ public class AkariSolver {
 
 	private Point reverseLampAt(final int pos) {
 
-		if (pos > this.lampAt(this.model.getWidth() - 1, this.model.getHeight() - 1) || pos < 1) {
+		if ((pos > this.lampAt(this.model.getWidth() - 1, this.model.getHeight() - 1)) || (pos < 1)) {
 			return null;
 		}
 
@@ -109,11 +109,11 @@ public class AkariSolver {
 	}
 
 	private int lampAt(final int x, final int y) {
-		if (x >= this.model.getWidth() || y >= this.model.getWidth() || x < 0 || y < 0) {
+		if ((x >= this.model.getWidth()) || (y >= this.model.getWidth()) || (x < 0) || (y < 0)) {
 			return this.falseVar();
 		}
 
-		return x + y * this.model.getWidth() + 1;
+		return x + (y * this.model.getWidth()) + 1;
 	}
 
 	private int falseVar() {
@@ -122,11 +122,11 @@ public class AkariSolver {
 
 	private int lightAt(final int x, final int y) {
 
-		if (x >= this.model.getWidth() || y >= this.model.getWidth() || x < 0 || y < 0) {
+		if ((x >= this.model.getWidth()) || (y >= this.model.getWidth()) || (x < 0) || (y < 0)) {
 			return this.falseVar();
 		}
 
-		return this.lampAt(this.model.getWidth() - 1, this.model.getHeight() - 1) + x + y * this.model.getWidth() + 1000;
+		return this.lampAt(this.model.getWidth() - 1, this.model.getHeight() - 1) + x + (y * this.model.getWidth()) + 1000;
 
 	}
 
@@ -165,7 +165,7 @@ public class AkariSolver {
 					list.add(-this.lightAt(i, j));
 
 					int k = j + 1;
-					while (k >= 0 && k < this.model.getHeight() && (this.model.getPuzzleCellState(i, k) == CellState.BLANK)) {
+					while ((k >= 0) && (k < this.model.getHeight()) && (this.model.getPuzzleCellState(i, k) == CellState.BLANK)) {
 						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(i, k) }));
 
 						list.add(this.lampAt(i, k));
@@ -173,21 +173,21 @@ public class AkariSolver {
 					}
 
 					k = j - 1;
-					while (k >= 0 && k < this.model.getHeight() && (this.model.getPuzzleCellState(i, k) == CellState.BLANK)) {
+					while ((k >= 0) && (k < this.model.getHeight()) && (this.model.getPuzzleCellState(i, k) == CellState.BLANK)) {
 						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(i, k) }));
 						list.add(this.lampAt(i, k));
 						k--;
 					}
 
 					k = i + 1;
-					while (k >= 0 && k < this.model.getWidth() && (this.model.getPuzzleCellState(k, j) == CellState.BLANK)) {
+					while ((k >= 0) && (k < this.model.getWidth()) && (this.model.getPuzzleCellState(k, j) == CellState.BLANK)) {
 						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(k, j) }));
 						list.add(this.lampAt(k, j));
 						k++;
 					}
 
 					k = i - 1;
-					while (k >= 0 && k < this.model.getWidth() && (this.model.getPuzzleCellState(k, j) == CellState.BLANK)) {
+					while ((k >= 0) && (k < this.model.getWidth()) && (this.model.getPuzzleCellState(k, j) == CellState.BLANK)) {
 
 						this.solver.addClause(new VecInt(new int[] { -this.lampAt(i, j), this.lightAt(k, j) }));
 						list.add(this.lampAt(k, j));
@@ -457,7 +457,7 @@ public class AkariSolver {
 
 		List<Point> list = this.getWrongPlacedLamp();
 
-		return list != null && list.size() > 0;
+		return (list != null) && (list.size() > 0);
 	}
 
 	/**
@@ -480,7 +480,7 @@ public class AkariSolver {
 				Point p = this.reverseLampAt(model[i]);
 
 				if (p != null) {
-					if (this.model.isLampAt(p)) {
+					if (!this.model.isLampAt(p)) {
 						list.add(p);
 					}
 				}
@@ -593,7 +593,7 @@ public class AkariSolver {
 		Random r = new Random();
 		Puzzle model = new Puzzle(width, height);
 
-		int count = (width + height) + (r.nextInt((width * height - (width + height)) / 3));
+		int count = (width + height) + (r.nextInt(((width * height) - (width + height)) / 3));
 
 		for (int i = 0; i < count; i++) {
 			int x = r.nextInt(width);
@@ -671,7 +671,7 @@ public class AkariSolver {
 					Collections.shuffle(intersectModel);
 
 					for (int i = 0; i < 1; i++) {
-						if (model1[i] > 0 && !Arrays.asList(model2).contains(model1[i])) {
+						if ((model1[i] > 0) && !Arrays.asList(model2).contains(model1[i])) {
 							intersectModel.add(model1[i]);
 						}
 					}

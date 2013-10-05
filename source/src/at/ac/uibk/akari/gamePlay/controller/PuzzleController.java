@@ -1,6 +1,7 @@
 package at.ac.uibk.akari.gamePlay.controller;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.andengine.engine.camera.ZoomCamera;
@@ -35,7 +36,7 @@ import at.ac.uibk.akari.gameField.listener.GameFieldListener;
 import at.ac.uibk.akari.gameField.view.GameField;
 import at.ac.uibk.akari.gamePlay.listener.GameListener;
 import at.ac.uibk.akari.gamePlay.view.PuzzleHUD;
-import at.ac.uibk.akari.solver.AkariSolverFull;
+import at.ac.uibk.akari.solver.AkariSolver;
 import at.ac.uibk.akari.stopClock.model.StopClockModel;
 import at.ac.uibk.akari.utils.GameFieldSaveState;
 import at.ac.uibk.akari.utils.ListenerList;
@@ -68,7 +69,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	private GameFieldModel puzzle;
 	private VertexBufferObjectManager vertexBufferObjectManager;
 
-	private AkariSolverFull solver;
+	private AkariSolver solver;
 
 	private ListenerList listenerList;
 
@@ -132,7 +133,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	public void setPuzzle(final Puzzle puzzle, final ResumeBehaveior resumeBehaveior) throws ContradictionException {
 		this.puzzle = new GameFieldModel(puzzle);
 		this.gameField.setPuzzle(this.puzzle);
-		this.solver = new AkariSolverFull(this.puzzle);
+		this.solver = new AkariSolver(this.puzzle);
 		this.stopClock.reset();
 		this.resumeBehaveior = resumeBehaveior;
 	}
@@ -325,20 +326,40 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	public void menuItemSelected(final MenuItemSeletedEvent event) {
 		if (event.getSource() == this.gameHUD) {
 
-			this.stopClock.stop();
-
 			DefaultMenuItem selectedItem = (DefaultMenuItem) event.getMenuItem();
 			switch (selectedItem) {
 			case PAUSE:
+				this.stopClock.stop();
 				Log.i(this.getClass().getName(), "PAUSE-Game pressed");
 				this.gameScene.setChildScene(this.pauseScene, false, true, true);
 				this.gameHUD.setEnabled(false);
 				break;
 			case HELP:
 				Log.i(this.getClass().getName(), "HELP-Game pressed");
-				MainActivity.showToast("HELP", Toast.LENGTH_SHORT);
 				try {
-					this.solver.setSolutionToModel();
+					List<Point> hints = this.solver.getHints();
+					if ((hints == null) || (hints.size() < 1)) {
+						MainActivity.showToast("No hint available", Toast.LENGTH_SHORT);
+					} else {
+						MainActivity.showToast("Hint requested", Toast.LENGTH_SHORT);
+					}
+					if (hints != null) {
+						Log.i(this.getClass().getName(), "Got " + hints.size() + " hints");
+						Iterator<Point> iterHints = hints.iterator();
+						if (iterHints.hasNext()) {
+							Point hint = iterHints.next();
+							if (this.gameField.isLampAt(hint)) {
+								Log.i(this.getClass().getName(), "Got hint to remove lamp at " + hint);
+								this.gameField.removeLampAt(hint);
+							} else {
+								Log.i(this.getClass().getName(), "Got hint to place lamp at " + hint);
+								this.gameField.setLampAt(hint);
+							}
+							this.stopClock.increaseSecondsElapsed(300);
+						}
+					}
+
+					// this.solver.setSolutionToModel();
 				} catch (TimeoutException e) {
 					e.printStackTrace();
 				}
