@@ -223,9 +223,12 @@ public class PuzzleLoader {
 
 	public static List<Puzzle> loadPuzzles(final AssetManager assetManager, final String puzzlesPath) throws JsonSyntaxException, JsonIOException, IOException {
 		List<Puzzle> levels = new ArrayList<Puzzle>();
+		int id = 1;
 		for (String name : PuzzleLoader.sortFileNames(assetManager.list(puzzlesPath))) {
 			String fileName = puzzlesPath + File.separator + name;
-			levels.add(JsonTools.getInstance().fromJson(Puzzle.class, assetManager.open(fileName)));
+			Puzzle puzzle = JsonTools.getInstance().fromJson(Puzzle.class, assetManager.open(fileName));
+			puzzle.setName("Lvl. " + (id++));
+			levels.add(puzzle);
 		}
 		return levels;
 	}

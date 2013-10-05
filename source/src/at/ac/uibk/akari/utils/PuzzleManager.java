@@ -103,4 +103,14 @@ public class PuzzleManager {
 		return puzzles.get(newIndex);
 	}
 
+	public boolean isPuzzleResumable(final Puzzle puzzle) {
+		GameFieldSaveState saveState = SaveGameManager.getInstance().loadGameFiledState(puzzle);
+		if (saveState != null) {
+			if (saveState.getLamps().size() > 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

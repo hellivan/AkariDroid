@@ -25,6 +25,7 @@ import at.ac.uibk.akari.common.listener.InputEvent;
 import at.ac.uibk.akari.common.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.common.listener.MenuListener;
 import at.ac.uibk.akari.common.view.DefaultMenuItem;
+import at.ac.uibk.akari.common.view.DefaultMenuScene;
 import at.ac.uibk.akari.common.view.MenuItem;
 import at.ac.uibk.akari.common.view.PopupMenuScene;
 import at.ac.uibk.akari.core.GameFieldModel;
@@ -44,6 +45,17 @@ import at.ac.uibk.akari.utils.SceneManager;
 
 public class PuzzleController extends AbstractController implements GameFieldListener, MenuListener, IOnSceneTouchListener, IScrollDetectorListener, IPinchZoomDetectorListener {
 
+	public enum ResumeBehaveior {
+		AUTO_RESUME,
+
+		DO_NOT_RESUME,
+
+		ASK_FOR_RESUME,
+
+		UNDEFINED;
+
+	}
+
 	private GameFieldController gameFieldController;
 	private GameField gameField;
 	private Scene gameScene;
@@ -51,7 +63,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	private PuzzleHUD gameHUD;
 	private PopupMenuScene pauseScene;
 	private PopupMenuScene winninMenuScene;
-	private PopupMenuScene resumeMenuScene;
+	private DefaultMenuScene resumeMenuScene;
 
 	private GameFieldModel puzzle;
 	private VertexBufferObjectManager vertexBufferObjectManager;
@@ -66,6 +78,8 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	private SurfaceScrollDetector mScrollDetector;
 
 	private StopClockModel stopClock;
+
+	private ResumeBehaveior resumeBehaveior;
 
 	public PuzzleController(final ZoomCamera gameCamera, final Scene gameScene, final VertexBufferObjectManager vertexBufferObjectManager) {
 		this.listenerList = new ListenerList();
@@ -99,7 +113,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		List<MenuItem> resumeMenuItems = new ArrayList<MenuItem>();
 		resumeMenuItems.add(DefaultMenuItem.RESUME_PUZZLE);
 		resumeMenuItems.add(DefaultMenuItem.RESTART_PUZZLE);
-		this.resumeMenuScene = new PopupMenuScene(this.gameCamera, this.vertexBufferObjectManager, resumeMenuItems);
+		this.resumeMenuScene = new DefaultMenuScene(this.gameCamera, this.vertexBufferObjectManager, resumeMenuItems);
 
 		// initializing game-field-touch-control
 		this.mScrollDetector = new SurfaceScrollDetector(this);
@@ -115,32 +129,68 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		this.gameHUD.setStopClockModel(this.stopClock);
 	}
 
-	public void setPuzzle(final Puzzle puzzle) throws ContradictionException {
+	public void setPuzzle(final Puzzle puzzle, final ResumeBehaveior resumeBehaveior) throws ContradictionException {
 		this.puzzle = new GameFieldModel(puzzle);
 		this.gameField.setPuzzle(this.puzzle);
 		this.solver = new AkariSolverFull(this.puzzle);
 		this.stopClock.reset();
+		this.resumeBehaveior = resumeBehaveior;
+	}
+
+	private void resumePuzzle() {
+		GameFieldSaveState oldSaveState = SaveGameManager.getInstance().loadGameFiledState(this.getCurrentPuzzle());
+		this.puzzle.setLamps(oldSaveState.getLamps());
+		this.gameField.adaptFieldToModel();
+		SceneManager.getInstance().setCurrentScene(this, this.gameScene, this.gameHUD);
+		this.stopClock.setSecondsElapsed(oldSaveState.getSecondsElapsed());
+		this.stopClock.start();
+	}
+
+	private void notResumePuzzle() {
+		SceneManager.getInstance().setCurrentScene(this, this.gameScene, this.gameHUD);
+		this.stopClock.reset();
+		this.stopClock.start();
 	}
 
 	@Override
 	public boolean start() {
 		Log.d(this.getClass().getName(), "Start puzzle-controller");
-		SceneManager.getInstance().setCurrentScene(this, this.gameScene, this.gameHUD);
 		this.gameFieldController.addGameFieldListener(this);
 		this.gameHUD.addPuzzleControlListener(this);
 		this.gameScene.setOnSceneTouchListener(this);
 		this.pauseScene.addMenuListener(this);
 		this.winninMenuScene.addMenuListener(this);
 		this.resumeMenuScene.addMenuListener(this);
-		// only if game-can be resumed
-		if (this.canResumePuzzle(this.getCurrentPuzzle())) {
-			this.gameScene.setChildScene(this.resumeMenuScene, false, true, true);
-			this.gameHUD.setEnabled(false);
-		} else {
-			this.gameHUD.setEnabled(true);
-			this.stopClock.reset();
-			this.stopClock.start();
+
+		this.gameHUD.setEnabled(true);
+		switch (this.resumeBehaveior) {
+		case ASK_FOR_RESUME:
+			if (PuzzleManager.getInstance().isPuzzleResumable(this.getCurrentPuzzle())) {
+				SceneManager.getInstance().setCurrentScene(this, this.resumeMenuScene);
+			} else {
+				this.notResumePuzzle();
+			}
+			break;
+
+		case AUTO_RESUME:
+			if (PuzzleManager.getInstance().isPuzzleResumable(this.getCurrentPuzzle())) {
+				this.resumePuzzle();
+			} else {
+				this.notResumePuzzle();
+			}
+			break;
+
+		case DO_NOT_RESUME:
+			this.notResumePuzzle();
+			break;
+
+		case UNDEFINED:
+			throw new RuntimeException("Resume-behaveior not set before starting the puzzle");
+		default:
+			throw new RuntimeException("Undefined resume-behaveior " + this.resumeBehaveior);
 		}
+
+		this.resumeBehaveior = ResumeBehaveior.UNDEFINED;
 		return this.gameFieldController.start();
 
 	}
@@ -341,10 +391,9 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 			case NEXT:
 				Log.i(this.getClass().getName(), "NEXT-Game pressed");
 				try {
-					this.setPuzzle(PuzzleManager.getInstance().getNextPuzzle(this.getCurrentPuzzle()));
-					this.stopClock.reset();
-					this.stopClock.start();
-					this.gameHUD.setEnabled(true);
+					this.stop();
+					this.setPuzzle(PuzzleManager.getInstance().getNextPuzzle(this.getCurrentPuzzle()), ResumeBehaveior.ASK_FOR_RESUME);
+					this.start();
 				} catch (ContradictionException e) {
 					e.printStackTrace();
 				}
@@ -359,39 +408,21 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 			}
 		}
 
+		// source was the resume-menu-scene
 		else if (event.getSource() == this.resumeMenuScene) {
-			this.resumeMenuScene.back();
-			this.gameHUD.setEnabled(true);
-
 			DefaultMenuItem selectedItem = (DefaultMenuItem) event.getMenuItem();
 			switch (selectedItem) {
 			case RESUME_PUZZLE:
-				if (this.canResumePuzzle(this.getCurrentPuzzle())) {
-					GameFieldSaveState oldSaveState = SaveGameManager.getInstance().loadGameFiledState(this.getCurrentPuzzle());
-					MainActivity.showToast("Could be resumed at time " + oldSaveState.getSecondsElapsed(), Toast.LENGTH_LONG);
-					this.puzzle.setLamps(oldSaveState.getLamps());
-					this.stopClock.setSecondsElapsed(oldSaveState.getSecondsElapsed());
-				} else {
-					this.stopClock.reset();
-				}
-				try {
-					this.solver = new AkariSolverFull(this.puzzle);
-				} catch (ContradictionException e) {
-					e.printStackTrace();
-				}
-				this.gameField.setPuzzle(this.puzzle);
-				this.stopClock.start();
+				this.resumePuzzle();
 				break;
 
 			case RESTART_PUZZLE:
-				this.gameField.setPuzzle(this.puzzle);
-				this.stopClock.reset();
-				this.stopClock.start();
+				this.notResumePuzzle();
 				break;
+
 			default:
 				break;
 			}
-
 		}
 	}
 
@@ -432,14 +463,5 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 			return true;
 		}
 		return false;
-	}
-
-	private boolean canResumePuzzle(final Puzzle puzzle) {
-		GameFieldSaveState oldSaveState = SaveGameManager.getInstance().loadGameFiledState(puzzle);
-		if ((oldSaveState != null) && (oldSaveState.getLamps().size() > 0)) {
-			return true;
-		} else {
-			return false;
-		}
 	}
 }

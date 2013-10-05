@@ -54,7 +54,8 @@ public class LevelItem extends Sprite {
 		long puzzleScore = SaveGameManager.getInstance().loadScore(this.puzzle);
 
 		List<Text> texts = new ArrayList<Text>();
-		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), this.puzzle.getWidth() + "x" + this.puzzle.getHeight(), 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
+		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), this.puzzle.getName(), new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
+		texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), this.puzzle.getWidth() + "x" + this.puzzle.getHeight(), 9, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
 		if (puzzleScore != SaveGameManager.EMPTY_SCORE) {
 			texts.add(new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_30_WHITE), StringUtils.convertSecondsToTimeString(puzzleScore), 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager));
 		}

@@ -71,9 +71,14 @@ public class Puzzle {
 	private CellState[][] cells;
 
 	/**
-	 * Difficulty for the level
+	 * Difficulty for the puzzle
 	 */
 	private Difficulty difficulty;
+
+	/**
+	 * Name of the puzzle
+	 */
+	private String name;
 
 	/**
 	 * Initialize the puzzle with a given width and height. After this, the
@@ -250,9 +255,9 @@ public class Puzzle {
 	}
 
 	/**
-	 * Getting the difficulty of the level
+	 * Getting the difficulty of the puzzle
 	 * 
-	 * @return Difficulty of the level
+	 * @return Difficulty of the puzzle
 	 */
 	public Difficulty getDifficulty() {
 		return this.difficulty;
@@ -266,6 +271,25 @@ public class Puzzle {
 	 */
 	public void setDifficulty(final Difficulty difficulty) {
 		this.difficulty = difficulty;
+	}
+
+	/**
+	 * Getting the name of the puzzle
+	 * 
+	 * @return Name of the puzzle
+	 */
+	public String getName() {
+		return this.name;
+	}
+
+	/**
+	 * Setting the name of the puzzle
+	 * 
+	 * @param name
+	 *            Name of the puzzle
+	 */
+	public void setName(final String name) {
+		this.name = name;
 	}
 
 	/**

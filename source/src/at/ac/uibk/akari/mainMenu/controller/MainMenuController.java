@@ -20,6 +20,7 @@ import at.ac.uibk.akari.common.view.DefaultMenuScene;
 import at.ac.uibk.akari.common.view.MenuItem;
 import at.ac.uibk.akari.core.Puzzle;
 import at.ac.uibk.akari.gamePlay.controller.PuzzleController;
+import at.ac.uibk.akari.gamePlay.controller.PuzzleController.ResumeBehaveior;
 import at.ac.uibk.akari.gamePlay.listener.GameListener;
 import at.ac.uibk.akari.puzzleSelector.controller.PuzzleSelectionController;
 import at.ac.uibk.akari.puzzleSelector.listener.PuzzleSelectionEvent;
@@ -98,9 +99,9 @@ public class MainMenuController extends AbstractController implements GameListen
 		return true;
 	}
 
-	public void startLevel(final Puzzle puzzle) {
+	public void startLevel(final Puzzle puzzle, final ResumeBehaveior resumeBehaveior) {
 		try {
-			this.puzzleController.setPuzzle(puzzle);
+			this.puzzleController.setPuzzle(puzzle, resumeBehaveior);
 			this.puzzleController.start();
 			this.initMainMenuItems(false);
 		} catch (ContradictionException e) {
@@ -114,7 +115,7 @@ public class MainMenuController extends AbstractController implements GameListen
 			DefaultMenuItem selectedItem = (DefaultMenuItem) event.getMenuItem();
 			switch (selectedItem) {
 			case RANDOM_PUZZLE:
-				this.startLevel(PuzzleManager.getInstance().getRandomPuzzle());
+				this.startLevel(PuzzleManager.getInstance().getRandomPuzzle(), ResumeBehaveior.ASK_FOR_RESUME);
 				break;
 			case SELECT_PUZZLE:
 				this.puzzleSelectionController.start();
@@ -122,7 +123,7 @@ public class MainMenuController extends AbstractController implements GameListen
 			case RESUME_PUZZLE:
 				Puzzle puzzle = SaveGameManager.getInstance().loadPuzzleToResume();
 				if (puzzle != null) {
-					this.startLevel(puzzle);
+					this.startLevel(puzzle, ResumeBehaveior.AUTO_RESUME);
 				}
 				break;
 			case QUIT:
@@ -152,7 +153,7 @@ public class MainMenuController extends AbstractController implements GameListen
 	@Override
 	public void puzzleSelected(final PuzzleSelectionEvent event) {
 		if (event.getSource().equals(this.puzzleSelectionController)) {
-			this.startLevel(event.getPuzzle());
+			this.startLevel(event.getPuzzle(), ResumeBehaveior.ASK_FOR_RESUME);
 		}
 	}
 

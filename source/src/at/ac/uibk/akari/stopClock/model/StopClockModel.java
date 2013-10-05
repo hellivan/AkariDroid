@@ -38,7 +38,10 @@ public class StopClockModel implements ITimerCallback {
 	}
 
 	public void setSecondsElapsed(final long secondsElapsed) {
-		this.secondsElapsed = secondsElapsed;
+		if (this.secondsElapsed != secondsElapsed) {
+			this.secondsElapsed = secondsElapsed;
+			this.fireClockUpdated();
+		}
 	}
 
 	@Override
