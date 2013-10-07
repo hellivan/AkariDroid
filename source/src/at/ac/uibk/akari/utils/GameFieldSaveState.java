@@ -9,6 +9,7 @@ import at.ac.uibk.akari.core.Puzzle;
 public class GameFieldSaveState {
 	private Puzzle puzzle;
 	private Set<Point> lamps;
+	private Set<Point> marks;
 	private long secondsElapsed;
 
 	private GameFieldSaveState() {
@@ -26,15 +27,20 @@ public class GameFieldSaveState {
 		return this.puzzle;
 	}
 
-	public static GameFieldSaveState generate(final GameFieldModel gameFieldModel, final long secondsElapsed) {
-		return GameFieldSaveState.generate(gameFieldModel.getPuzzle(), gameFieldModel.getLamps(), secondsElapsed);
+	public Set<Point> getMarks() {
+		return this.marks;
 	}
 
-	public static GameFieldSaveState generate(final Puzzle puzzle, final Set<Point> lamps, final long secondsElapsed) {
+	public static GameFieldSaveState generate(final GameFieldModel gameFieldModel, final long secondsElapsed) {
+		return GameFieldSaveState.generate(gameFieldModel.getPuzzle(), gameFieldModel.getLamps(), gameFieldModel.getMarks(), secondsElapsed);
+	}
+
+	public static GameFieldSaveState generate(final Puzzle puzzle, final Set<Point> lamps, final Set<Point> marks, final long secondsElapsed) {
 		GameFieldSaveState saveState = new GameFieldSaveState();
 		saveState.secondsElapsed = secondsElapsed;
 		saveState.puzzle = puzzle;
 		saveState.lamps = lamps;
+		saveState.marks = marks;
 		return saveState;
 	}
 

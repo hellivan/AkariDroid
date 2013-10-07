@@ -159,8 +159,7 @@ public class GameFieldModel {
 
 	/**
 	 * Place a set of lamps on the game-field. Calling this method, will
-	 * discard all old lamps. Passing an empty-list or NULL to this method, will
-	 * delete all lamps.
+	 * discard all old lamps.
 	 * 
 	 * @param lamps
 	 *            Position of the cell, both coordinates starting from 0
@@ -175,6 +174,26 @@ public class GameFieldModel {
 		}
 		for (Point location : lamps) {
 			this.setLampAt(location);
+		}
+	}
+
+	/**
+	 * Place a set of marks on the game-field. Calling this method, will
+	 * discard all old marks.
+	 * 
+	 * @param lamps
+	 *            Position of the cell, both coordinates starting from 0
+	 */
+	public synchronized void setMarks(final Set<Point> marks) {
+		this.removeGameFieldPoints(Type.MARK, null);
+		// check if lamps can be placed
+		for (Point location : marks) {
+			if (!this.isCellCompleteEmpty(location)) {
+				throw new RuntimeException("Cant't set mark at cell-position " + location + " because the cell is not empty");
+			}
+		}
+		for (Point location : marks) {
+			this.setMarkAt(location);
 		}
 	}
 

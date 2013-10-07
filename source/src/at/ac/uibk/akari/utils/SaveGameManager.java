@@ -28,6 +28,7 @@ public class SaveGameManager {
 	private static final String SCORE_SUFFIX = "_SCORE";
 
 	private static final String LAMPS_SUFFIX = "_LAMPS";
+	private static final String MARKS_SUFFIX = "_MARKS";
 	private static final String TIME_SUFFIX = "_TIME";
 
 	private static final String KEY_RESUME = "RESUME";
@@ -86,6 +87,8 @@ public class SaveGameManager {
 		Log.d(this.getClass().getName(), "Save game-field-state for puzzle " + puzzleID);
 		SharedPreferences.Editor editor = this.sharedPreferences.edit();
 		editor.putString(puzzleID + SaveGameManager.LAMPS_SUFFIX, SaveGameManager.convertPointsToString(gameFieldSaveState.getLamps()));
+		editor.putString(puzzleID + SaveGameManager.MARKS_SUFFIX, SaveGameManager.convertPointsToString(gameFieldSaveState.getMarks()));
+
 		editor.putLong(puzzleID + SaveGameManager.TIME_SUFFIX, gameFieldSaveState.getSecondsElapsed());
 		editor.commit();
 	}
@@ -94,11 +97,13 @@ public class SaveGameManager {
 		String puzzleID = SaveGameManager.generatePuzzleID(puzzle);
 		Log.d(this.getClass().getName(), "Loading game-field-state for puzzle " + puzzleID);
 		String lampsLoaded = this.sharedPreferences.getString(puzzleID + SaveGameManager.LAMPS_SUFFIX, SaveGameManager.EMPTY_STRING);
+		String marksLoaded = this.sharedPreferences.getString(puzzleID + SaveGameManager.MARKS_SUFFIX, SaveGameManager.EMPTY_STRING);
 		long timeLoaded = this.sharedPreferences.getLong(puzzleID + SaveGameManager.TIME_SUFFIX, SaveGameManager.EMPTY_LONG);
-		if (lampsLoaded.equals(SaveGameManager.EMPTY_STRING) || (timeLoaded == SaveGameManager.EMPTY_LONG)) {
+
+		if ((timeLoaded == SaveGameManager.EMPTY_LONG) || lampsLoaded.equals(SaveGameManager.EMPTY_STRING) || marksLoaded.equals(SaveGameManager.EMPTY_STRING)) {
 			return null;
 		}
-		return GameFieldSaveState.generate(puzzle, SaveGameManager.convertStringToPoints(lampsLoaded), timeLoaded);
+		return GameFieldSaveState.generate(puzzle, SaveGameManager.convertStringToPoints(lampsLoaded), SaveGameManager.convertStringToPoints(marksLoaded), timeLoaded);
 	}
 
 	public void clearGameFiledState(final Puzzle puzzle) {
@@ -142,10 +147,11 @@ public class SaveGameManager {
 	}
 
 	private static String convertPointsToString(final Set<Point> points) {
-		StringBuffer result = new StringBuffer();
+		StringBuffer result = new StringBuffer("{");
 		for (Point point : points) {
 			result.append("[" + point.x + "," + point.y + "]");
 		}
+		result.append("}");
 		return result.toString();
 	}
 

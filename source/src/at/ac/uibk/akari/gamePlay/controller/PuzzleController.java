@@ -141,6 +141,8 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	private void resumePuzzle() {
 		GameFieldSaveState oldSaveState = SaveGameManager.getInstance().loadGameFiledState(this.getCurrentPuzzle());
 		this.puzzle.setLamps(oldSaveState.getLamps());
+		this.puzzle.setMarks(oldSaveState.getMarks());
+
 		this.gameField.adaptFieldToModel();
 		SceneManager.getInstance().setCurrentScene(this, this.gameScene, this.gameHUD);
 		this.stopClock.setSecondsElapsed(oldSaveState.getSecondsElapsed());
