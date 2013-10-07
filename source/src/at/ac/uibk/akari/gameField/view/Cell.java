@@ -16,39 +16,47 @@ public class Cell extends AnimatedSprite {
 		/**
 		 * An empty cell
 		 */
-		BLANK(0, 0),
+		BLANK(1, 0),
 		/**
 		 * A cell that represents a lamp
 		 */
-		LAMP(0, 1),
+		LAMP(1, 1),
 		/**
 		 * A cell that is lighted by a lamp
 		 */
-		LIGHTED(0, 2),
+		LIGHTED(1, 2),
 		/**
 		 * A cell that is marked by the user
 		 */
-		BARRIER(0, 4),
+		MARK(1, 3),
+		/**
+		 * A cell that is marked by the user and lighted by a lamp
+		 */
+		LIGHTED_MARK(1, 4),
+		/**
+		 * A cell that is a barrier (black cell)
+		 */
+		BARRIER(0, 0),
 		/**
 		 * A cell that may not have lamps around
 		 */
-		BLOCK0(0, 5),
+		BLOCK0(0, 1),
 		/**
 		 * A cell that must have 1 lamp around
 		 */
-		BLOCK1(0, 6),
+		BLOCK1(0, 2),
 		/**
 		 * A cell that must have 2 lamp around
 		 */
-		BLOCK2(0, 7),
+		BLOCK2(0, 3),
 		/**
 		 * A cell that must have 3 lamp around
 		 */
-		BLOCK3(0, 8),
+		BLOCK3(0, 4),
 		/**
 		 * A cell that must have 4 lamp around
 		 */
-		BLOCK4(0, 9);
+		BLOCK4(0, 5);
 
 		private int texturePosX;
 		private int texturePosY;
