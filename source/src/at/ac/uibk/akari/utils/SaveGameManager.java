@@ -1,7 +1,8 @@
 package at.ac.uibk.akari.utils;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -140,7 +141,7 @@ public class SaveGameManager {
 		return Integer.toString(puzzle.hashCode());
 	}
 
-	private static String convertPointsToString(final List<Point> points) {
+	private static String convertPointsToString(final Set<Point> points) {
 		StringBuffer result = new StringBuffer();
 		for (Point point : points) {
 			result.append("[" + point.x + "," + point.y + "]");
@@ -148,8 +149,8 @@ public class SaveGameManager {
 		return result.toString();
 	}
 
-	private static List<Point> convertStringToPoints(final String points) {
-		List<Point> result = new ArrayList<Point>();
+	private static Set<Point> convertStringToPoints(final String points) {
+		Set<Point> result = new HashSet<Point>();
 		Pattern pattern = Pattern.compile("\\[(\\d*),(\\d*)\\]");
 		Matcher matcher = pattern.matcher(points);
 		while (matcher.find()) {

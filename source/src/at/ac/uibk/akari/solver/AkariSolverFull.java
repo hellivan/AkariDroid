@@ -659,11 +659,10 @@ public class AkariSolverFull {
 			AkariSolverFull solver = new AkariSolverFull(model);
 			solver.setSolutionToModel();
 
-			List<Point> lamps = solver.getModel().getLamps();
-			for (int i = 0; i < lamps.size(); i++) {
+			for (Point lamp : solver.getModel().getLamps()) {
 				if (r.nextBoolean()) {
 
-					List<Point> barriers = puzzle.getNeightbors(lamps.get(i), CellState.BARRIER);
+					List<Point> barriers = puzzle.getNeightbors(lamp, CellState.BARRIER);
 
 					if (barriers.size() == 0) {
 						continue;

@@ -1,9 +1,12 @@
 package at.ac.uibk.akari.core;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import android.graphics.Point;
+import at.ac.uibk.akari.core.GameFieldPoint.Type;
 import at.ac.uibk.akari.core.Puzzle.CellState;
 import at.ac.uibk.akari.core.annotations.JsonIgnorePermanent;
 
@@ -21,7 +24,11 @@ public class GameFieldModel {
 	 * List of lamps that are placed on the game-field
 	 */
 	@JsonIgnorePermanent
-	private List<Point> lamps;
+	// private List<Point> lamps;
+	/**
+	 * List of points on the game-field that have a special meaning
+	 */
+	private Set<GameFieldPoint> gameFieldPoints;
 
 	/**
 	 * Initialize an new empty game-field with a given width and height. After
@@ -48,7 +55,6 @@ public class GameFieldModel {
 	 */
 	public GameFieldModel(final Puzzle puzzle) {
 		this.puzzle = puzzle;
-		this.clear();
 	}
 
 	/**
@@ -56,7 +62,62 @@ public class GameFieldModel {
 	 * are removed. The puzzle itself is not influenced by this method
 	 */
 	public synchronized void clear() {
-		this.clearLamps();
+		this.getGameFieldPoints().clear();
+	}
+
+	/**
+	 * Getting the set of all points on the game-field, that do have a special
+	 * meaning
+	 * 
+	 * @return Set of points
+	 */
+	private Set<GameFieldPoint> getGameFieldPoints() {
+		if (this.gameFieldPoints == null) {
+			this.gameFieldPoints = new HashSet<GameFieldPoint>();
+		}
+		return this.gameFieldPoints;
+	}
+
+	/**
+	 * Getting the set of all points on the game-field, that do have a special
+	 * meaning and do match the given type
+	 * 
+	 * @param type
+	 *            Type of points, for that should be searched for
+	 * @return Set of points
+	 */
+	private Set<Point> getGameFieldPoints(final Type type) {
+		Set<Point> points = new HashSet<Point>();
+		for (GameFieldPoint point : this.getGameFieldPoints()) {
+			if (point.getType().equals(type)) {
+				points.add(point.toPoint());
+			}
+		}
+		return points;
+	}
+
+	/**
+	 * Remove all points from the game-field, that do have a special
+	 * meaning and do match the given type
+	 * 
+	 * @param type
+	 *            Type of points, that should be removed or null if all points
+	 *            should be removed
+	 * 
+	 * @param points
+	 *            Position of the points that should be removed or null, if all
+	 *            points should be removed
+	 * 
+	 * @return True if the points were removed otherwise false
+	 */
+	private boolean removeGameFieldPoints(final Type type, final Set<Point> points) {
+		Set<GameFieldPoint> pointsToRemove = new HashSet<GameFieldPoint>();
+		for (GameFieldPoint point : this.getGameFieldPoints()) {
+			if (((type == null) || point.getType().equals(type)) && ((points == null) || points.contains(point.toPoint()))) {
+				pointsToRemove.add(point);
+			}
+		}
+		return this.getGameFieldPoints().removeAll(pointsToRemove);
 	}
 
 	/**
@@ -78,32 +139,23 @@ public class GameFieldModel {
 	}
 
 	/**
-	 * Clears the lamps of the field. After this method is called the model will
-	 * represent a puzzle without lamps
-	 * 
-	 */
-	public synchronized void clearLamps() {
-		this.setLamps(null);
-	}
-
-	/**
-	 * Place a list of lamps on the game-field. Calling this method, will
+	 * Place a set of lamps on the game-field. Calling this method, will
 	 * discard all old lamps. Passing an empty-list or NULL to this method, will
 	 * delete all lamps.
 	 * 
 	 * @param lamps
 	 *            Position of the cell, both coordinates starting from 0
 	 */
-	public synchronized void setLamps(final List<Point> lamps) {
-		if (lamps == null) {
-			this.lamps = new ArrayList<Point>();
-		} else {
-			for (Point location : lamps) {
-				if (!this.isCellEmpty(location, true)) {
-					throw new RuntimeException("Cant't set lamp at cell-position " + location + " because the cell is not empty");
-				}
+	public synchronized void setLamps(final Set<Point> lamps) {
+		this.removeGameFieldPoints(Type.LAMP, null);
+		// check if lamps can be placed
+		for (Point location : lamps) {
+			if (!this.isCellCompleteEmpty(location)) {
+				throw new RuntimeException("Cant't set lamp at cell-position " + location + " because the cell is not empty");
 			}
-			this.lamps = lamps;
+		}
+		for (Point location : lamps) {
+			this.setLampAt(location);
 		}
 	}
 
@@ -123,14 +175,12 @@ public class GameFieldModel {
 	 *         otherwise false
 	 */
 	public synchronized boolean setLampAt(final int posX, final int posY) {
-		if (this.isCellEmpty(posX, posY, false)) {
-			if (this.lamps == null) {
-				this.lamps = new ArrayList<Point>();
-			}
-			this.lamps.add(new Point(posX, posY));
+		Point point = new Point(posX, posY);
+		if (this.isCellCompleteEmpty(point)) {
+			this.getGameFieldPoints().add(new GameFieldPoint(Type.LAMP, point));
 			return true;
 		}
-		if (this.isLampAt(posX, posY)) {
+		if (this.isLampAt(point)) {
 			return true;
 
 		}
@@ -146,15 +196,8 @@ public class GameFieldModel {
 	 * 
 	 * @return Cloned locations of lamps
 	 */
-	public synchronized List<Point> getLamps() {
-		if (this.lamps == null) {
-			this.lamps = new ArrayList<Point>();
-		}
-		List<Point> clone = new ArrayList<Point>();
-		for (Point lamp : this.lamps) {
-			clone.add(new Point(lamp));
-		}
-		return clone;
+	public synchronized Set<Point> getLamps() {
+		return this.getGameFieldPoints(Type.LAMP);
 	}
 
 	/**
@@ -182,14 +225,18 @@ public class GameFieldModel {
 	 * @return True if there is a cell at the given position, otherwise false
 	 */
 	public synchronized boolean isLampAt(final int posX, final int posY) {
-		if (!this.puzzle.isCellValid(posX, posY)) {
-			throw new RuntimeException("Illegal cell-position " + posX + "," + posY + " for " + this.getWidth() + "x" + this.getHeight() + " game-field");
+		for (Point lamp : this.getGameFieldPoints(Type.LAMP)) {
+			if ((lamp.x == posX) && (lamp.y == posY)) {
+				return true;
+			}
 		}
-		if (this.lamps != null) {
-			for (Point lamp : this.lamps) {
-				if ((lamp.x == posX) && (lamp.y == posY)) {
-					return true;
-				}
+		return false;
+	}
+
+	private boolean isGameFieldPointAt(final Type type, final Point point) {
+		for (GameFieldPoint gfPoint : this.getGameFieldPoints()) {
+			if (((type == null) || gfPoint.getType().equals(type)) && (point.equals(gfPoint.toPoint()))) {
+				return true;
 			}
 		}
 		return false;
@@ -254,21 +301,27 @@ public class GameFieldModel {
 	 *         false
 	 */
 	public synchronized boolean removeLampAt(final Point location) {
-		if (this.lamps == null) {
+		return this.removeGameFieldPoints(Type.LAMP, new HashSet<Point>(Arrays.asList(location)));
+	}
+
+	public boolean isCellEmpty(final int posX, final int posY) {
+		return this.getPuzzleCellState(posX, posY).equals(CellState.BLANK);
+	}
+
+	public boolean isCellEmpty(final Point location) {
+		return this.isCellEmpty(location.x, location.y);
+	}
+
+	public boolean isCellCompleteEmpty(final int posX, final int posY) {
+		return this.isCellCompleteEmpty(new Point(posX, posY));
+	}
+
+	public boolean isCellCompleteEmpty(final Point point) {
+		if (this.isCellEmpty(point) && (!this.isGameFieldPointAt(null, point))) {
+			return true;
+		} else {
 			return false;
 		}
-		return this.lamps.remove(location);
-	}
-
-	public boolean isCellEmpty(final int posX, final int posY, final boolean ignoreLamps) {
-		if (ignoreLamps) {
-			return this.getPuzzleCellState(posX, posY).equals(CellState.BLANK);
-		}
-		return this.getPuzzleCellState(posX, posY).equals(CellState.BLANK) && !this.isLampAt(posX, posY);
-	}
-
-	public boolean isCellEmpty(final Point location, final boolean ignoreLamps) {
-		return this.isCellEmpty(location.x, location.y, ignoreLamps);
 	}
 
 	public CellState getPuzzleCellState(final Point location) {

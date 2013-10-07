@@ -151,7 +151,7 @@ public class GameField extends Rectangle {
 		// int touchDeltaTollerancePx = 20;
 
 		// ignore all multi-touch-inputs
-		if (System.currentTimeMillis() - this.lastMultiTouched < moutiTouchTolleranceMs) {
+		if ((System.currentTimeMillis() - this.lastMultiTouched) < moutiTouchTolleranceMs) {
 			return false;
 		}
 
@@ -165,8 +165,8 @@ public class GameField extends Rectangle {
 		if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_MOVE) {
 			Point oldDragCell = this.lastDragPoint;
 
-			if (this.firstTouchedCell != null && this.isLampAt(this.firstTouchedCell)) {
-				if (oldDragCell == null || !oldDragCell.equals(currentTouchedCell)) {
+			if ((this.firstTouchedCell != null) && this.isLampAt(this.firstTouchedCell)) {
+				if ((oldDragCell == null) || !oldDragCell.equals(currentTouchedCell)) {
 					if (oldDragCell == null) {
 						oldDragCell = currentTouchedCell;
 					}
@@ -181,7 +181,7 @@ public class GameField extends Rectangle {
 			Log.d(this.getClass().getName(), "HistorySize=" + pSceneTouchEvent.getMotionEvent().getHistorySize());
 
 			this.lastDragPoint = null;
-			if (this.firstTouchedCell != null && this.firstTouchedCell.equals(currentTouchedCell)) {
+			if ((this.firstTouchedCell != null) && this.firstTouchedCell.equals(currentTouchedCell)) {
 				this.fireGameFieldTouched(currentTouchedCell);
 			}
 			this.firstTouchedCell = null;
@@ -233,7 +233,7 @@ public class GameField extends Rectangle {
 					this.setGameFieldState(posX, posY, State.BARRIER);
 				}
 
-				else if (this.getModel().isCellEmpty(posX, posY, false)) {
+				else if (this.getModel().isCellCompleteEmpty(posX, posY)) {
 					this.setGameFieldState(posX, posY, State.BLANK);
 				}
 
@@ -272,26 +272,26 @@ public class GameField extends Rectangle {
 
 	private void lightCellsWithLamp(final int posX, final int posY) {
 		for (int lightX = posX + 1; lightX < this.getModel().getWidth(); lightX++) {
-			if (!this.getModel().isCellEmpty(lightX, posY, false)) {
+			if (!this.getModel().isCellCompleteEmpty(lightX, posY)) {
 				break;
 			}
 			this.setGameFieldState(lightX, posY, State.LIGHTED);
 		}
 		for (int lightX = posX - 1; lightX >= 0; lightX--) {
-			if (!this.getModel().isCellEmpty(lightX, posY, false)) {
+			if (!this.getModel().isCellCompleteEmpty(lightX, posY)) {
 				break;
 			}
 			this.setGameFieldState(lightX, posY, State.LIGHTED);
 		}
 
 		for (int lightY = posY + 1; lightY < this.getModel().getHeight(); lightY++) {
-			if (!this.getModel().isCellEmpty(posX, lightY, false)) {
+			if (!this.getModel().isCellCompleteEmpty(posX, lightY)) {
 				break;
 			}
 			this.setGameFieldState(posX, lightY, State.LIGHTED);
 		}
 		for (int lightY = posY - 1; lightY >= 0; lightY--) {
-			if (!this.getModel().isCellEmpty(posX, lightY, false)) {
+			if (!this.getModel().isCellCompleteEmpty(posX, lightY)) {
 				break;
 			}
 			this.setGameFieldState(posX, lightY, State.LIGHTED);

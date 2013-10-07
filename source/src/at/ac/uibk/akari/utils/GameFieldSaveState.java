@@ -1,6 +1,6 @@
 package at.ac.uibk.akari.utils;
 
-import java.util.List;
+import java.util.Set;
 
 import android.graphics.Point;
 import at.ac.uibk.akari.core.GameFieldModel;
@@ -8,13 +8,13 @@ import at.ac.uibk.akari.core.Puzzle;
 
 public class GameFieldSaveState {
 	private Puzzle puzzle;
-	private List<Point> lamps;
+	private Set<Point> lamps;
 	private long secondsElapsed;
 
 	private GameFieldSaveState() {
 	}
 
-	public List<Point> getLamps() {
+	public Set<Point> getLamps() {
 		return this.lamps;
 	}
 
@@ -30,7 +30,7 @@ public class GameFieldSaveState {
 		return GameFieldSaveState.generate(gameFieldModel.getPuzzle(), gameFieldModel.getLamps(), secondsElapsed);
 	}
 
-	public static GameFieldSaveState generate(final Puzzle puzzle, final List<Point> lamps, final long secondsElapsed) {
+	public static GameFieldSaveState generate(final Puzzle puzzle, final Set<Point> lamps, final long secondsElapsed) {
 		GameFieldSaveState saveState = new GameFieldSaveState();
 		saveState.secondsElapsed = secondsElapsed;
 		saveState.puzzle = puzzle;
