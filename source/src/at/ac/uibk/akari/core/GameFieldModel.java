@@ -6,9 +6,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import android.graphics.Point;
+import android.util.Log;
 import at.ac.uibk.akari.core.GameFieldPoint.Type;
 import at.ac.uibk.akari.core.Puzzle.CellState;
-import at.ac.uibk.akari.core.annotations.JsonIgnorePermanent;
 
 /**
  * Class that implements the model of an AKARI-game-field
@@ -21,14 +21,11 @@ public class GameFieldModel {
 	private Puzzle puzzle;
 
 	/**
-	 * List of lamps that are placed on the game-field
-	 */
-	@JsonIgnorePermanent
-	// private List<Point> lamps;
-	/**
 	 * List of points on the game-field that have a special meaning
 	 */
 	private Set<GameFieldPoint> gameFieldPoints;
+
+	private int[][] lightRays;
 
 	/**
 	 * Initialize an new empty game-field with a given width and height. After
@@ -55,6 +52,7 @@ public class GameFieldModel {
 	 */
 	public GameFieldModel(final Puzzle puzzle) {
 		this.puzzle = puzzle;
+		this.lightRays = new int[puzzle.getHeight()][puzzle.getWidth()];
 	}
 
 	/**
@@ -63,6 +61,7 @@ public class GameFieldModel {
 	 */
 	public synchronized void clear() {
 		this.getGameFieldPoints().clear();
+		this.lightRays = new int[this.puzzle.getHeight()][this.puzzle.getWidth()];
 	}
 
 	/**
@@ -96,6 +95,13 @@ public class GameFieldModel {
 		return points;
 	}
 
+	private boolean addGameFieldPoint(final Type type, final int posX, final int posY) {
+		if (type.equals(Type.LAMP)) {
+			this.onLampChanged(posX, posY, true);
+		}
+		return this.getGameFieldPoints().add(new GameFieldPoint(Type.LAMP, new Point(posX, posY)));
+	}
+
 	/**
 	 * Remove all points from the game-field, that do have a special
 	 * meaning and do match the given type
@@ -108,16 +114,29 @@ public class GameFieldModel {
 	 *            Position of the points that should be removed or null, if all
 	 *            points should be removed
 	 * 
-	 * @return True if the points were removed otherwise false
+	 * @return True if at least on of the points was removed otherwise false
 	 */
 	private boolean removeGameFieldPoints(final Type type, final Set<Point> points) {
 		Set<GameFieldPoint> pointsToRemove = new HashSet<GameFieldPoint>();
+		// search for points that should be removed
 		for (GameFieldPoint point : this.getGameFieldPoints()) {
 			if (((type == null) || point.getType().equals(type)) && ((points == null) || points.contains(point.toPoint()))) {
 				pointsToRemove.add(point);
 			}
 		}
-		return this.getGameFieldPoints().removeAll(pointsToRemove);
+
+		boolean retValue = false;
+
+		// removing points and update light-rays
+		for (GameFieldPoint point : pointsToRemove) {
+			boolean tmpValue = this.getGameFieldPoints().remove(point);
+			if (tmpValue && point.getType().equals(Type.LAMP)) {
+				this.onLampChanged(point.getX(), point.getY(), false);
+			}
+			retValue |= tmpValue;
+		}
+
+		return retValue;
 	}
 
 	/**
@@ -177,7 +196,7 @@ public class GameFieldModel {
 	public synchronized boolean setLampAt(final int posX, final int posY) {
 		Point point = new Point(posX, posY);
 		if (this.isCellCompleteEmpty(point)) {
-			this.getGameFieldPoints().add(new GameFieldPoint(Type.LAMP, point));
+			this.addGameFieldPoint(Type.LAMP, posX, posY);
 			return true;
 		}
 		if (this.isLampAt(point)) {
@@ -222,10 +241,30 @@ public class GameFieldModel {
 	 * @param posY
 	 *            Vertical position of the cell, starting from 0
 	 * 
-	 * @return True if there is a cell at the given position, otherwise false
+	 * @return True if there is a lamp at the given position, otherwise false
 	 */
 	public synchronized boolean isLampAt(final int posX, final int posY) {
 		for (Point lamp : this.getGameFieldPoints(Type.LAMP)) {
+			if ((lamp.x == posX) && (lamp.y == posY)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Returns true if there is placed a mark at the given cell on the
+	 * game-field
+	 * 
+	 * @param posX
+	 *            Horizontal position of the cell, starting from 0
+	 * @param posY
+	 *            Vertical position of the cell, starting from 0
+	 * 
+	 * @return True if there is a mark at the given position, otherwise false
+	 */
+	public synchronized boolean isMarkAt(final int posX, final int posY) {
+		for (Point lamp : this.getGameFieldPoints(Type.MARK)) {
 			if ((lamp.x == posX) && (lamp.y == posY)) {
 				return true;
 			}
@@ -287,7 +326,9 @@ public class GameFieldModel {
 	 *         otherwise false
 	 */
 	public synchronized boolean setLampAt(final Point location) {
-		return this.setLampAt(location.x, location.y);
+		boolean result = this.setLampAt(location.x, location.y);
+		this.printLightRaysArray();
+		return result;
 	}
 
 	/**
@@ -301,7 +342,17 @@ public class GameFieldModel {
 	 *         false
 	 */
 	public synchronized boolean removeLampAt(final Point location) {
-		return this.removeGameFieldPoints(Type.LAMP, new HashSet<Point>(Arrays.asList(location)));
+		boolean result = this.removeGameFieldPoints(Type.LAMP, new HashSet<Point>(Arrays.asList(location)));
+		this.printLightRaysArray();
+		return result;
+	}
+
+	private void printLightRaysArray() {
+		StringBuffer buffer = new StringBuffer("LightRays:\n");
+		for (int posY = 0; posY < this.lightRays.length; posY++) {
+			buffer.append(Arrays.toString(this.lightRays[posY]) + "\n");
+		}
+		Log.d(this.getClass().getName(), buffer.toString());
 	}
 
 	public boolean isCellEmpty(final int posX, final int posY) {
@@ -358,5 +409,47 @@ public class GameFieldModel {
 
 	public Puzzle getPuzzle() {
 		return (Puzzle) this.puzzle.clone();
+	}
+
+	private void onLampChanged(final int posX, final int posY, final boolean added) {
+
+		int value = (added ? 1 : -1);
+
+		// lamp lights its own position
+		this.lightRays[posY][posX] += value;
+
+		// lamps sends horizontal light-rays until a block or barrier blocks
+		// them
+		for (int lightX = posX + 1; lightX < this.getWidth(); lightX++) {
+			if (!this.isCellEmpty(lightX, posY)) {
+				break;
+			}
+			this.lightRays[posY][lightX] += value;
+		}
+		for (int lightX = posX - 1; lightX >= 0; lightX--) {
+			if (!this.isCellEmpty(lightX, posY)) {
+				break;
+			}
+			this.lightRays[posY][lightX] += value;
+		}
+
+		// lamps sends vertical light-rays until a block or barrier blocks
+		// them
+		for (int lightY = posY + 1; lightY < this.getHeight(); lightY++) {
+			if (!this.isCellEmpty(posX, lightY)) {
+				break;
+			}
+			this.lightRays[lightY][posX] += value;
+		}
+		for (int lightY = posY - 1; lightY >= 0; lightY--) {
+			if (!this.isCellEmpty(posX, lightY)) {
+				break;
+			}
+			this.lightRays[lightY][posX] += value;
+		}
+	}
+
+	public boolean isCellLighted(final int posX, final int posY) {
+		return this.lightRays[posY][posX] > 0;
 	}
 }

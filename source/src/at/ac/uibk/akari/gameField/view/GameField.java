@@ -229,12 +229,9 @@ public class GameField extends Rectangle {
 	public void adaptFieldToModel() {
 		for (int posY = 0; posY < this.getModel().getHeight(); posY++) {
 			for (int posX = 0; posX < this.getModel().getWidth(); posX++) {
+
 				if (this.getModel().isBarrierAt(posX, posY)) {
 					this.setGameFieldState(posX, posY, State.BARRIER);
-				}
-
-				else if (this.getModel().isCellCompleteEmpty(posX, posY)) {
-					this.setGameFieldState(posX, posY, State.BLANK);
 				}
 
 				else if (this.getModel().isBlock0At(posX, posY)) {
@@ -256,46 +253,29 @@ public class GameField extends Rectangle {
 				else if (this.getModel().isBlock4At(posX, posY)) {
 					this.setGameFieldState(posX, posY, State.BLOCK4);
 				}
-			}
-		}
 
-		for (int posY = 0; posY < this.getModel().getHeight(); posY++) {
-			for (int posX = 0; posX < this.getModel().getWidth(); posX++) {
-				if (this.isLampAt(posX, posY)) {
+				else if (this.getModel().isCellCompleteEmpty(posX, posY)) {
+					if (this.getModel().isCellLighted(posX, posY)) {
+						this.setGameFieldState(posX, posY, State.LIGHTED);
+					} else {
+						this.setGameFieldState(posX, posY, State.BLANK);
+					}
+				}
+
+				else if (this.getModel().isLampAt(posX, posY)) {
 					this.setGameFieldState(posX, posY, State.LAMP);
-					this.lightCellsWithLamp(posX, posY);
+				}
+
+				else if (this.getModel().isMarkAt(posX, posY)) {
+					if (this.getModel().isCellLighted(posX, posY)) {
+						this.setGameFieldState(posX, posY, State.MARK);
+					} else {
+						this.setGameFieldState(posX, posY, State.LIGHTED_MARK);
+					}
 				}
 			}
 		}
 
-	}
-
-	private void lightCellsWithLamp(final int posX, final int posY) {
-		for (int lightX = posX + 1; lightX < this.getModel().getWidth(); lightX++) {
-			if (!this.getModel().isCellCompleteEmpty(lightX, posY)) {
-				break;
-			}
-			this.setGameFieldState(lightX, posY, State.LIGHTED);
-		}
-		for (int lightX = posX - 1; lightX >= 0; lightX--) {
-			if (!this.getModel().isCellCompleteEmpty(lightX, posY)) {
-				break;
-			}
-			this.setGameFieldState(lightX, posY, State.LIGHTED);
-		}
-
-		for (int lightY = posY + 1; lightY < this.getModel().getHeight(); lightY++) {
-			if (!this.getModel().isCellCompleteEmpty(posX, lightY)) {
-				break;
-			}
-			this.setGameFieldState(posX, lightY, State.LIGHTED);
-		}
-		for (int lightY = posY - 1; lightY >= 0; lightY--) {
-			if (!this.getModel().isCellCompleteEmpty(posX, lightY)) {
-				break;
-			}
-			this.setGameFieldState(posX, lightY, State.LIGHTED);
-		}
 	}
 
 	public boolean setLampAt(final Point location) {
