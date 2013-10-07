@@ -99,7 +99,7 @@ public class GameFieldModel {
 		if (type.equals(Type.LAMP)) {
 			this.onLampChanged(posX, posY, true);
 		}
-		return this.getGameFieldPoints().add(new GameFieldPoint(Type.LAMP, new Point(posX, posY)));
+		return this.getGameFieldPoints().add(new GameFieldPoint(type, new Point(posX, posY)));
 	}
 
 	/**
@@ -196,8 +196,7 @@ public class GameFieldModel {
 	public synchronized boolean setLampAt(final int posX, final int posY) {
 		Point point = new Point(posX, posY);
 		if (this.isCellCompleteEmpty(point)) {
-			this.addGameFieldPoint(Type.LAMP, posX, posY);
-			return true;
+			return this.addGameFieldPoint(Type.LAMP, posX, posY);
 		}
 		if (this.isLampAt(point)) {
 			return true;
@@ -264,12 +263,16 @@ public class GameFieldModel {
 	 * @return True if there is a mark at the given position, otherwise false
 	 */
 	public synchronized boolean isMarkAt(final int posX, final int posY) {
-		for (Point lamp : this.getGameFieldPoints(Type.MARK)) {
-			if ((lamp.x == posX) && (lamp.y == posY)) {
+		for (Point mark : this.getGameFieldPoints(Type.MARK)) {
+			if ((mark.x == posX) && (mark.y == posY)) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	public synchronized boolean isMarkAt(final Point location) {
+		return this.isMarkAt(location.x, location.y);
 	}
 
 	private boolean isGameFieldPointAt(final Type type, final Point point) {
@@ -342,9 +345,26 @@ public class GameFieldModel {
 	 *         false
 	 */
 	public synchronized boolean removeLampAt(final Point location) {
-		boolean result = this.removeGameFieldPoints(Type.LAMP, new HashSet<Point>(Arrays.asList(location)));
+		boolean removed = this.removeGameFieldPoints(Type.LAMP, new HashSet<Point>(Arrays.asList(location)));
+		if (removed) {
+			Log.d(this.getClass().getName(), "Removed lamp at position " + location);
+		}
 		this.printLightRaysArray();
-		return result;
+		return removed;
+	}
+
+	public synchronized boolean setMarkAt(final Point location) {
+		if (this.isCellCompleteEmpty(location)) {
+			return this.addGameFieldPoint(Type.MARK, location.x, location.y);
+		}
+		if (this.isMarkAt(location)) {
+			return true;
+		}
+		return false;
+	}
+
+	public synchronized boolean removeMarkAt(final Point location) {
+		return this.removeGameFieldPoints(Type.MARK, new HashSet<Point>(Arrays.asList(location)));
 	}
 
 	private void printLightRaysArray() {
@@ -451,5 +471,9 @@ public class GameFieldModel {
 
 	public boolean isCellLighted(final int posX, final int posY) {
 		return this.lightRays[posY][posX] > 0;
+	}
+
+	public synchronized Set<Point> getMarks() {
+		return this.getGameFieldPoints(Type.MARK);
 	}
 }

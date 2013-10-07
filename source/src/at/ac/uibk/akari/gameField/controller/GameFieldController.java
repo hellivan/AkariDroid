@@ -27,11 +27,19 @@ public class GameFieldController extends AbstractController implements GameField
 			Point cellPosition = event.getTouchCell();
 
 			Log.d(this.getClass().toString(), "GameField touched at " + cellPosition.toString());
-			if (this.gameField.isLampAt(cellPosition)) {
-				if (this.gameField.removeLampAt(cellPosition)) {
-					this.fireLampRemoved(cellPosition);
-				}
-			} else {
+
+			if (this.gameField.isMarkAt(cellPosition)) {
+				this.gameField.removeMarkAt(cellPosition);
+				this.fireLampRemoved(cellPosition);
+			}
+
+			else if (this.gameField.isLampAt(cellPosition)) {
+				this.gameField.removeLampAt(cellPosition);
+				Log.d(this.getClass().toString(), "Setting mark at " + cellPosition.toString() + ": " + this.gameField.setMarkAt(cellPosition));
+				this.fireLampRemoved(cellPosition);
+			}
+
+			else {
 				if (this.gameField.setLampAt(cellPosition)) {
 					this.fireLampPlaced(cellPosition);
 				}

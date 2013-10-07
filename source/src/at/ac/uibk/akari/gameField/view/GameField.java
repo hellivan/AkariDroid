@@ -268,14 +268,32 @@ public class GameField extends Rectangle {
 
 				else if (this.getModel().isMarkAt(posX, posY)) {
 					if (this.getModel().isCellLighted(posX, posY)) {
-						this.setGameFieldState(posX, posY, State.MARK);
-					} else {
 						this.setGameFieldState(posX, posY, State.LIGHTED_MARK);
+					} else {
+						this.setGameFieldState(posX, posY, State.MARK);
 					}
 				}
 			}
 		}
 
+		this.printGameField();
+
+	}
+
+	private void printGameField() {
+		StringBuffer buffer = new StringBuffer("Game-Field:\n");
+		for (int posY = 0; posY < this.gameFieldCells.length; posY++) {
+			buffer.append("[");
+			for (int posX = 0; posX < this.gameFieldCells[posY].length; posX++) {
+				buffer.append(this.gameFieldCells[posY][posX].getCellState() + ",");
+			}
+			buffer.append("]\n");
+		}
+		Log.d(this.getClass().getName(), buffer.toString());
+	}
+
+	private void setGameFieldState(final int posX, final int posY, final State cellState) {
+		this.gameFieldCells[posY][posX].setCellState(cellState);
 	}
 
 	public boolean setLampAt(final Point location) {
@@ -284,10 +302,6 @@ public class GameField extends Rectangle {
 			this.adaptFieldToModel();
 		}
 		return placed;
-	}
-
-	private void setGameFieldState(final int posX, final int posY, final State cellState) {
-		this.gameFieldCells[posY][posX].setCellState(cellState);
 	}
 
 	public boolean removeLampAt(final Point location) {
@@ -300,11 +314,34 @@ public class GameField extends Rectangle {
 
 	public boolean isLampAt(final int posX, final int posY) {
 		return this.getModel().isLampAt(posX, posY);
-
 	}
 
 	public boolean isLampAt(final Point location) {
 		return this.isLampAt(location.x, location.y);
+	}
+
+	public boolean isMarkAt(final int posX, final int posY) {
+		return this.getModel().isMarkAt(posX, posY);
+	}
+
+	public boolean isMarkAt(final Point location) {
+		return this.isMarkAt(location.x, location.y);
+	}
+
+	public boolean setMarkAt(final Point location) {
+		boolean placed = false;
+		if (placed = this.puzzle.setMarkAt(location)) {
+			this.adaptFieldToModel();
+		}
+		return placed;
+	}
+
+	public boolean removeMarkAt(final Point location) {
+		boolean removed = false;
+		if (removed = this.getModel().removeMarkAt(location)) {
+			this.adaptFieldToModel();
+		}
+		return removed;
 	}
 
 	public void clearField() {

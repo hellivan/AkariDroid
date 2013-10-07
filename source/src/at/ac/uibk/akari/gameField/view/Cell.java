@@ -78,6 +78,8 @@ public class Cell extends AnimatedSprite {
 
 	private static TextureType textureType = TextureType.CELL;
 
+	private State cellState;
+
 	public Cell(final PointF location, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager) {
 		this(location.x, location.y, width, height, vertexBufferObjectManager);
 	}
@@ -88,6 +90,11 @@ public class Cell extends AnimatedSprite {
 	}
 
 	public void setCellState(final State cellState) {
-		this.setCurrentTileIndex(Cell.textureType.getTileNumber(cellState.getTexturePosX(), cellState.texturePosY));
+		this.cellState = cellState;
+		this.setCurrentTileIndex(Cell.textureType.getTileNumber(cellState.getTexturePosX(), cellState.getTexturePosY()));
+	}
+
+	public State getCellState() {
+		return this.cellState;
 	}
 }
