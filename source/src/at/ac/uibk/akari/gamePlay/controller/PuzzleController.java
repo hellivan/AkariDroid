@@ -31,8 +31,9 @@ import at.ac.uibk.akari.common.view.MenuItem;
 import at.ac.uibk.akari.common.view.PopupMenuScene;
 import at.ac.uibk.akari.core.GameFieldModel;
 import at.ac.uibk.akari.core.Puzzle;
-import at.ac.uibk.akari.gameField.controller.GameFieldController;
-import at.ac.uibk.akari.gameField.listener.GameFieldListener;
+import at.ac.uibk.akari.gameField.listener.GameFieldDragEvent;
+import at.ac.uibk.akari.gameField.listener.GameFieldInputListener;
+import at.ac.uibk.akari.gameField.listener.GameFieldTouchEvent;
 import at.ac.uibk.akari.gameField.view.GameField;
 import at.ac.uibk.akari.gamePlay.listener.GameListener;
 import at.ac.uibk.akari.gamePlay.view.PuzzleHUD;
@@ -44,7 +45,7 @@ import at.ac.uibk.akari.utils.PuzzleManager;
 import at.ac.uibk.akari.utils.SaveGameManager;
 import at.ac.uibk.akari.utils.SceneManager;
 
-public class PuzzleController extends AbstractController implements GameFieldListener, MenuListener, IOnSceneTouchListener, IScrollDetectorListener, IPinchZoomDetectorListener {
+public class PuzzleController extends AbstractController implements MenuListener, IOnSceneTouchListener, IScrollDetectorListener, IPinchZoomDetectorListener, GameFieldInputListener {
 
 	public enum ResumeBehaveior {
 		AUTO_RESUME,
@@ -57,7 +58,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 
 	}
 
-	private GameFieldController gameFieldController;
+	// private GameFieldController gameFieldController;
 	private GameField gameField;
 	private Scene gameScene;
 	private ZoomCamera gameCamera;
@@ -92,7 +93,6 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 
 	public void init() {
 		this.gameField = new GameField(10, 80, this.vertexBufferObjectManager);
-		this.gameFieldController = new GameFieldController(this.gameField);
 		this.gameScene.attachChild(this.gameField);
 		this.gameScene.registerTouchArea(this.gameField);
 
@@ -158,7 +158,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	@Override
 	public boolean start() {
 		Log.d(this.getClass().getName(), "Start puzzle-controller");
-		this.gameFieldController.addGameFieldListener(this);
+		this.gameField.addGameFieldInputListener(this);
 		this.gameHUD.addPuzzleControlListener(this);
 		this.gameScene.setOnSceneTouchListener(this);
 		this.pauseScene.addMenuListener(this);
@@ -194,21 +194,21 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 		}
 
 		this.resumeBehaveior = ResumeBehaveior.UNDEFINED;
-		return this.gameFieldController.start();
+		return true;
 
 	}
 
 	@Override
 	public boolean stop() {
 		Log.d(this.getClass().getName(), "Stop puzzle-controller");
-		this.gameFieldController.removeGameFieldListener(this);
+		this.gameField.removeGameFieldInputListener(this);
 		this.gameHUD.removePuzzleControlListener(this);
 		this.gameScene.setOnSceneTouchListener(null);
 		this.pauseScene.removeMenuListener(this);
 		this.winninMenuScene.removeMenuListener(this);
 		this.resumeMenuScene.removeMenuListener(this);
 		this.stopClock.stop();
-		return this.gameFieldController.stop();
+		return true;
 	}
 
 	private void onPuzzleSolved() {
@@ -246,20 +246,6 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 			}
 		} catch (TimeoutException e) {
 			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public void lampPlaced(final GameFieldController source, final Point position) {
-		if (source.equals(this.gameFieldController)) {
-			this.onGameFieldChanged();
-		}
-	}
-
-	@Override
-	public void lampRemoved(final GameFieldController source, final Point position) {
-		if (source.equals(this.gameFieldController)) {
-			this.onGameFieldChanged();
 		}
 	}
 
@@ -391,7 +377,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 			case RESET:
 				Log.i(this.getClass().getName(), "RESET-Game pressed");
 				this.stopClock.reset();
-				this.gameFieldController.resetGameField();
+				this.gameField.clearField();
 				this.stopClock.start();
 				break;
 			default:
@@ -407,7 +393,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 			case REPLAY:
 				Log.i(this.getClass().getName(), "REPLAY-Game pressed");
 				this.stopClock.reset();
-				this.gameFieldController.resetGameField();
+				this.gameField.clearField();
 				this.stopClock.start();
 				this.gameHUD.setEnabled(true);
 				break;
@@ -486,5 +472,45 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void gameFieldTouched(final GameFieldTouchEvent event) {
+		if (event.getSource().equals(this.gameField)) {
+			Point cellPosition = event.getTouchCell();
+
+			Log.d(this.getClass().toString(), "GameField touched at " + cellPosition.toString());
+
+			if (this.gameField.isMarkAt(cellPosition)) {
+				this.gameField.removeMarkAt(cellPosition);
+				this.onGameFieldChanged();
+			}
+
+			else if (this.gameField.isLampAt(cellPosition)) {
+				this.gameField.removeLampAt(cellPosition);
+				Log.d(this.getClass().toString(), "Setting mark at " + cellPosition.toString() + ": " + this.gameField.setMarkAt(cellPosition));
+				this.onGameFieldChanged();
+			}
+
+			else {
+				if (this.gameField.setLampAt(cellPosition)) {
+					this.onGameFieldChanged();
+				}
+			}
+			this.onGameFieldChanged();
+		}
+	}
+
+	@Override
+	public void gameFieldDragged(final GameFieldDragEvent event) {
+		if (event.getSource().equals(this.gameField)) {
+			Point lastCell = event.getLastCell();
+			Point currentCell = event.getCurrentCell();
+			Log.d(this.getClass().toString(), "GameField dragged from  " + lastCell.toString() + " to " + currentCell.toString());
+
+			// this.gameField.removeLampAt(lastCell);
+			// this.gameField.setLampAt(currentCell);
+		}
+
 	}
 }
