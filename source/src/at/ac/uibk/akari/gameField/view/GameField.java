@@ -36,6 +36,8 @@ public class GameField extends Rectangle {
 	private long lastMultiTouched;
 	private Point lastDragPoint;
 	private Point firstTouchedCell;
+	private PointF firstMovePos;
+	private boolean wasMoved;
 
 	public GameField(final float posX, final float posY, final int cellCountX, final int cellCountY, final VertexBufferObjectManager vertexBufferObjectManager) {
 		this(posY, posY, vertexBufferObjectManager);
@@ -148,7 +150,7 @@ public class GameField extends Rectangle {
 		}
 
 		int moutiTouchTolleranceMs = 200;
-		// int touchDeltaTollerancePx = 20;
+		int touchDeltaTollerancePx = 20;
 
 		// ignore all multi-touch-inputs
 		if ((System.currentTimeMillis() - this.lastMultiTouched) < moutiTouchTolleranceMs) {
@@ -160,6 +162,8 @@ public class GameField extends Rectangle {
 
 		if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_DOWN) {
 			this.firstTouchedCell = this.positionToCell(pTouchAreaLocalX, pTouchAreaLocalY);
+			this.firstMovePos = new PointF(pTouchAreaLocalX, pTouchAreaLocalY);
+			this.wasMoved = false;
 		}
 
 		if (pSceneTouchEvent.getAction() == TouchEvent.ACTION_MOVE) {
@@ -174,6 +178,25 @@ public class GameField extends Rectangle {
 					this.lastDragPoint = currentTouchedCell;
 				}
 				return true;
+			} else {
+				if (this.firstMovePos != null) {
+					// check if was moved
+					if (pTouchAreaLocalX > (this.firstMovePos.x + touchDeltaTollerancePx)) {
+						this.wasMoved = true;
+					}
+					if (pTouchAreaLocalX < (this.firstMovePos.x - touchDeltaTollerancePx)) {
+						this.wasMoved = true;
+					}
+					if (pTouchAreaLocalY > (this.firstMovePos.y + touchDeltaTollerancePx)) {
+						this.wasMoved = true;
+					}
+					if (pTouchAreaLocalY < (this.firstMovePos.y - touchDeltaTollerancePx)) {
+						this.wasMoved = true;
+					}
+					return !this.wasMoved;
+
+				}
+				return false;
 			}
 		}
 
@@ -181,10 +204,11 @@ public class GameField extends Rectangle {
 			Log.d(this.getClass().getName(), "HistorySize=" + pSceneTouchEvent.getMotionEvent().getHistorySize());
 
 			this.lastDragPoint = null;
-			if ((this.firstTouchedCell != null) && this.firstTouchedCell.equals(currentTouchedCell)) {
+			if ((this.firstTouchedCell != null) && this.firstTouchedCell.equals(currentTouchedCell) && (this.wasMoved == false)) {
 				this.fireGameFieldTouched(currentTouchedCell);
 			}
 			this.firstTouchedCell = null;
+			this.firstMovePos = null;
 		}
 
 		return false;
