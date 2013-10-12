@@ -299,12 +299,9 @@ public class GameField extends Rectangle {
 				}
 			}
 		}
-
-		this.printGameField();
-
 	}
 
-	private void printGameField() {
+	public void printGameField() {
 		StringBuffer buffer = new StringBuffer("Game-Field:\n");
 		for (int posY = 0; posY < this.gameFieldCells.length; posY++) {
 			buffer.append("[");
@@ -321,8 +318,10 @@ public class GameField extends Rectangle {
 	}
 
 	public boolean setLampAt(final Point location) {
-		boolean placed = false;
-		if (placed = this.puzzle.setLampAt(location)) {
+		boolean changed = this.getModel().clearCellAt(location);
+		boolean placed = this.getModel().setLampAt(location);
+		changed |= placed;
+		if (changed) {
 			this.adaptFieldToModel();
 		}
 		return placed;
@@ -353,8 +352,10 @@ public class GameField extends Rectangle {
 	}
 
 	public boolean setMarkAt(final Point location) {
-		boolean placed = false;
-		if (placed = this.puzzle.setMarkAt(location)) {
+		boolean changed = this.getModel().clearCellAt(location);
+		boolean placed = this.getModel().setMarkAt(location);
+		changed |= placed;
+		if (changed) {
 			this.adaptFieldToModel();
 		}
 		return placed;
@@ -363,6 +364,14 @@ public class GameField extends Rectangle {
 	public boolean removeMarkAt(final Point location) {
 		boolean removed = false;
 		if (removed = this.getModel().removeMarkAt(location)) {
+			this.adaptFieldToModel();
+		}
+		return removed;
+	}
+
+	public boolean clearCellAt(final Point location) {
+		boolean removed = false;
+		if (removed = this.getModel().clearCellAt(location)) {
 			this.adaptFieldToModel();
 		}
 		return removed;

@@ -348,9 +348,11 @@ public class GameFieldModel {
 	 *         otherwise false
 	 */
 	public synchronized boolean setLampAt(final Point location) {
-		boolean result = this.setLampAt(location.x, location.y);
-		this.printLightRaysArray();
-		return result;
+		return this.setLampAt(location.x, location.y);
+	}
+
+	public synchronized boolean clearCellAt(final Point location) {
+		return this.removeGameFieldPoints(null, new HashSet<Point>(Arrays.asList(location)));
 	}
 
 	/**
@@ -364,12 +366,7 @@ public class GameFieldModel {
 	 *         false
 	 */
 	public synchronized boolean removeLampAt(final Point location) {
-		boolean removed = this.removeGameFieldPoints(Type.LAMP, new HashSet<Point>(Arrays.asList(location)));
-		if (removed) {
-			Log.d(this.getClass().getName(), "Removed lamp at position " + location);
-		}
-		this.printLightRaysArray();
-		return removed;
+		return this.removeGameFieldPoints(Type.LAMP, new HashSet<Point>(Arrays.asList(location)));
 	}
 
 	public synchronized boolean setMarkAt(final Point location) {
@@ -386,7 +383,7 @@ public class GameFieldModel {
 		return this.removeGameFieldPoints(Type.MARK, new HashSet<Point>(Arrays.asList(location)));
 	}
 
-	private void printLightRaysArray() {
+	public void printLightRaysArray() {
 		StringBuffer buffer = new StringBuffer("LightRays:\n");
 		for (int posY = 0; posY < this.lightRays.length; posY++) {
 			buffer.append(Arrays.toString(this.lightRays[posY]) + "\n");

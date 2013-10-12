@@ -479,25 +479,28 @@ public class PuzzleController extends AbstractController implements MenuListener
 		if (event.getSource().equals(this.gameField)) {
 			Point cellPosition = event.getTouchCell();
 
-			Log.d(this.getClass().toString(), "GameField touched at " + cellPosition.toString());
+			Log.d(this.getClass().getName(), "GameField touched at point " + cellPosition.toString());
 
 			if (this.gameField.isMarkAt(cellPosition)) {
-				this.gameField.removeMarkAt(cellPosition);
-				this.onGameFieldChanged();
+				if (this.gameField.clearCellAt(cellPosition)) {
+					Log.d(this.getClass().getName(), "Cleared cell at " + cellPosition.toString());
+					this.onGameFieldChanged();
+				}
 			}
 
 			else if (this.gameField.isLampAt(cellPosition)) {
-				this.gameField.removeLampAt(cellPosition);
-				Log.d(this.getClass().toString(), "Setting mark at " + cellPosition.toString() + ": " + this.gameField.setMarkAt(cellPosition));
-				this.onGameFieldChanged();
+				if (this.gameField.setMarkAt(cellPosition)) {
+					Log.d(this.getClass().getName(), "Placed mark at " + cellPosition.toString());
+					this.onGameFieldChanged();
+				}
 			}
 
 			else {
 				if (this.gameField.setLampAt(cellPosition)) {
+					Log.d(this.getClass().getName(), "Placed lamp at " + cellPosition.toString());
 					this.onGameFieldChanged();
 				}
 			}
-			this.onGameFieldChanged();
 		}
 	}
 
