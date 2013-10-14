@@ -12,6 +12,7 @@ import org.andengine.util.HorizontalAlign;
 import at.ac.uibk.akari.common.view.AbstractHUD;
 import at.ac.uibk.akari.common.view.DefaultMenuItem;
 import at.ac.uibk.akari.common.view.HUDButton;
+import at.ac.uibk.akari.common.view.IHUDButton;
 import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.FontLoader.FontType;
 import at.ac.uibk.akari.utils.TextureLoader;
@@ -30,8 +31,8 @@ public class PuzzleSelectorHUD extends AbstractHUD {
 	private Text pageIndicator;
 
 	@Override
-	protected Set<HUDButton> initHUDButtons(final int desiredWidth) {
-		Set<HUDButton> buttons = new HashSet<HUDButton>();
+	protected Set<IHUDButton> initHUDButtons(final int desiredWidth) {
+		Set<IHUDButton> buttons = new HashSet<IHUDButton>();
 
 		buttons.add(new HUDButton(PuzzleSelectorHUD.BORDER_INSET_X, PuzzleSelectorHUD.BORDER_INSET_Y, PuzzleSelectorHUD.BUTTONS_SIZE, PuzzleSelectorHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTexture(TextureType.MENU_ICONS, 1, 1), DefaultMenuItem.BACKWARD));
 

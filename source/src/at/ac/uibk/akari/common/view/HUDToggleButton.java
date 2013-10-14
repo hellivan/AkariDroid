@@ -1,29 +1,39 @@
 package at.ac.uibk.akari.common.view;
 
-import org.andengine.entity.sprite.Sprite;
+import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.input.touch.TouchEvent;
-import org.andengine.opengl.texture.region.ITextureRegion;
+import org.andengine.opengl.texture.region.ITiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
-import android.graphics.PointF;
 import at.ac.uibk.akari.common.listener.TouchListener;
 import at.ac.uibk.akari.utils.ListenerList;
 
-public class HUDButton extends Sprite implements IHUDButton {
+public class HUDToggleButton extends AnimatedSprite implements IHUDButton {
+
+	private int tileIndexPressed;
+	private int tileIndexReleased;
+
+	private boolean pressed;
 
 	protected ListenerList listeners;
 	private boolean enabled;
 	private DefaultMenuItem itemType;
 
-	public HUDButton(final PointF location, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final ITextureRegion texture, final DefaultMenuItem itemType) {
-		this(location.x, location.y, width, height, vertexBufferObjectManager, texture, itemType);
-	}
-
-	public HUDButton(final float posX, final float posY, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final ITextureRegion texture, final DefaultMenuItem itemType) {
+	public HUDToggleButton(final float posX, final float posY, final int width, final int height, final VertexBufferObjectManager vertexBufferObjectManager, final ITiledTextureRegion texture, final int tileIndexPressed, final int tileIndexReleased, final DefaultMenuItem itemType) {
 		super(posX, posY, width, height, texture, vertexBufferObjectManager);
 		this.listeners = new ListenerList();
 		this.setEnabled(true);
 		this.itemType = itemType;
+
+		this.tileIndexPressed = tileIndexPressed;
+		this.tileIndexReleased = tileIndexReleased;
+		this.pressed = false;
+	}
+
+	public void onButtonPressed() {
+		this.pressed = !this.pressed;
+		System.out.println("Setting tile-index: " + (this.pressed ? this.tileIndexPressed : this.tileIndexReleased));
+		((ITiledTextureRegion) this.getTextureRegion()).setCurrentTileIndex(this.pressed ? this.tileIndexPressed : this.tileIndexReleased);
 	}
 
 	public DefaultMenuItem getItemType() {
@@ -37,6 +47,7 @@ public class HUDButton extends Sprite implements IHUDButton {
 		}
 		if (pSceneTouchEvent.isActionUp()) {
 			this.setScale(1f);
+			this.onButtonPressed();
 			this.fireTouched();
 			return true;
 		} else if (pSceneTouchEvent.isActionDown()) {
@@ -76,4 +87,5 @@ public class HUDButton extends Sprite implements IHUDButton {
 	public void setEnabled(final boolean enabled) {
 		this.enabled = enabled;
 	}
+
 }

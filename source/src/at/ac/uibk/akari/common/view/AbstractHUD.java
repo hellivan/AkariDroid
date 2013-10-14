@@ -19,7 +19,7 @@ import at.ac.uibk.akari.utils.TextureLoader.TextureType;
 
 public abstract class AbstractHUD extends HUD implements TouchListener {
 
-	private Set<HUDButton> hudButtons;
+	private Set<IHUDButton> hudButtons;
 	private Set<Entity> hudItems;
 	private int desiredWidth;
 
@@ -36,7 +36,11 @@ public abstract class AbstractHUD extends HUD implements TouchListener {
 		this.setEnabled(true);
 	}
 
-	protected abstract Set<HUDButton> initHUDButtons(final int desiredWidth);
+	public int getDesiredHUDWidth() {
+		return this.desiredWidth;
+	}
+
+	protected abstract Set<IHUDButton> initHUDButtons(final int desiredWidth);
 
 	protected abstract Set<Entity> initHUDItems(final int desiredWidth);
 
@@ -53,7 +57,7 @@ public abstract class AbstractHUD extends HUD implements TouchListener {
 		line.setLineWidth(5);
 		this.attachChild(line);
 
-		for (HUDButton button : this.hudButtons) {
+		for (IHUDButton button : this.hudButtons) {
 			this.attachChild(button);
 			this.registerTouchArea(button);
 			button.addTouchListener(this);
@@ -96,7 +100,7 @@ public abstract class AbstractHUD extends HUD implements TouchListener {
 
 	public void setEnabled(final boolean enabled) {
 		this.enabled = enabled;
-		for (HUDButton button : this.hudButtons) {
+		for (IHUDButton button : this.hudButtons) {
 			button.setEnabled(enabled);
 
 		}

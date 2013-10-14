@@ -12,6 +12,8 @@ import org.andengine.util.HorizontalAlign;
 import at.ac.uibk.akari.common.view.AbstractHUD;
 import at.ac.uibk.akari.common.view.DefaultMenuItem;
 import at.ac.uibk.akari.common.view.HUDButton;
+import at.ac.uibk.akari.common.view.HUDToggleButton;
+import at.ac.uibk.akari.common.view.IHUDButton;
 import at.ac.uibk.akari.stopClock.listener.StopClockEvent;
 import at.ac.uibk.akari.stopClock.listener.StopClockUpdateListener;
 import at.ac.uibk.akari.stopClock.model.StopClockModel;
@@ -26,6 +28,7 @@ public class PuzzleHUD extends AbstractHUD implements StopClockUpdateListener {
 	private static final int BUTTONS_SIZE = 55;
 	private static final int BORDER_INSET_X = 25;
 	private static final int BORDER_INSET_Y = 8;
+	private static final int BUTTONS_SEPARATOR = 10;
 
 	private Text timerText;
 	private StopClockModel currentStopClock;
@@ -35,12 +38,14 @@ public class PuzzleHUD extends AbstractHUD implements StopClockUpdateListener {
 	}
 
 	@Override
-	protected Set<HUDButton> initHUDButtons(final int desiredWidth) {
-		Set<HUDButton> buttons = new HashSet<HUDButton>();
+	protected Set<IHUDButton> initHUDButtons(final int desiredWidth) {
+		Set<IHUDButton> buttons = new HashSet<IHUDButton>();
 
 		buttons.add(new HUDButton(PuzzleHUD.BORDER_INSET_X, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTexture(TextureType.MENU_ICONS, 0, 3), DefaultMenuItem.PAUSE));
 
-		buttons.add(new HUDButton(desiredWidth - PuzzleHUD.BUTTONS_SIZE - PuzzleHUD.BORDER_INSET_X, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTexture(TextureType.MENU_ICONS, 0, 2), DefaultMenuItem.HELP));
+		buttons.add(new HUDButton(desiredWidth - PuzzleHUD.BORDER_INSET_X - PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTexture(TextureType.MENU_ICONS, 0, 2), DefaultMenuItem.HELP));
+
+		buttons.add(new HUDToggleButton(desiredWidth - PuzzleHUD.BORDER_INSET_X - PuzzleHUD.BUTTONS_SIZE - PuzzleHUD.BUTTONS_SEPARATOR - PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTextureRegion(TextureType.MENU_ICONS), TextureType.MENU_ICONS.getTileNumber(0, 0), TextureType.MENU_ICONS.getTileNumber(0, 1), DefaultMenuItem.NEXT));
 
 		return buttons;
 	}
@@ -48,9 +53,9 @@ public class PuzzleHUD extends AbstractHUD implements StopClockUpdateListener {
 	@Override
 	protected Set<Entity> initHUDItems(final int desiredWidth) {
 
-		int timerWidth = 3 * PuzzleHUD.BUTTONS_SIZE;
-		int timerPos = (desiredWidth / 2) - (timerWidth / 2);
-		this.timerText = new Text(timerPos, PuzzleHUD.BORDER_INSET_Y, FontLoader.getInstance().getFont(FontType.DROID_48_WHITE), StringUtils.convertSecondsToTimeString(0), 11, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager);
+		this.timerText = new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_48_WHITE), StringUtils.convertSecondsToTimeString(0), 11, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager);
+		this.timerText.setX((desiredWidth / 2) - (this.timerText.getWidth() / 2));
+		this.timerText.setY(PuzzleHUD.BORDER_INSET_Y);
 
 		Set<Entity> entities = new HashSet<Entity>();
 		entities.add(this.timerText);
@@ -71,6 +76,7 @@ public class PuzzleHUD extends AbstractHUD implements StopClockUpdateListener {
 	public void stopClockUpdated(final StopClockEvent event) {
 		if (event.getSource() == this.currentStopClock) {
 			this.timerText.setText(StringUtils.convertSecondsToTimeString(event.getCurrentClockSeconds()));
+			this.timerText.setX((this.getDesiredHUDWidth() / 2) - (this.timerText.getWidth() / 2));
 		}
 	}
 
