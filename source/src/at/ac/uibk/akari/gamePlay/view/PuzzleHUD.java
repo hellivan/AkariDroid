@@ -33,6 +33,8 @@ public class PuzzleHUD extends AbstractHUD implements StopClockUpdateListener {
 	private Text timerText;
 	private StopClockModel currentStopClock;
 
+	private HUDToggleButton placeingModeButton;
+
 	public PuzzleHUD(final int width, final VertexBufferObjectManager vertexBufferObjectManager) {
 		super(width, vertexBufferObjectManager);
 	}
@@ -45,7 +47,8 @@ public class PuzzleHUD extends AbstractHUD implements StopClockUpdateListener {
 
 		buttons.add(new HUDButton(desiredWidth - PuzzleHUD.BORDER_INSET_X - PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTexture(TextureType.MENU_ICONS, 0, 2), DefaultMenuItem.HELP));
 
-		buttons.add(new HUDToggleButton(desiredWidth - PuzzleHUD.BORDER_INSET_X - PuzzleHUD.BUTTONS_SIZE - PuzzleHUD.BUTTONS_SEPARATOR - PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTextureRegion(TextureType.MENU_ICONS), TextureType.MENU_ICONS.getTileNumber(0, 0), TextureType.MENU_ICONS.getTileNumber(0, 1), DefaultMenuItem.NEXT));
+		this.placeingModeButton = new HUDToggleButton(desiredWidth - PuzzleHUD.BORDER_INSET_X - PuzzleHUD.BUTTONS_SIZE - PuzzleHUD.BUTTONS_SEPARATOR - PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTextureRegion(TextureType.MENU_ICONS), TextureType.MENU_ICONS.getTileNumber(0, 0), TextureType.MENU_ICONS.getTileNumber(0, 1), DefaultMenuItem.NEXT);
+		buttons.add(this.placeingModeButton);
 
 		return buttons;
 	}
@@ -83,6 +86,10 @@ public class PuzzleHUD extends AbstractHUD implements StopClockUpdateListener {
 	@Override
 	public int getDesiredHUDHeight() {
 		return PuzzleHUD.BUTTONS_SIZE + (2 * PuzzleHUD.BORDER_INSET_Y);
+	}
+
+	public boolean isLampPlaceingSelected() {
+		return this.placeingModeButton.isPressed();
 	}
 
 }

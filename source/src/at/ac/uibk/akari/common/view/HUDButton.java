@@ -26,6 +26,7 @@ public class HUDButton extends Sprite implements IHUDButton {
 		this.itemType = itemType;
 	}
 
+	@Override
 	public DefaultMenuItem getItemType() {
 		return this.itemType;
 	}
@@ -68,6 +69,7 @@ public class HUDButton extends Sprite implements IHUDButton {
 		}
 	}
 
+	@Override
 	public boolean isEnabled() {
 		return this.enabled;
 	}

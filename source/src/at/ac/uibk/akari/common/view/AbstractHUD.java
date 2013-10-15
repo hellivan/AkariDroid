@@ -92,8 +92,8 @@ public abstract class AbstractHUD extends HUD implements TouchListener {
 
 	@Override
 	public void touchPerformed(final InputEvent event) {
-		if (event.getSource() instanceof HUDButton) {
-			HUDButton pressedButton = (HUDButton) event.getSource();
+		if (event.getSource() instanceof IHUDButton) {
+			IHUDButton pressedButton = (IHUDButton) event.getSource();
 			this.fireMenuItemSelected(pressedButton.getItemType());
 		}
 	}

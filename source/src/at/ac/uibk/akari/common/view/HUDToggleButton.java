@@ -1,14 +1,15 @@
 package at.ac.uibk.akari.common.view;
 
-import org.andengine.entity.sprite.AnimatedSprite;
+import org.andengine.entity.sprite.TiledSprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
+import android.util.Log;
 import at.ac.uibk.akari.common.listener.TouchListener;
 import at.ac.uibk.akari.utils.ListenerList;
 
-public class HUDToggleButton extends AnimatedSprite implements IHUDButton {
+public class HUDToggleButton extends TiledSprite implements IHUDButton {
 
 	private int tileIndexPressed;
 	private int tileIndexReleased;
@@ -28,14 +29,16 @@ public class HUDToggleButton extends AnimatedSprite implements IHUDButton {
 		this.tileIndexPressed = tileIndexPressed;
 		this.tileIndexReleased = tileIndexReleased;
 		this.pressed = false;
+		this.setCurrentTileIndex(this.tileIndexReleased);
 	}
 
 	public void onButtonPressed() {
 		this.pressed = !this.pressed;
-		System.out.println("Setting tile-index: " + (this.pressed ? this.tileIndexPressed : this.tileIndexReleased));
-		((ITiledTextureRegion) this.getTextureRegion()).setCurrentTileIndex(this.pressed ? this.tileIndexPressed : this.tileIndexReleased);
+		Log.d(this.getClass().getName(), "Setting tile-index: " + (this.pressed ? this.tileIndexPressed : this.tileIndexReleased));
+		this.setCurrentTileIndex(this.pressed ? this.tileIndexPressed : this.tileIndexReleased);
 	}
 
+	@Override
 	public DefaultMenuItem getItemType() {
 		return this.itemType;
 	}
@@ -46,15 +49,15 @@ public class HUDToggleButton extends AnimatedSprite implements IHUDButton {
 			return false;
 		}
 		if (pSceneTouchEvent.isActionUp()) {
-			this.setScale(1f);
+			// this.setScale(1f);
 			this.onButtonPressed();
 			this.fireTouched();
 			return true;
 		} else if (pSceneTouchEvent.isActionDown()) {
-			this.setScale(1.2f);
+			// this.setScale(1.2f);
 			return true;
 		} else if (pSceneTouchEvent.isActionOutside()) {
-			this.setScale(1f);
+			// this.setScale(1f);
 			return true;
 		} else if (pSceneTouchEvent.isActionMove()) {
 			return true;
@@ -79,6 +82,7 @@ public class HUDToggleButton extends AnimatedSprite implements IHUDButton {
 		}
 	}
 
+	@Override
 	public boolean isEnabled() {
 		return this.enabled;
 	}
@@ -88,4 +92,7 @@ public class HUDToggleButton extends AnimatedSprite implements IHUDButton {
 		this.enabled = enabled;
 	}
 
+	public boolean isPressed() {
+		return this.pressed;
+	}
 }

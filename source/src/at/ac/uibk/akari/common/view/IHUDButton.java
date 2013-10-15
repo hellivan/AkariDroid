@@ -9,8 +9,12 @@ public interface IHUDButton extends ITouchArea, IEntity {
 
 	public void setEnabled(final boolean enable);
 
+	public boolean isEnabled();
+
 	public void addTouchListener(final TouchListener listener);
 
 	public void removeTouchListener(final TouchListener listener);
+
+	public DefaultMenuItem getItemType();
 
 }
