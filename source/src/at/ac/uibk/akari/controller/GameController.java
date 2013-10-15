@@ -7,15 +7,20 @@ import org.andengine.engine.camera.ZoomCamera;
 import org.andengine.entity.scene.Scene;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.TimeoutException;
 
 import android.util.Log;
 import android.widget.Toast;
 import at.ac.uibk.akari.MainActivity;
+import at.ac.uibk.akari.core.GameFieldModel;
 import at.ac.uibk.akari.core.Puzzle;
+import at.ac.uibk.akari.core.Puzzle.CellState;
 import at.ac.uibk.akari.listener.GameListener;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
 import at.ac.uibk.akari.listener.MenuListener;
+import at.ac.uibk.akari.solver.AkariSolverFull;
+import at.ac.uibk.akari.solver.AkariSolverFullClassicSAT;
 import at.ac.uibk.akari.utils.TextureLoader;
 import at.ac.uibk.akari.utils.TextureLoader.BackgroundType;
 import at.ac.uibk.akari.view.menu.PopupMenuScene;
@@ -60,7 +65,7 @@ public class GameController extends AbstractController implements GameListener, 
 		this.puzzleController.addGameListener(this);
 		this.winninMenuScene.addMenuListener(this);
 		try {
-			this.puzzleController.setPuzzle(this.puzzles.get(this.currentPuzzle));
+			this.puzzleController.setPuzzle(AkariSolverFullClassicSAT.generatePuzzle(10, 10));
 			this.puzzleController.start();
 		} catch (ContradictionException e) {
 			e.printStackTrace();
@@ -88,7 +93,11 @@ public class GameController extends AbstractController implements GameListener, 
 
 	public void startLevel(final int index) {
 		try {
-			this.puzzleController.setPuzzle(this.puzzles.get(index));
+
+			
+
+			
+			this.puzzleController.setPuzzle(AkariSolverFull.generatePuzzle(10, 10));
 			this.puzzleController.start();
 		} catch (ContradictionException e) {
 			e.printStackTrace();

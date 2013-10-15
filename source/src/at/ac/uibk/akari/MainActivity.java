@@ -106,7 +106,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 
 		// load local levels
 		try {
-			this.puzzles = PuzzleLoader.loadPuzzles(this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
+			//this.puzzles = PuzzleLoader.loadPuzzles(this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
 			Log.i(this.getClass().getName(), "Loaded " + this.puzzles.size() + " levels...");
 
 		} catch (Exception e) {

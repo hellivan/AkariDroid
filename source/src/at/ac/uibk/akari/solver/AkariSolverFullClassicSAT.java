@@ -6,11 +6,12 @@ import java.util.List;
 import java.util.Random;
 
 import org.sat4j.core.VecInt;
-import org.sat4j.maxsat.WeightedMaxSatDecorator;
+import org.sat4j.minisat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.IConstr;
 import org.sat4j.specs.IVecInt;
 import org.sat4j.specs.TimeoutException;
+import org.sat4j.tools.GateTranslator;
 
 import android.graphics.Point;
 import at.ac.uibk.akari.core.GameFieldModel;
@@ -22,14 +23,14 @@ import at.ac.uibk.akari.solver.GameFieldVarManager.VarBlocks;
  * Solver for Akari puzzles
  * 
  */
-public class AkariSolverFull {
+public class AkariSolverFullClassicSAT {
 
 	private GameFieldModel model;
 
 	private final int MAXVAR;
 	private final int NBCLAUSES;
 
-	private WeightedMaxSatDecorator solver;
+	private GateTranslator solver;
 
 	private ArrayList<Integer> lampPosTrueList;
 
@@ -50,14 +51,14 @@ public class AkariSolverFull {
 	 *             Is thrown when a gamefield is not solvable even if no lamps
 	 *             are placed
 	 */
-	public AkariSolverFull(final GameFieldModel model) throws ContradictionException {
+	public AkariSolverFullClassicSAT(final GameFieldModel model) throws ContradictionException {
 
 		this.model = model;
 		vars = new GameFieldVarManager(model.getWidth(), model.getHeight());
 		this.MAXVAR = vars.lastVar() + 1;
 		this.NBCLAUSES = model.getWidth() * model.getHeight() * 20;
 
-		this.solver = new WeightedMaxSatDecorator(org.sat4j.pb.SolverFactory.newDefault());
+		this.solver = new GateTranslator(SolverFactory.newDefault());
 
 		// this.solver.setTimeout(100000);
 
@@ -146,11 +147,11 @@ public class AkariSolverFull {
 
 	private void exaclyOneTrue(int[] literals) throws ContradictionException {
 
-		solver.addHardClause(new VecInt(literals));
+		solver.addClause(new VecInt(literals));
 
 		for (int i = 0; i < literals.length; i++) {
 			for (int j = i + 1; j < literals.length; j++) {
-				solver.addHardClause(new VecInt(new int[] { -literals[i], -literals[j] }));
+				solver.addClause(new VecInt(new int[] { -literals[i], -literals[j] }));
 			}
 		}
 	}
@@ -159,7 +160,7 @@ public class AkariSolverFull {
 
 		// this.solver.clearLearntClauses();
 
-		solver.addHardClause(new VecInt(new int[] { -vars.falseVar() }));
+		solver.addClause(new VecInt(new int[] { -vars.falseVar() }));
 
 		// solver.gateTrue(vars.trueVar());
 
@@ -170,67 +171,67 @@ public class AkariSolverFull {
 				exaclyOneTrue(new int[] { vars.blankAt(i, j), vars.lampAt(i, j), vars.barrierAt(i, j), vars.blockAt(0, i, j), vars.blockAt(1, i, j), vars.blockAt(2, i, j), vars.blockAt(3, i, j), vars.blockAt(4, i, j) });
 
 				// placeable is lamp or blank
-				this.solver.addHardClause(new VecInt(new int[] { -vars.placeableAt(i, i), vars.blankAt(i, j), vars.lampAt(i, j) }));
-				this.solver.addHardClause(new VecInt(new int[] { vars.placeableAt(i, i), -vars.blankAt(i, j), -vars.lampAt(i, j) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.placeableAt(i, i), vars.blankAt(i, j), vars.lampAt(i, j) }));
+				this.solver.addClause(new VecInt(new int[] { vars.placeableAt(i, i), -vars.blankAt(i, j), -vars.lampAt(i, j) }));
 
 				// light is caused by a ray
-				this.solver.addHardClause(new VecInt(new int[] { -vars.lightAt(i, j), vars.leftRayAt(i, j), vars.rightRayAt(i, j), vars.upRayAt(i, j), vars.downRayAt(i, j) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.lightAt(i, j), vars.leftRayAt(i, j), vars.rightRayAt(i, j), vars.upRayAt(i, j), vars.downRayAt(i, j) }));
 
 				// a ray causes a light
-				this.solver.addHardClause(new VecInt(new int[] { -vars.leftRayAt(i, j), vars.lightAt(i, j) }));
-				this.solver.addHardClause(new VecInt(new int[] { -vars.rightRayAt(i, j), vars.lightAt(i, j) }));
-				this.solver.addHardClause(new VecInt(new int[] { -vars.upRayAt(i, j), vars.lightAt(i, j) }));
-				this.solver.addHardClause(new VecInt(new int[] { -vars.downRayAt(i, j), vars.lightAt(i, j) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.leftRayAt(i, j), vars.lightAt(i, j) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.rightRayAt(i, j), vars.lightAt(i, j) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.upRayAt(i, j), vars.lightAt(i, j) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.downRayAt(i, j), vars.lightAt(i, j) }));
 
 				// only blanks can be lighted
 				// win condition: cell lighted or a lamp
 				// light equals blank (added to variable manager)
-				// this.solver.addHardClause(new VecInt(new int[] {
+				// this.solver.addClause(new VecInt(new int[] {
 				// vars.blankAt(i,
 				// j), -vars.lightAt(i, j) }));
-				// this.solver.addHardClause(new VecInt(new int[] {
+				// this.solver.addClause(new VecInt(new int[] {
 				// -vars.blankAt(i,
 				// j), vars.lightAt(i, j) }));
 
 				// only blank can be lights (implies also the rays)
-				solver.addHardClause(new VecInt(new int[] { vars.blankAt(i, j), -vars.lightAt(i, j) }));
+				solver.addClause(new VecInt(new int[] { vars.blankAt(i, j), -vars.lightAt(i, j) }));
 
 				// lamp implies rays in all directions
-				this.solver.addHardClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.blankAt(i + 1, j), vars.rightRayAt(i + 1, j) }));
-				this.solver.addHardClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.blankAt(i - 1, j), vars.leftRayAt(i - 1, j) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.blankAt(i + 1, j), vars.rightRayAt(i + 1, j) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.blankAt(i - 1, j), vars.leftRayAt(i - 1, j) }));
 
-				this.solver.addHardClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.blankAt(i, j + 1), vars.downRayAt(i, j + 1) }));
-				this.solver.addHardClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.blankAt(i, j - 1), vars.upRayAt(i, j - 1) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.blankAt(i, j + 1), vars.downRayAt(i, j + 1) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.blankAt(i, j - 1), vars.upRayAt(i, j - 1) }));
 
 				// lamps cannot have lamps as neightbors
-				this.solver.addHardClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.lampAt(i + 1, j) }));
-				this.solver.addHardClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.lampAt(i - 1, j) }));
-				this.solver.addHardClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.lampAt(i, j + 1) }));
-				this.solver.addHardClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.lampAt(i, j - 1) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.lampAt(i + 1, j) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.lampAt(i - 1, j) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.lampAt(i, j + 1) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.lampAt(i, j - 1) }));
 
 				// lamps cannot be lighted on by rays
-				this.solver.addHardClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.rightRayAt(i - 1, j) }));
-				this.solver.addHardClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.leftRayAt(i + 1, j) }));
-				this.solver.addHardClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.upRayAt(i, j + 1) }));
-				this.solver.addHardClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.downRayAt(i, j - 1) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.rightRayAt(i - 1, j) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.leftRayAt(i + 1, j) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.upRayAt(i, j + 1) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.downRayAt(i, j - 1) }));
 
 				// Rays imply other rays left(i,j)->left(i-1,j)
-				this.solver.addHardClause(new VecInt(new int[] { -vars.leftRayAt(i, j), -vars.blankAt(i - 1, j), vars.lampAt(i - 1, j), vars.leftRayAt(i - 1, j) }));
-				this.solver.addHardClause(new VecInt(new int[] { -vars.rightRayAt(i, j), -vars.blankAt(i + 1, j), vars.lampAt(i + 1, j), vars.rightRayAt(i + 1, j) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.leftRayAt(i, j), -vars.blankAt(i - 1, j), vars.lampAt(i - 1, j), vars.leftRayAt(i - 1, j) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.rightRayAt(i, j), -vars.blankAt(i + 1, j), vars.lampAt(i + 1, j), vars.rightRayAt(i + 1, j) }));
 
-				this.solver.addHardClause(new VecInt(new int[] { -vars.upRayAt(i, j), -vars.blankAt(i, j - 1), vars.lampAt(i, j - 1), vars.upRayAt(i, j - 1) }));
-				this.solver.addHardClause(new VecInt(new int[] { -vars.downRayAt(i, j), -vars.blankAt(i, j + 1), vars.lampAt(i, j + 1), vars.downRayAt(i, j + 1) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.upRayAt(i, j), -vars.blankAt(i, j - 1), vars.lampAt(i, j - 1), vars.upRayAt(i, j - 1) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.downRayAt(i, j), -vars.blankAt(i, j + 1), vars.lampAt(i, j + 1), vars.downRayAt(i, j + 1) }));
 
 				// rays only when caused by a lamp or an other ray from the
 				// opposite site
-				this.solver.addHardClause(new VecInt(new int[] { -vars.leftRayAt(i, j), vars.leftRayAt(i + 1, j), vars.lampAt(i + 1, j) }));
-				this.solver.addHardClause(new VecInt(new int[] { -vars.rightRayAt(i, j), vars.rightRayAt(i - 1, j), vars.lampAt(i - 1, j) }));
-				this.solver.addHardClause(new VecInt(new int[] { -vars.upRayAt(i, j), vars.upRayAt(i, j + 1), vars.lampAt(i, j + 1) }));
-				this.solver.addHardClause(new VecInt(new int[] { -vars.downRayAt(i, j), vars.downRayAt(i, j - 1), vars.lampAt(i, j - 1) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.leftRayAt(i, j), vars.leftRayAt(i + 1, j), vars.lampAt(i + 1, j) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.rightRayAt(i, j), vars.rightRayAt(i - 1, j), vars.lampAt(i - 1, j) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.upRayAt(i, j), vars.upRayAt(i, j + 1), vars.lampAt(i, j + 1) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.downRayAt(i, j), vars.downRayAt(i, j - 1), vars.lampAt(i, j - 1) }));
 
 				// lights cannot be lighted by other
 				// no lamp and light
-				this.solver.addHardClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.lightAt(i, j) }));
+				this.solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j), -vars.lightAt(i, j) }));
 
 				this.addBlockDefinition(i, j);
 
@@ -245,68 +246,68 @@ public class AkariSolverFull {
 
 		// case BLOCK0:
 
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(0, i, j), -vars.lampAt(i + 1, j) })));
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(0, i, j), -vars.lampAt(i, j + 1) })));
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(0, i, j), -vars.lampAt(i - 1, j) })));
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(0, i, j), -vars.lampAt(i, j - 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(0, i, j), -vars.lampAt(i + 1, j) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(0, i, j), -vars.lampAt(i, j + 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(0, i, j), -vars.lampAt(i - 1, j) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(0, i, j), -vars.lampAt(i, j - 1) })));
 
 		// case BLOCK4:
 
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(4, i, j), vars.lampAt(i + 1, j) })));
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(4, i, j), vars.lampAt(i, j + 1) })));
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(4, i, j), vars.lampAt(i - 1, j) })));
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(4, i, j), vars.lampAt(i, j - 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(4, i, j), vars.lampAt(i + 1, j) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(4, i, j), vars.lampAt(i, j + 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(4, i, j), vars.lampAt(i - 1, j) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(4, i, j), vars.lampAt(i, j - 1) })));
 
 		// case BLOCK1:
 
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(1, i, j), vars.lampAt(i + 1, j), vars.lampAt(i - 1, j), vars.lampAt(i, j + 1), vars.lampAt(i, j - 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(1, i, j), vars.lampAt(i + 1, j), vars.lampAt(i - 1, j), vars.lampAt(i, j + 1), vars.lampAt(i, j - 1) })));
 
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(1, i, j), -vars.lampAt(i + 1, j), -vars.lampAt(i - 1, j) })));
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(1, i, j), -vars.lampAt(i + 1, j), -vars.lampAt(i, j + 1) })));
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(1, i, j), -vars.lampAt(i + 1, j), -vars.lampAt(i, j - 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(1, i, j), -vars.lampAt(i + 1, j), -vars.lampAt(i - 1, j) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(1, i, j), -vars.lampAt(i + 1, j), -vars.lampAt(i, j + 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(1, i, j), -vars.lampAt(i + 1, j), -vars.lampAt(i, j - 1) })));
 
-		// solver.addHardClause(new VecInt(new int[] { -vars.lampAt(i - 1,
+		// solver.addClause(new VecInt(new int[] { -vars.lampAt(i - 1,
 		// j), -vars.lampAt(i + 1, j) }));
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(1, i, j), -vars.lampAt(i - 1, j), -vars.lampAt(i, j + 1) })));
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(1, i, j), -vars.lampAt(i - 1, j), -vars.lampAt(i, j - 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(1, i, j), -vars.lampAt(i - 1, j), -vars.lampAt(i, j + 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(1, i, j), -vars.lampAt(i - 1, j), -vars.lampAt(i, j - 1) })));
 
-		// solver.addHardClause(new VecInt(new int[] { -vars.lampAt(i, j +
+		// solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j +
 		// 1), -vars.lampAt(i + 1, j) }));
-		// solver.addHardClause(new VecInt(new int[] { -vars.lampAt(i, j +
+		// solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j +
 		// 1), -vars.lampAt(i - 1, j) }));
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(1, i, j), -vars.lampAt(i, j + 1), -vars.lampAt(i, j - 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(1, i, j), -vars.lampAt(i, j + 1), -vars.lampAt(i, j - 1) })));
 
-		// solver.addHardClause(new VecInt(new int[] { -vars.lampAt(i, j -
+		// solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j -
 		// 1), -vars.lampAt(i + 1, j) }));
-		// solver.addHardClause(new VecInt(new int[] { -vars.lampAt(i, j -
+		// solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j -
 		// 1), -vars.lampAt(i - 1, j) }));
-		// solver.addHardClause(new VecInt(new int[] { -vars.lampAt(i, j -
+		// solver.addClause(new VecInt(new int[] { -vars.lampAt(i, j -
 		// 1), -vars.lampAt(i, j + 1) }));
 
 		// case BLOCK3:
 
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(3, i, j), -vars.lampAt(i + 1, j), -vars.lampAt(i - 1, j), -vars.lampAt(i, j + 1), -vars.lampAt(i, j - 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(3, i, j), -vars.lampAt(i + 1, j), -vars.lampAt(i - 1, j), -vars.lampAt(i, j + 1), -vars.lampAt(i, j - 1) })));
 
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(3, i, j), vars.lampAt(i + 1, j), vars.lampAt(i - 1, j) })));
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(3, i, j), vars.lampAt(i + 1, j), vars.lampAt(i, j + 1) })));
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(3, i, j), vars.lampAt(i + 1, j), vars.lampAt(i, j - 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(3, i, j), vars.lampAt(i + 1, j), vars.lampAt(i - 1, j) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(3, i, j), vars.lampAt(i + 1, j), vars.lampAt(i, j + 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(3, i, j), vars.lampAt(i + 1, j), vars.lampAt(i, j - 1) })));
 
-		// solver.addHardClause(new VecInt(new int[] { vars.lampAt(i - 1, j),
+		// solver.addClause(new VecInt(new int[] { vars.lampAt(i - 1, j),
 		// vars.lampAt(i + 1, j) }));
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(3, i, j), vars.lampAt(i - 1, j), vars.lampAt(i, j + 1) })));
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(3, i, j), vars.lampAt(i - 1, j), vars.lampAt(i, j - 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(3, i, j), vars.lampAt(i - 1, j), vars.lampAt(i, j + 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(3, i, j), vars.lampAt(i - 1, j), vars.lampAt(i, j - 1) })));
 
-		// solver.addHardClause(new VecInt(new int[] { vars.lampAt(i, j + 1),
+		// solver.addClause(new VecInt(new int[] { vars.lampAt(i, j + 1),
 		// vars.lampAt(i + 1, j) }));
-		// solver.addHardClause(new VecInt(new int[] { vars.lampAt(i, j + 1),
+		// solver.addClause(new VecInt(new int[] { vars.lampAt(i, j + 1),
 		// vars.lampAt(i - 1, j) }));
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(3, i, j), vars.lampAt(i, j + 1), vars.lampAt(i, j - 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(3, i, j), vars.lampAt(i, j + 1), vars.lampAt(i, j - 1) })));
 
-		// solver.addHardClause(new VecInt(new int[] { vars.lampAt(i, j - 1),
+		// solver.addClause(new VecInt(new int[] { vars.lampAt(i, j - 1),
 		// vars.lampAt(i + 1, j) }));
-		// solver.addHardClause(new VecInt(new int[] { vars.lampAt(i, j - 1),
+		// solver.addClause(new VecInt(new int[] { vars.lampAt(i, j - 1),
 		// vars.lampAt(i - 1, j) }));
-		// solver.addHardClause(new VecInt(new int[] { vars.lampAt(i, j - 1),
+		// solver.addClause(new VecInt(new int[] { vars.lampAt(i, j - 1),
 		// vars.lampAt(i, j + 1) }));
 
 		// case BLOCK2:
@@ -317,22 +318,22 @@ public class AkariSolverFull {
 		// !b + !c + !d )
 
 		// ( a + b + c )
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(2, i, j), vars.lampAt(i + 1, j), vars.lampAt(i - 1, j), vars.lampAt(i, j + 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(2, i, j), vars.lampAt(i + 1, j), vars.lampAt(i - 1, j), vars.lampAt(i, j + 1) })));
 		// ( a + b + d )
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(2, i, j), vars.lampAt(i + 1, j), vars.lampAt(i - 1, j), vars.lampAt(i, j - 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(2, i, j), vars.lampAt(i + 1, j), vars.lampAt(i - 1, j), vars.lampAt(i, j - 1) })));
 		// ( a + c + d )
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(2, i, j), vars.lampAt(i + 1, j), vars.lampAt(i, j + 1), vars.lampAt(i, j - 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(2, i, j), vars.lampAt(i + 1, j), vars.lampAt(i, j + 1), vars.lampAt(i, j - 1) })));
 		// ( b + c + d )
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(2, i, j), vars.lampAt(i - 1, j), vars.lampAt(i, j + 1), vars.lampAt(i, j - 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(2, i, j), vars.lampAt(i - 1, j), vars.lampAt(i, j + 1), vars.lampAt(i, j - 1) })));
 
 		// ( !a + !b + !c )
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(2, i, j), -vars.lampAt(i + 1, j), -vars.lampAt(i - 1, j), -vars.lampAt(i, j + 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(2, i, j), -vars.lampAt(i + 1, j), -vars.lampAt(i - 1, j), -vars.lampAt(i, j + 1) })));
 		// ( !a + !b + !d )
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(2, i, j), -vars.lampAt(i + 1, j), -vars.lampAt(i - 1, j), -vars.lampAt(i, j - 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(2, i, j), -vars.lampAt(i + 1, j), -vars.lampAt(i - 1, j), -vars.lampAt(i, j - 1) })));
 		// ( !a + !c + !d )
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(2, i, j), -vars.lampAt(i + 1, j), -vars.lampAt(i, j + 1), -vars.lampAt(i, j - 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(2, i, j), -vars.lampAt(i + 1, j), -vars.lampAt(i, j + 1), -vars.lampAt(i, j - 1) })));
 		// ( !b + !c + !d )
-		constr.add(this.solver.addHardClause(new VecInt(new int[] { -vars.blockAt(2, i, j), -vars.lampAt(i - 1, j), -vars.lampAt(i, j + 1), -vars.lampAt(i, j - 1) })));
+		constr.add(this.solver.addClause(new VecInt(new int[] { -vars.blockAt(2, i, j), -vars.lampAt(i - 1, j), -vars.lampAt(i, j + 1), -vars.lampAt(i, j - 1) })));
 
 		return constr;
 
@@ -357,7 +358,7 @@ public class AkariSolverFull {
 
 		this.updateLamps();
 
-		return this.solver.isSatisfiable(new VecInt(AkariSolverFull.toIntArray(this.lampPosTrueAndOtherFalseList)));
+		return this.solver.isSatisfiable(new VecInt(AkariSolverFullClassicSAT.toIntArray(this.lampPosTrueAndOtherFalseList)));
 
 	}
 
@@ -386,7 +387,7 @@ public class AkariSolverFull {
 	public boolean isSatisfiableWithCurrentLamps() throws TimeoutException {
 
 		this.updateLamps();
-		return this.solver.isSatisfiable(new VecInt(AkariSolverFull.toIntArray(this.lampPosTrueList)));
+		return this.solver.isSatisfiable(new VecInt(AkariSolverFullClassicSAT.toIntArray(this.lampPosTrueList)));
 
 	}
 
@@ -403,7 +404,7 @@ public class AkariSolverFull {
 
 		LinkedList<Point> list = null;
 
-		if (this.solver.isSatisfiable(new VecInt(AkariSolverFull.toIntArray(this.lampPosTrueList)))) {
+		if (this.solver.isSatisfiable(new VecInt(AkariSolverFullClassicSAT.toIntArray(this.lampPosTrueList)))) {
 			return null;
 		} else {
 
@@ -449,7 +450,7 @@ public class AkariSolverFull {
 		ArrayList<Integer> l = new ArrayList<Integer>(this.lampPosTrueList);
 
 		list = new LinkedList<Point>();
-		while (!this.solver.isSatisfiable(new VecInt(AkariSolverFull.toIntArray(l)))) {
+		while (!this.solver.isSatisfiable(new VecInt(AkariSolverFullClassicSAT.toIntArray(l)))) {
 
 			IVecInt errors = this.solver.unsatExplanation();
 
@@ -496,7 +497,7 @@ public class AkariSolverFull {
 
 		this.updateLamps();
 
-		if (this.solver.isSatisfiable(new VecInt(AkariSolverFull.toIntArray(this.lampPosTrueList)))) {
+		if (this.solver.isSatisfiable(new VecInt(AkariSolverFullClassicSAT.toIntArray(this.lampPosTrueList)))) {
 
 			LinkedList<Point> list = new LinkedList<Point>();
 			int[] model = this.solver.model();
@@ -640,6 +641,7 @@ public class AkariSolverFull {
 			int x = r.nextInt(width);
 			int y = r.nextInt(height);
 
+		
 			if (model.getCellState(x, y) == CellState.BARRIER) {
 				i--;
 			} else {
@@ -694,7 +696,7 @@ public class AkariSolverFull {
 			}
 		}
 
-		this.solver.addWeightedLiteralsToMinimize(literals, weights);
+//		this.solver.addWeightedLiteralsToMinimize(literals, weights);
 
 		Puzzle res = new Puzzle(p.getWidth(), p.getHeight());
 		res.clear();
@@ -805,21 +807,22 @@ public class AkariSolverFull {
 
 	public static Puzzle generatePuzzle(final int width, final int height) {
 
-		Puzzle puzzle = AkariSolverFull.generateRandomModel(width, height, 5, 5, 5, 5, 5);
+		Puzzle puzzle = AkariSolverFullClassicSAT.generateRandomModel(width, height, 5, 5, 5, 5, 5);
 
-		AkariSolverFull solver;
-		try {
-			solver = new AkariSolverFull(new GameFieldModel(puzzle));
-
-			return solver.generateSatisfiablePuzzle(puzzle);
-		} catch (ContradictionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TimeoutException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+		return puzzle;
+//		AkariSolverFullClassicSAT solver;
+//		try {
+//			solver = new AkariSolverFullClassicSAT(new GameFieldModel(puzzle));
+//
+//			return solver.generateSatisfiablePuzzle(puzzle);
+//		} catch (ContradictionException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (TimeoutException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return null;
 
 		// GameFieldModel model = new GameFieldModel(puzzle);
 		// Random r = new Random();
@@ -845,7 +848,7 @@ public class AkariSolverFull {
 		// a.push(-model1[i]);
 		// }
 		//
-		// IConstr added = solver.solver.addHardClause(a);
+		// IConstr added = solver.solver.addClause(a);
 		//
 		// int[] model2 = solver.solver.model();
 		//

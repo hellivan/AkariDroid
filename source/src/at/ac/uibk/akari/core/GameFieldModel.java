@@ -17,6 +17,12 @@ public class GameFieldModel {
 	 */
 	private Puzzle puzzle;
 
+	public Puzzle getPuzzle() {
+		return puzzle;
+	}
+
+	private ModelChangeListener listener;
+
 	/**
 	 * List of lamps that are placed on the game-field
 	 */
@@ -83,6 +89,14 @@ public class GameFieldModel {
 	 * 
 	 */
 	public synchronized void clearLamps() {
+
+		if (listener != null) {
+			for (Point l : lamps) {
+
+				listener.lampRemoved(l.x, l.y);
+			}
+		}
+
 		this.setLamps(null);
 	}
 
@@ -102,6 +116,8 @@ public class GameFieldModel {
 				if (!this.isCellEmpty(location, true)) {
 					throw new RuntimeException("Cant't set lamp at cell-position " + location + " because the cell is not empty");
 				}
+				if (listener != null)
+					listener.lampAdded(location.x, location.y);
 			}
 			this.lamps = lamps;
 		}
@@ -127,7 +143,11 @@ public class GameFieldModel {
 			if (this.lamps == null) {
 				this.lamps = new ArrayList<Point>();
 			}
+			if (listener != null)
+				listener.lampAdded(posX, posY);
+
 			this.lamps.add(new Point(posX, posY));
+
 			return true;
 		}
 		if (this.isLampAt(posX, posY)) {
@@ -257,6 +277,10 @@ public class GameFieldModel {
 		if (this.lamps == null) {
 			return false;
 		}
+
+		if (listener != null)
+			listener.lampRemoved(location.x, location.y);
+
 		return this.lamps.remove(location);
 	}
 
@@ -301,5 +325,13 @@ public class GameFieldModel {
 
 	public boolean isBlock4At(final int posX, final int posY) {
 		return this.getPuzzleCellState(posX, posY).equals(CellState.BLOCK4);
+	}
+
+	public ModelChangeListener getListener() {
+		return listener;
+	}
+
+	public void setModelChangeListener(ModelChangeListener listener) {
+		this.listener = listener;
 	}
 }

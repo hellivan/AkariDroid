@@ -9,6 +9,9 @@ import android.graphics.Point;
  * cells and their properties (can't contain lamps, marks or other informations)
  */
 public class Puzzle {
+	
+	
+	private ModelChangeListener listener;
 
 	/**
 	 * Enumeration that represents all possible states of a puzzle
@@ -144,6 +147,8 @@ public class Puzzle {
 		if (!this.isCellValid(posX, posY)) {
 			throw new RuntimeException("Illegal cell-position " + posX + "," + posY + " for " + this.getWidth() + "x" + this.getHeight() + " puzzle");
 		}
+		if (listener != null)
+			listener.puzzleCellChanged(posX, posY, cellState);
 		this.cells[posY][posX] = cellState;
 	}
 
@@ -239,5 +244,13 @@ public class Puzzle {
 
 		return list;
 
+	}
+
+	public ModelChangeListener getListener() {
+		return listener;
+	}
+
+	public void setModelChangeListener(ModelChangeListener listener) {
+		this.listener = listener;
 	}
 }

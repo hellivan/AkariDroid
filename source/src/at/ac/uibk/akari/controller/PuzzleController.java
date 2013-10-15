@@ -27,6 +27,7 @@ import at.ac.uibk.akari.listener.GameListener;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
 import at.ac.uibk.akari.listener.MenuListener;
+import at.ac.uibk.akari.solver.AkariSolver;
 import at.ac.uibk.akari.solver.AkariSolverFull;
 import at.ac.uibk.akari.utils.ListenerList;
 import at.ac.uibk.akari.view.GameField;
@@ -45,7 +46,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 	private GameFieldModel puzzle;
 	private VertexBufferObjectManager vertexBufferObjectManager;
 
-	private AkariSolverFull solver;
+	private AkariSolver solver;
 
 	private ListenerList listenerList;
 
@@ -83,7 +84,7 @@ public class PuzzleController extends AbstractController implements GameFieldLis
 
 	public void setPuzzle(final Puzzle puzzle) throws ContradictionException {
 		this.puzzle = new GameFieldModel(puzzle);
-		this.solver = new AkariSolverFull(this.puzzle);
+		this.solver = new AkariSolver(this.puzzle);
 		this.gameField.setPuzzle(this.puzzle);
 	}
 
