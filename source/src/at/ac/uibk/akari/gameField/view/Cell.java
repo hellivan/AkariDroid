@@ -18,13 +18,13 @@ public class Cell extends AnimatedSprite {
 		 */
 		BLANK(1, 0),
 		/**
-		 * A cell that represents a lamp
-		 */
-		LAMP(1, 1),
-		/**
 		 * A cell that is lighted by a lamp
 		 */
-		LIGHTED(1, 2),
+		LIGHTED(1, 1),
+		/**
+		 * A cell that represents a lamp
+		 */
+		LAMP(1, 2),
 		/**
 		 * A cell that is marked by the user
 		 */

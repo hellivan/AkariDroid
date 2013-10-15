@@ -2,6 +2,7 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
+   xmlns:osb="http://www.openswatchbook.org/uri/2009/osb"
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -18,6 +19,14 @@
    sodipodi:docname="drawing.svg">
   <defs
      id="defs4">
+    <linearGradient
+       id="linearGradient3878"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#ff0003;stop-opacity:0.57254905;"
+         offset="0"
+         id="stop3880" />
+    </linearGradient>
     <linearGradient
        id="linearGradient5331">
       <stop
@@ -60,6 +69,43 @@
        fx="55"
        fy="197.36218"
        r="25" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3866-8-4"
+       id="linearGradient3949"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.90466071,0,0,0.90619636,5.1819678,69.488656)"
+       x1="168.02464"
+       y1="832.80554"
+       x2="222.29829"
+       y2="832.80554" />
+    <linearGradient
+       id="linearGradient3866-8-4"
+       osb:paint="solid">
+      <stop
+         style="stop-color:#fff000;stop-opacity:1;"
+         offset="0"
+         id="stop3868-9-0" />
+    </linearGradient>
+    <linearGradient
+       y2="832.80554"
+       x2="222.29829"
+       y1="832.80554"
+       x1="168.02464"
+       gradientTransform="matrix(1.0855929,0,0,1.0874356,59.461603,531.22066)"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient3969"
+       xlink:href="#linearGradient3866-8-4"
+       inkscape:collect="always" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient3878"
+       id="linearGradient3882"
+       x1="103.09931"
+       y1="327.46829"
+       x2="146.94029"
+       y2="327.46829"
+       gradientUnits="userSpaceOnUse" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -69,18 +115,18 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2"
-     inkscape:cx="94.094501"
-     inkscape:cy="755.45207"
+     inkscape:cx="-61.225988"
+     inkscape:cy="763.33247"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      showguides="true"
      inkscape:guide-bbox="true"
-     inkscape:window-width="960"
+     inkscape:window-width="1920"
      inkscape:window-height="1021"
      inkscape:window-x="0"
      inkscape:window-y="27"
-     inkscape:window-maximized="0"
+     inkscape:window-maximized="1"
      inkscape:object-paths="true" />
   <metadata
      id="metadata7">
@@ -90,7 +136,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -98,6 +144,35 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
+    <g
+       id="g3921">
+      <rect
+         inkscape:export-ydpi="230.38643"
+         inkscape:export-xdpi="230.38643"
+         inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
+         y="252.56216"
+         x="100.2"
+         height="49.599998"
+         width="49.599998"
+         id="rect3063"
+         style="fill:#00f1ff;fill-opacity:0.53636367;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         transform="matrix(0.92115568,0,0,0.91959469,-54.7734,-488.50772)"
+         d="m 208.55872,845.84436 4.04845,7.56295 -7.04144,-5.12113 2.31262,8.29717 -5.76016,-6.49951 0.44093,8.74308 -4.05798,-7.63849 -1.49654,8.63149 -2.51643,-8.37668 -3.08996,8.10085 -0.7453,-8.60637 -4.76451,7.17305 1.12331,-8.46201 -6.08298,6.08635 2.67435,-8.15681 -7.24451,4.64136 4.46142,-7.32258 -8.06734,2.96019 5.95216,-6.19483 -8.5822,1.36236 7.00333,-5.06065 -8.62942,-0.40487 8.09164,-3.44237 -8.36744,-2.29933 8.47946,-1.64726 -7.73155,-3.93626 8.58297,0.15593 -6.65247,-5.3475 8.37076,1.83462 -5.38637,-6.69128 7.84627,3.69898 -3.90389,-7.71251 6.84545,5.15029 -2.22828,-8.41496 5.76033,6.53145 -0.52278,-8.59531 4.13966,7.63875 1.45506,-8.63404 2.50754,8.28788 3.13177,-8.07029 0.74513,8.59237 4.76451,-7.19098 -1.11724,8.4928 6.14182,-6.05369 -2.73053,8.18608 7.21161,-4.72721 -4.47017,7.39187 8.10916,-3.09166 -5.99397,6.3263 8.5509,-1.27127 -6.9633,4.86438 8.58066,0.52635 -7.88958,3.42608 8.24705,2.17179 -8.35908,1.75686 7.59387,3.83518 -8.60715,-0.18495 6.78321,5.43858 -8.49293,-1.88285 5.41662,6.75109 z"
+         inkscape:randomized="0.003"
+         inkscape:rounded="0"
+         inkscape:flatsided="false"
+         sodipodi:arg2="0.87160152"
+         sodipodi:arg1="0.76688176"
+         sodipodi:r2="27.004629"
+         sodipodi:r1="18.687202"
+         sodipodi:cy="832.80554"
+         sodipodi:cx="195.16147"
+         sodipodi:sides="30"
+         id="path3140"
+         style="fill:url(#linearGradient3969);fill-opacity:1;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+         sodipodi:type="star" />
+    </g>
     <path
        sodipodi:type="arc"
        style="fill:#fff000;fill-opacity:0.56880739;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
@@ -316,108 +391,81 @@
        inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell_empty.png"
        inkscape:export-xdpi="921.56201"
        inkscape:export-ydpi="921.56201" />
-    <g
-       id="g3906"
-       transform="translate(50,0)"
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect3063-3-7-9"
+       width="49.599998"
+       height="49.599998"
+       x="100.2"
+       y="152.56219"
        inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
-       inkscape:export-xdpi="230.39999"
-       inkscape:export-ydpi="230.39999">
+       inkscape:export-xdpi="230.38643"
+       inkscape:export-ydpi="230.38643" />
+    <g
+       id="g3915">
       <rect
-         inkscape:export-ydpi="230.38643"
-         inkscape:export-xdpi="230.38643"
-         inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
-         y="202.56219"
-         x="50.200001"
+         y="302.56219"
+         x="100.2"
          height="49.599998"
          width="49.599998"
-         id="rect3063-3-7"
-         style="fill:#00f1ff;fill-opacity:0.53636367;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
-      <path
-         inkscape:export-ydpi="230.38643"
-         inkscape:export-xdpi="230.38643"
-         inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
-         transform="matrix(0.36941183,0,0,0.36941183,-12.133395,148.14528)"
-         d="m 303.04577,214.44064 c 0,37.09981 -30.07534,67.17515 -67.17515,67.17515 -37.09981,0 -67.17515,-30.07534 -67.17515,-67.17515 0,-37.09981 30.07534,-67.17514 67.17515,-67.17514 37.09981,0 67.17515,30.07533 67.17515,67.17514 z"
-         sodipodi:ry="67.175148"
-         sodipodi:rx="67.175148"
-         sodipodi:cy="214.44064"
-         sodipodi:cx="235.87062"
-         id="path2985-3"
-         style="fill:#fff000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         sodipodi:type="arc" />
-      <rect
-         inkscape:export-ydpi="230.38643"
-         inkscape:export-xdpi="230.38643"
-         inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
-         y="252.56216"
-         x="50.200001"
-         height="49.599998"
-         width="49.599998"
-         id="rect3063"
-         style="fill:#00f1ff;fill-opacity:0.53636367;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
-      <g
-         inkscape:export-ydpi="230.38643"
-         inkscape:export-xdpi="230.38643"
-         inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
-         id="g3109"
-         transform="translate(20.000002,80.000005)">
-        <rect
-           style="fill:none;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-           id="rect3063-3-7-1-9"
-           width="49.599998"
-           height="49.599998"
-           x="30.200001"
-           y="222.56218" />
-        <path
-           sodipodi:type="arc"
-           style="fill:#ff0003;fill-opacity:0.57272728;stroke:#000000;stroke-width:0.27232775;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-           id="path5459"
-           sodipodi:cx="57.75"
-           sodipodi:cy="248.86218"
-           sodipodi:rx="8.25"
-           sodipodi:ry="8.5"
-           d="m 66,248.86218 c 0,4.69442 -3.693651,8.5 -8.25,8.5 -4.556349,0 -8.25,-3.80558 -8.25,-8.5 0,-4.69442 3.693651,-8.5 8.25,-8.5 4.556349,0 8.25,3.80558 8.25,8.5 z"
-           transform="matrix(1.4909091,0,0,1.4470588,-31.1,-112.75603)" />
-      </g>
-      <rect
-         inkscape:export-ydpi="230.38643"
-         inkscape:export-xdpi="230.38643"
-         inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
-         y="152.56219"
-         x="50.200001"
-         height="49.599998"
-         width="49.599998"
-         id="rect3063-3-7-9"
+         id="rect3063-3-7-1-9-5-5"
          style="fill:none;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
-      <g
-         inkscape:export-ydpi="230.38643"
-         inkscape:export-xdpi="230.38643"
-         inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
-         id="g3109-0"
-         transform="translate(19.999999,130)">
-        <rect
-           style="fill:none;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-           id="rect3063-3-7-1-9-5"
-           width="49.599998"
-           height="49.599998"
-           x="30.200001"
-           y="222.56218" />
-        <path
-           sodipodi:type="arc"
-           style="fill:#ff0003;fill-opacity:0.57272728;stroke:#000000;stroke-width:0.27232775;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-           id="path5459-7"
-           sodipodi:cx="57.75"
-           sodipodi:cy="248.86218"
-           sodipodi:rx="8.25"
-           sodipodi:ry="8.5"
-           d="m 66,248.86218 c 0,4.69442 -3.693651,8.5 -8.25,8.5 -4.556349,0 -8.25,-3.80558 -8.25,-8.5 0,-4.69442 3.693651,-8.5 8.25,-8.5 4.556349,0 8.25,3.80558 8.25,8.5 z"
-           transform="matrix(1.4909091,0,0,1.4470588,-31.1,-112.75603)" />
-      </g>
+      <path
+         sodipodi:nodetypes="ccccccccc"
+         inkscape:connector-curvature="0"
+         id="path3904-7"
+         d="m 100.53006,327.34735 0,-24.57196 24.48357,0 24.48356,0 0,24.57196 0,24.57196 -24.48356,0 -24.48357,0 z"
+         style="fill:none;stroke:none" />
       <path
          inkscape:connector-curvature="0"
-         id="path3904"
-         d="m 50.530046,377.34727 0,-24.57196 24.483572,0 24.483572,0 0,24.57196 0,24.57196 -24.483572,0 -24.483572,0 0,-24.57196 z m 27.504693,12.19355 c 5.7322,-1.46596 9.513443,-6.33131 9.476546,-12.19355 -0.03639,-5.78117 -3.526955,-10.40858 -9.157162,-12.13956 -1.625999,-0.49991 -5.217776,-0.45402 -6.964427,0.089 -4.658861,1.44833 -7.963693,5.22796 -8.776183,10.03704 -0.920501,5.4484 1.820469,10.81237 6.782651,13.27337 2.597244,1.2881 5.86975,1.64182 8.638575,0.93373 z"
-         style="fill:#00f1ff;fill-opacity:0.5372549;stroke:none" />
+         id="rect3872-8-3"
+         d="m 102.69644,315.31199 12.15745,12.15746 -12.14981,12.14983 10.13847,10.13843 12.14979,-12.1498 12.15744,12.15745 10.15378,-10.15376 -12.15745,-12.15746 12.14978,-12.14981 -10.13845,-10.13845 -12.14979,12.14982 -12.15745,-12.15747 -10.15376,10.15376 z"
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.39286473;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3876"
+         d="m 107.91517,344.43857 -4.81586,-4.81824 6.01031,-6.00836 c 3.30566,-3.30459 6.0103,-6.08791 6.0103,-6.18514 0,-0.0972 -2.6843,-2.86197 -5.96512,-6.14385 l -5.96513,-5.96706 4.8592,-4.8616 4.85919,-4.86161 6.05568,6.05377 6.05568,6.05377 6.05567,-6.05377 6.05568,-6.05377 4.8592,4.86161 4.8592,4.86161 -6.05352,6.05544 -6.05353,6.05543 6.09908,6.09716 6.09909,6.09717 -4.86136,4.86135 -4.86136,4.86136 -6.09908,-6.09715 -6.09907,-6.09716 -6.05555,6.05364 c -3.33056,3.32951 -6.09544,6.05365 -6.1442,6.05365 -0.0487,0 -2.25578,-2.16822 -4.9045,-4.81825 z"
+         style="fill:url(#linearGradient3882);fill-opacity:1.0;stroke:none" />
     </g>
+    <g
+       id="g3908">
+      <rect
+         y="352.56219"
+         x="100.2"
+         height="49.599998"
+         width="49.599998"
+         id="rect3063-3-7-1-9-5"
+         style="fill:none;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         sodipodi:nodetypes="ccccccccc"
+         inkscape:connector-curvature="0"
+         id="path3904"
+         d="m 100.53005,377.34727 0,-24.57196 24.48357,0 24.48357,0 0,24.57196 0,24.57196 -24.48357,0 -24.48357,0 z"
+         style="fill:none;stroke:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="rect3872-8"
+         d="m 102.69643,365.31191 12.15745,12.15746 -12.14981,12.14983 10.13847,10.13843 12.14979,-12.1498 12.15745,12.15745 10.15378,-10.15376 -12.15746,-12.15746 12.14979,-12.14981 -10.13845,-10.13845 -12.1498,12.14982 -12.15745,-12.15747 -10.15376,10.15376 z"
+         style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.39286473;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
+      <path
+         id="path3884"
+         d="m 107.91517,394.46637 -4.81586,-4.81824 6.01031,-6.00835 c 3.30566,-3.3046 6.0103,-6.08792 6.0103,-6.18516 0,-0.0972 -2.70474,-2.8824 -6.01054,-6.18924 l -6.01053,-6.01243 4.86161,-4.8592 4.86161,-4.8592 6.09867,6.09676 6.09868,6.09675 6.05567,-6.05377 6.05568,-6.05377 4.8592,4.86161 4.8592,4.86161 -6.05321,6.05511 -6.0532,6.05512 6.05352,6.05352 6.05353,6.05353 -4.85952,4.86193 -4.85952,4.86193 -6.05568,-6.05377 -6.05567,-6.05377 -6.05555,6.05364 c -3.33056,3.3295 -6.09544,6.05364 -6.1442,6.05364 -0.0487,0 -2.25578,-2.16821 -4.9045,-4.81825 z"
+         style="fill:#ff0003;fill-opacity:0.57254905;stroke:none" />
+      <path
+         inkscape:connector-curvature="0"
+         id="path3888"
+         d="m 100.42676,377.31988 0,-24.48357 24.57196,0 24.57196,0 0,24.48357 0,24.48358 -24.57196,0 -24.57196,0 0,-24.48358 z m 18.60479,16.75057 5.96717,-5.96524 5.96718,5.96524 c 3.28194,3.28088 6.04679,5.96524 6.14411,5.96524 0.0973,0 2.52267,-2.34675 5.38968,-5.21499 l 5.21275,-5.215 -6.05357,-6.05548 -6.05358,-6.05548 6.01043,-6.00847 c 3.30573,-3.30466 6.01042,-6.08897 6.01042,-6.18735 0,-0.0984 -2.34675,-2.52461 -5.215,-5.39162 l -5.21499,-5.21275 -6.09871,6.09679 -6.09872,6.0968 -6.09871,-6.0968 -6.09872,-6.09679 -5.21499,5.21275 c -2.86825,2.86701 -5.215,5.29324 -5.215,5.39162 0,0.0984 2.70469,2.88269 6.01043,6.18735 l 6.01042,6.00847 -6.05358,6.05548 -6.05357,6.05548 5.21275,5.215 c 2.86701,2.86824 5.29237,5.21499 5.38968,5.21499 0.0973,0 2.86217,-2.68436 6.14412,-5.96524 z"
+         style="fill:#00f1ff;fill-opacity:0.53725493;stroke:none" />
+    </g>
+    <rect
+       style="fill:#00f1ff;fill-opacity:0.53636367;stroke:#000000;stroke-width:0.40000001;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect3063-6"
+       width="49.599998"
+       height="49.599998"
+       x="100.2"
+       y="202.56218"
+       inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
+       inkscape:export-xdpi="230.38643"
+       inkscape:export-ydpi="230.38643" />
   </g>
 </svg>

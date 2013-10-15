@@ -47,7 +47,7 @@ public class PuzzleHUD extends AbstractHUD implements StopClockUpdateListener {
 
 		buttons.add(new HUDButton(desiredWidth - PuzzleHUD.BORDER_INSET_X - PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTexture(TextureType.MENU_ICONS, 0, 2), DefaultMenuItem.HELP));
 
-		this.placeingModeButton = new HUDToggleButton(desiredWidth - PuzzleHUD.BORDER_INSET_X - PuzzleHUD.BUTTONS_SIZE - PuzzleHUD.BUTTONS_SEPARATOR - PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTextureRegion(TextureType.MENU_ICONS), TextureType.MENU_ICONS.getTileNumber(0, 0), TextureType.MENU_ICONS.getTileNumber(0, 1), DefaultMenuItem.NEXT);
+		this.placeingModeButton = new HUDToggleButton(desiredWidth - PuzzleHUD.BORDER_INSET_X - PuzzleHUD.BUTTONS_SIZE - PuzzleHUD.BUTTONS_SEPARATOR - PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BORDER_INSET_Y, PuzzleHUD.BUTTONS_SIZE, PuzzleHUD.BUTTONS_SIZE, this.vertexBufferObjectManager, TextureLoader.getInstance().getTextureRegion(TextureType.MENU_ICONS), TextureType.MENU_ICONS.getTileNumber(1, 3), TextureType.MENU_ICONS.getTileNumber(1, 2), DefaultMenuItem.NEXT);
 		buttons.add(this.placeingModeButton);
 
 		return buttons;
