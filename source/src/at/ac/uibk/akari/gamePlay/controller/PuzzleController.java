@@ -1,8 +1,8 @@
 package at.ac.uibk.akari.gamePlay.controller;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 import org.andengine.engine.camera.ZoomCamera;
 import org.andengine.entity.scene.IOnSceneTouchListener;
@@ -58,7 +58,10 @@ public class PuzzleController extends AbstractController implements MenuListener
 
 	}
 
-	// private GameFieldController gameFieldController;
+	private static Random rand = new Random();
+
+	private static final int SECONDS_AMOUNT_ON_HINT = 300;
+
 	private GameField gameField;
 	private Scene gameScene;
 	private ZoomCamera gameCamera;
@@ -316,37 +319,37 @@ public class PuzzleController extends AbstractController implements MenuListener
 			DefaultMenuItem selectedItem = (DefaultMenuItem) event.getMenuItem();
 			switch (selectedItem) {
 			case PAUSE:
-				this.stopClock.stop();
 				Log.i(this.getClass().getName(), "PAUSE-Game pressed");
-				this.gameScene.setChildScene(this.pauseScene, false, true, true);
-				this.gameHUD.setEnabled(false);
+				this.stopClock.stop();
+				this.openPauseMenu();
 				break;
 			case HELP:
 				Log.i(this.getClass().getName(), "HELP-Game pressed");
 				try {
-					List<Point> hints = this.solver.getHints();
-					if ((hints == null) || (hints.size() < 1)) {
-						MainActivity.showToast("No hint available", Toast.LENGTH_SHORT);
+					if (this.solver.hasWrongPlacedLamps()) {
+						// remove an arbitrary wrong placed lamp
+						List<Point> wrongLamps = this.solver.getWrongPlacedLamp();
+						Log.i(this.getClass().getName(), "Got " + wrongLamps.size() + " remove-hints");
+						Point toRemove = wrongLamps.get(PuzzleController.rand.nextInt(wrongLamps.size()));
+						Log.i(this.getClass().getName(), "Got hint to remove lamp at " + toRemove);
+						this.gameField.removeLampAt(toRemove);
+						this.stopClock.increaseSecondsElapsed(PuzzleController.SECONDS_AMOUNT_ON_HINT);
+
 					} else {
-						MainActivity.showToast("Hint requested", Toast.LENGTH_SHORT);
-					}
-					if (hints != null) {
-						Log.i(this.getClass().getName(), "Got " + hints.size() + " hints");
-						Iterator<Point> iterHints = hints.iterator();
-						if (iterHints.hasNext()) {
-							Point hint = iterHints.next();
-							if (this.gameField.isLampAt(hint)) {
-								Log.i(this.getClass().getName(), "Got hint to remove lamp at " + hint);
-								this.gameField.removeLampAt(hint);
-							} else {
-								Log.i(this.getClass().getName(), "Got hint to place lamp at " + hint);
-								this.gameField.setLampAt(hint);
-							}
-							this.stopClock.increaseSecondsElapsed(300);
+						// place an arbitrary lamp that leads to solve the
+						// puzzle
+						List<Point> missingLamps = this.solver.getHints();
+						if ((missingLamps == null) || (missingLamps.size() < 1)) {
+							MainActivity.showToast("No hint available", Toast.LENGTH_SHORT);
+						} else {
+							Log.i(this.getClass().getName(), "Got " + missingLamps.size() + " add-hints");
+							Point toAdd = missingLamps.get(PuzzleController.rand.nextInt(missingLamps.size()));
+							Log.i(this.getClass().getName(), "Got hint to place lamp at " + toAdd);
+							this.gameField.setLampAt(toAdd);
+							this.stopClock.increaseSecondsElapsed(PuzzleController.SECONDS_AMOUNT_ON_HINT);
 						}
 					}
 
-					// this.solver.setSolutionToModel();
 				} catch (TimeoutException e) {
 					e.printStackTrace();
 				}
@@ -358,8 +361,7 @@ public class PuzzleController extends AbstractController implements MenuListener
 			}
 		} else if (event.getSource() == this.pauseScene) {
 
-			this.pauseScene.back();
-			this.gameHUD.setEnabled(true);
+			this.closePauseMenu();
 
 			DefaultMenuItem selectedItem = (DefaultMenuItem) event.getMenuItem();
 			switch (selectedItem) {
@@ -434,6 +436,16 @@ public class PuzzleController extends AbstractController implements MenuListener
 		}
 	}
 
+	private void openPauseMenu() {
+		this.gameScene.setChildScene(this.pauseScene, false, true, true);
+		this.gameHUD.setEnabled(false);
+	}
+
+	private void closePauseMenu() {
+		this.pauseScene.back();
+		this.gameHUD.setEnabled(true);
+	}
+
 	private Puzzle getCurrentPuzzle() {
 		if (this.puzzle != null) {
 			return this.puzzle.getPuzzle();
@@ -443,7 +455,16 @@ public class PuzzleController extends AbstractController implements MenuListener
 
 	@Override
 	public void onBackKeyPressed() {
-		// TODO Auto-generated method stub
+		Scene currentCildScene = this.gameScene.getChildScene();
+		if (currentCildScene == null) {
+			this.stopClock.stop();
+			this.openPauseMenu();
+		} else {
+			if (currentCildScene.equals(this.pauseScene)) {
+				this.stopClock.start();
+				this.closePauseMenu();
+			}
+		}
 
 	}
 
@@ -509,10 +530,7 @@ public class PuzzleController extends AbstractController implements MenuListener
 			Point lastCell = event.getLastCell();
 			Point currentCell = event.getCurrentCell();
 			Log.d(this.getClass().toString(), "GameField dragged from  " + lastCell.toString() + " to " + currentCell.toString());
-
-			// this.gameField.removeLampAt(lastCell);
-			// this.gameField.setLampAt(currentCell);
 		}
-
 	}
+
 }
