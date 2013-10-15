@@ -25,7 +25,7 @@ public class TextureLoader {
 		/**
 		 * Tiled texture for a cell
 		 */
-		CELL("cell.png", 256, 768, 2, 6),
+		CELL("cell.png", 128, 384, 2, 6),
 		/**
 		 * Tiled texture for a menu icons
 		 */
