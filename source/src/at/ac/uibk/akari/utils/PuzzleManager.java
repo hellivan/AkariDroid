@@ -106,7 +106,7 @@ public class PuzzleManager {
 	public boolean isPuzzleResumable(final Puzzle puzzle) {
 		GameFieldSaveState saveState = SaveGameManager.getInstance().loadGameFiledState(puzzle);
 		if (saveState != null) {
-			if ((saveState.getLamps().size() > 0) || (saveState.getMarks().size() > 0)) {
+			if (saveState.getSpecialPoints().size() > 0) {
 				return true;
 			}
 		}

@@ -140,8 +140,7 @@ public class PuzzleController extends AbstractController implements MenuListener
 
 	private void resumePuzzle() {
 		GameFieldSaveState oldSaveState = SaveGameManager.getInstance().loadGameFiledState(this.getCurrentPuzzle());
-		this.puzzle.setLamps(oldSaveState.getLamps());
-		this.puzzle.setMarks(oldSaveState.getMarks());
+		this.puzzle.setGameFieldPoints(oldSaveState.getSpecialPoints());
 
 		this.gameField.adaptFieldToModel();
 		SceneManager.getInstance().setCurrentScene(this, this.gameScene, this.gameHUD);

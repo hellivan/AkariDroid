@@ -1,16 +1,15 @@
 package at.ac.uibk.akari.utils;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Point;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import at.ac.uibk.akari.core.GameFieldPoint;
+import at.ac.uibk.akari.core.JsonTools;
 import at.ac.uibk.akari.core.Puzzle;
 
 public class SaveGameManager {
@@ -26,10 +25,8 @@ public class SaveGameManager {
 	public static final int EMPTY_SCORE = SaveGameManager.EMPTY_INT;
 
 	private static final String SCORE_SUFFIX = "_SCORE";
-
-	private static final String LAMPS_SUFFIX = "_LAMPS";
-	private static final String MARKS_SUFFIX = "_MARKS";
 	private static final String TIME_SUFFIX = "_TIME";
+	private static final String SPECIAL_POINTS_SUFFIX = "_SPECIAL_POINTS";
 
 	private static final String KEY_RESUME = "RESUME";
 
@@ -86,31 +83,35 @@ public class SaveGameManager {
 		String puzzleID = SaveGameManager.generatePuzzleID(gameFieldSaveState.getPuzzle());
 		Log.d(this.getClass().getName(), "Save game-field-state for puzzle " + puzzleID);
 		SharedPreferences.Editor editor = this.sharedPreferences.edit();
-		editor.putString(puzzleID + SaveGameManager.LAMPS_SUFFIX, SaveGameManager.convertPointsToString(gameFieldSaveState.getLamps()));
-		editor.putString(puzzleID + SaveGameManager.MARKS_SUFFIX, SaveGameManager.convertPointsToString(gameFieldSaveState.getMarks()));
+
+		GameFieldPoint[] specialPoints = gameFieldSaveState.getSpecialPoints().toArray(new GameFieldPoint[gameFieldSaveState.getSpecialPoints().size()]);
+		editor.putString(puzzleID + SaveGameManager.SPECIAL_POINTS_SUFFIX, JsonTools.getInstance().toJson(specialPoints, true));
 
 		editor.putLong(puzzleID + SaveGameManager.TIME_SUFFIX, gameFieldSaveState.getSecondsElapsed());
+
 		editor.commit();
 	}
 
 	public GameFieldSaveState loadGameFiledState(final Puzzle puzzle) {
 		String puzzleID = SaveGameManager.generatePuzzleID(puzzle);
 		Log.d(this.getClass().getName(), "Loading game-field-state for puzzle " + puzzleID);
-		String lampsLoaded = this.sharedPreferences.getString(puzzleID + SaveGameManager.LAMPS_SUFFIX, SaveGameManager.EMPTY_STRING);
-		String marksLoaded = this.sharedPreferences.getString(puzzleID + SaveGameManager.MARKS_SUFFIX, SaveGameManager.EMPTY_STRING);
+
+		String specialPointsLoaded = this.sharedPreferences.getString(puzzleID + SaveGameManager.SPECIAL_POINTS_SUFFIX, SaveGameManager.EMPTY_STRING);
 		long timeLoaded = this.sharedPreferences.getLong(puzzleID + SaveGameManager.TIME_SUFFIX, SaveGameManager.EMPTY_LONG);
 
-		if ((timeLoaded == SaveGameManager.EMPTY_LONG) || lampsLoaded.equals(SaveGameManager.EMPTY_STRING) || marksLoaded.equals(SaveGameManager.EMPTY_STRING)) {
+		if ((timeLoaded == SaveGameManager.EMPTY_LONG) || specialPointsLoaded.equals(SaveGameManager.EMPTY_STRING)) {
 			return null;
 		}
-		return GameFieldSaveState.generate(puzzle, SaveGameManager.convertStringToPoints(lampsLoaded), SaveGameManager.convertStringToPoints(marksLoaded), timeLoaded);
+
+		return GameFieldSaveState.generate(puzzle, new HashSet<GameFieldPoint>(Arrays.asList(JsonTools.getInstance().fromJson(GameFieldPoint[].class, specialPointsLoaded))), timeLoaded);
 	}
 
 	public void clearGameFiledState(final Puzzle puzzle) {
 		String puzzleID = SaveGameManager.generatePuzzleID(puzzle);
 		Log.d(this.getClass().getName(), "Delete game-field-state for puzzle " + puzzleID);
 		SharedPreferences.Editor editor = this.sharedPreferences.edit();
-		editor.remove(puzzleID + SaveGameManager.LAMPS_SUFFIX);
+		editor.remove(puzzleID + SaveGameManager.SPECIAL_POINTS_SUFFIX);
+		editor.remove(puzzleID + SaveGameManager.TIME_SUFFIX);
 		editor.commit();
 	}
 
@@ -146,22 +147,4 @@ public class SaveGameManager {
 		return Integer.toString(puzzle.hashCode());
 	}
 
-	private static String convertPointsToString(final Set<Point> points) {
-		StringBuffer result = new StringBuffer("{");
-		for (Point point : points) {
-			result.append("[" + point.x + "," + point.y + "]");
-		}
-		result.append("}");
-		return result.toString();
-	}
-
-	private static Set<Point> convertStringToPoints(final String points) {
-		Set<Point> result = new HashSet<Point>();
-		Pattern pattern = Pattern.compile("\\[(\\d*),(\\d*)\\]");
-		Matcher matcher = pattern.matcher(points);
-		while (matcher.find()) {
-			result.add(new Point(Integer.parseInt(matcher.group(1)), Integer.parseInt(matcher.group(2))));
-		}
-		return result;
-	}
 }

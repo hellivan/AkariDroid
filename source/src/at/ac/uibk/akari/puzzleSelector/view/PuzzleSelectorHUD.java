@@ -43,9 +43,9 @@ public class PuzzleSelectorHUD extends AbstractHUD {
 
 	@Override
 	protected Set<Entity> initHUDItems(final int desiredWidth) {
-		int timerWidth = 2 * PuzzleSelectorHUD.BUTTONS_SIZE;
-		int timerPos = (desiredWidth / 2) - (timerWidth / 2);
-		this.pageIndicator = new Text(timerPos, PuzzleSelectorHUD.BORDER_INSET_Y, FontLoader.getInstance().getFont(FontType.DROID_48_WHITE), "0/0", 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager);
+		this.pageIndicator = new Text(0, 0, FontLoader.getInstance().getFont(FontType.DROID_48_WHITE), "0/0", 10, new TextOptions(HorizontalAlign.CENTER), this.vertexBufferObjectManager);
+		this.pageIndicator.setX((desiredWidth / 2) - (this.pageIndicator.getWidth() / 2));
+		this.pageIndicator.setY(PuzzleSelectorHUD.BORDER_INSET_Y);
 
 		Set<Entity> entities = new HashSet<Entity>();
 		entities.add(this.pageIndicator);
@@ -60,6 +60,8 @@ public class PuzzleSelectorHUD extends AbstractHUD {
 
 	public void setIndicatorIndex(final int pageIndex, final int pages) {
 		this.pageIndicator.setText((pageIndex + 1) + "/" + pages);
+		this.pageIndicator.setX((this.getDesiredHUDWidth() / 2) - (this.pageIndicator.getWidth() / 2));
+
 	}
 
 }

@@ -70,11 +70,25 @@ public class GameFieldModel {
 	 * 
 	 * @return Set of points
 	 */
-	private Set<GameFieldPoint> getGameFieldPoints() {
+	public Set<GameFieldPoint> getGameFieldPoints() {
 		if (this.gameFieldPoints == null) {
 			this.gameFieldPoints = new HashSet<GameFieldPoint>();
 		}
 		return this.gameFieldPoints;
+	}
+
+	/**
+	 * Setting the set of all points on the game-field, that do have a special
+	 * meaning
+	 * 
+	 * @param gameFieldPoints
+	 *            Set of points
+	 */
+	public void setGameFieldPoints(final Set<GameFieldPoint> gameFieldPoints) {
+		this.clear();
+		for (GameFieldPoint point : gameFieldPoints) {
+			this.addGameFieldPoint(point.getType(), point.getX(), point.getY());
+		}
 	}
 
 	/**
