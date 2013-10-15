@@ -9,6 +9,7 @@ import android.graphics.Point;
 import android.util.Log;
 import at.ac.uibk.akari.core.GameFieldPoint.Type;
 import at.ac.uibk.akari.core.Puzzle.CellState;
+import at.ac.uibk.akari.utils.ListenerList;
 
 /**
  * Class that implements the model of an AKARI-game-field
@@ -19,6 +20,8 @@ public class GameFieldModel {
 	 * Puzzle for this game-field
 	 */
 	private Puzzle puzzle;
+
+	private ListenerList listenerList;
 
 	/**
 	 * List of points on the game-field that have a special meaning
@@ -52,6 +55,7 @@ public class GameFieldModel {
 	 */
 	public GameFieldModel(final Puzzle puzzle) {
 		this.puzzle = puzzle;
+		this.listenerList = new ListenerList();
 		this.lightRays = new int[puzzle.getHeight()][puzzle.getWidth()];
 	}
 
@@ -110,10 +114,14 @@ public class GameFieldModel {
 	}
 
 	private boolean addGameFieldPoint(final Type type, final int posX, final int posY) {
-		if (type.equals(Type.LAMP)) {
+
+		boolean added = this.getGameFieldPoints().add(new GameFieldPoint(type, new Point(posX, posY)));
+		if (added && type.equals(Type.LAMP)) {
 			this.onLampChanged(posX, posY, true);
+			this.fireLampAdded(posX, posY);
 		}
-		return this.getGameFieldPoints().add(new GameFieldPoint(type, new Point(posX, posY)));
+
+		return added;
 	}
 
 	/**
@@ -146,6 +154,7 @@ public class GameFieldModel {
 			boolean tmpValue = this.getGameFieldPoints().remove(point);
 			if (tmpValue && point.getType().equals(Type.LAMP)) {
 				this.onLampChanged(point.getX(), point.getY(), false);
+				this.fireLampRemoved(point.getX(), point.getY());
 			}
 			retValue |= tmpValue;
 		}
@@ -189,6 +198,7 @@ public class GameFieldModel {
 		for (Point location : lamps) {
 			this.setLampAt(location);
 		}
+
 	}
 
 	/**
@@ -505,5 +515,25 @@ public class GameFieldModel {
 
 	public synchronized Set<Point> getMarks() {
 		return this.getGameFieldPoints(Type.MARK);
+	}
+
+	public void addModelChangeListener(final ModelChangeListener listener) {
+		this.listenerList.addListener(ModelChangeListener.class, listener);
+	}
+
+	public void removeModelChangeListener(final ModelChangeListener listener) {
+		this.listenerList.removeListener(ModelChangeListener.class, listener);
+	}
+
+	protected void fireLampAdded(final int posX, final int posY) {
+		for (ModelChangeListener listener : this.listenerList.getListeners(ModelChangeListener.class)) {
+			listener.lampAdded(posX, posY);
+		}
+	}
+
+	protected void fireLampRemoved(final int posX, final int posY) {
+		for (ModelChangeListener listener : this.listenerList.getListeners(ModelChangeListener.class)) {
+			listener.lampRemoved(posX, posY);
+		}
 	}
 }

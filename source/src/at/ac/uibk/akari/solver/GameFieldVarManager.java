@@ -1,11 +1,13 @@
 package at.ac.uibk.akari.solver;
 
 import android.graphics.Point;
+import at.ac.uibk.akari.core.Puzzle;
+import at.ac.uibk.akari.core.Puzzle.CellState;
 
 public class GameFieldVarManager {
 
 	public enum VarBlocks {
-		LAMP(0), LIGHT(1), BARRIER(2), BLOCK0(3), BLOCK1(4), BLOCK2(5), BLOCK3(6), BLOCK4(7), LEFTRAY(8), UPRAY(9), RIGHTRAY(10), DOWNRAY(11),PLACEABLE(12);
+		LAMP(0), LIGHT(1), BARRIER(2), BLOCK0(3), BLOCK1(4), BLOCK2(5), BLOCK3(6), BLOCK4(7), LEFTRAY(8), UPRAY(9), RIGHTRAY(10), DOWNRAY(11), PLACEABLE(12);
 
 		private int value;
 
@@ -45,6 +47,58 @@ public class GameFieldVarManager {
 			return null;
 
 		}
+
+		public static VarBlocks fromPuzzle(Puzzle.CellState value) {
+
+			switch (value) {
+			case BARRIER:
+				return VarBlocks.BARRIER;
+			case BLANK:
+				return VarBlocks.PLACEABLE;
+			case BLOCK0:
+				return VarBlocks.BLOCK0;
+			case BLOCK1:
+				return VarBlocks.BLOCK1;
+			case BLOCK2:
+				return VarBlocks.BLOCK2;
+			case BLOCK3:
+				return VarBlocks.BLOCK3;
+			case BLOCK4:
+				return VarBlocks.BLOCK4;
+
+			default:
+				break;
+			}
+
+			return null;
+
+		}
+
+		public Puzzle.CellState toPuzzle() {
+
+			switch (this) {
+			case BARRIER:
+				return CellState.BARRIER;
+			case LIGHT:
+				return CellState.BLANK;
+			case BLOCK0:
+				return CellState.BLOCK0;
+			case BLOCK1:
+				return CellState.BLOCK1;
+			case BLOCK2:
+				return CellState.BLOCK2;
+			case BLOCK3:
+				return CellState.BLOCK3;
+			case BLOCK4:
+				return CellState.BLOCK4;
+
+			default:
+				break;
+			}
+
+			return null;
+
+		}
 	}
 
 	private int width;
@@ -52,7 +106,9 @@ public class GameFieldVarManager {
 
 	private int blocksize;
 
-	private final int CONSTANT_COUNT = 2;
+
+
+	protected final int CONSTANT_COUNT = 2;
 
 	public GameFieldVarManager(int width, int height) {
 		this.width = width;
@@ -136,7 +192,7 @@ public class GameFieldVarManager {
 	}
 
 	public int blankAt(int x, int y) {
-		//Blank is the same as Light
+		// Blank is the same as Light
 		return getVar(VarBlocks.LIGHT.getValue(), x, y);
 	}
 
@@ -155,9 +211,13 @@ public class GameFieldVarManager {
 	public int downRayAt(int x, int y) {
 		return getVar(VarBlocks.DOWNRAY.getValue(), x, y);
 	}
-	
+
 	public int placeableAt(int x, int y) {
 		return getVar(VarBlocks.PLACEABLE.getValue(), x, y);
+	}
+	
+	public int getBlocksize() {
+		return blocksize;
 	}
 
 }

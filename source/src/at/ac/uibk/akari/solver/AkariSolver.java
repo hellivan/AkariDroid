@@ -422,12 +422,10 @@ public class AkariSolver {
 
 		this.updateLamps();
 
-		LinkedList<Point> list = null;
+		ArrayList<Integer> solvableList = new ArrayList<Integer>(this.lampPosTrueList);
 
-		ArrayList<Integer> l = new ArrayList<Integer>(this.lampPosTrueList);
-
-		list = new LinkedList<Point>();
-		while (!this.solver.isSatisfiable(new VecInt(AkariSolver.toIntArray(l)))) {
+		LinkedList<Point> list = new LinkedList<Point>();
+		while (!this.solver.isSatisfiable(new VecInt(AkariSolver.toIntArray(solvableList)))) {
 
 			IVecInt errors = this.solver.unsatExplanation();
 
@@ -437,8 +435,8 @@ public class AkariSolver {
 
 			for (int i = 0; i < errors.size(); i++) {
 
-				l.remove((Integer) errors.get(i));
-				l.add(-errors.get(i));
+				solvableList.remove((Integer) errors.get(i));
+				solvableList.add(-errors.get(i));
 
 				Point p = this.reverseLampAt(errors.get(i));
 
@@ -488,8 +486,13 @@ public class AkariSolver {
 
 			return list;
 		} else {
-			return null;
+			IVecInt unsat=this.solver.unsatExplanation();
+			
+			for (int i = 0; i < unsat.size(); i++) {				
+				
+			}
 		}
+		return null;
 
 	}
 

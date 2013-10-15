@@ -5,12 +5,15 @@ import java.util.Arrays;
 
 import android.graphics.Point;
 import at.ac.uibk.akari.common.view.MenuItem;
+import at.ac.uibk.akari.utils.ListenerList;
 
 /**
  * Class that represents the base construction of a puzzle. It only contains the
  * cells and their properties (can't contain lamps, marks or other informations)
  */
 public class Puzzle {
+
+	protected ListenerList listenerList;
 
 	/**
 	 * Enumeration that represents all possible states of a puzzle
@@ -94,6 +97,7 @@ public class Puzzle {
 		if ((width < 1) || (height < 1)) {
 			throw new RuntimeException("Invalid puzzle-size " + width + "x" + height);
 		}
+		this.listenerList = new ListenerList();
 		this.cells = new CellState[height][width];
 		this.clear();
 	}
@@ -156,6 +160,7 @@ public class Puzzle {
 		if (!this.isCellValid(posX, posY)) {
 			throw new RuntimeException("Illegal cell-position " + posX + "," + posY + " for " + this.getWidth() + "x" + this.getHeight() + " puzzle");
 		}
+		this.fireCellChanged(posX, posY, cellState);
 		this.cells[posY][posX] = cellState;
 	}
 
@@ -342,4 +347,17 @@ public class Puzzle {
 		return true;
 	}
 
+	protected void fireCellChanged(final int posX, final int posY, final CellState cellState) {
+		for (ModelChangeListener listener : this.listenerList.getListeners(ModelChangeListener.class)) {
+			listener.puzzleCellChanged(posX, posY, cellState);
+		}
+	}
+
+	public void addModelChangeListener(final ModelChangeListener listener) {
+		this.listenerList.addListener(ModelChangeListener.class, listener);
+	}
+
+	public void removeModelChangeListener(final ModelChangeListener listener) {
+		this.listenerList.removeListener(ModelChangeListener.class, listener);
+	}
 }
