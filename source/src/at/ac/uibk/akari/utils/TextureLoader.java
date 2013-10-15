@@ -3,20 +3,15 @@ package at.ac.uibk.akari.utils;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.andengine.entity.scene.background.IBackground;
-import org.andengine.entity.scene.background.RepeatingSpriteBackground;
 import org.andengine.opengl.texture.TextureManager;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
-import org.andengine.opengl.texture.atlas.bitmap.source.AssetBitmapTextureAtlasSource;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.ITiledTextureRegion;
 import org.andengine.opengl.texture.region.TiledTextureRegion;
-import org.andengine.opengl.vbo.VertexBufferObjectManager;
 
 import android.content.Context;
-import android.content.res.AssetManager;
 
 public class TextureLoader {
 
@@ -83,32 +78,12 @@ public class TextureLoader {
 		}
 	}
 
-	public enum BackgroundType {
-		/**
-		 * Background for the Game-field
-		 */
-		GAME_FIELD_BACKGROUND("grey_wash_wall.png");
-
-		private String texturePath;
-
-		private BackgroundType(final String texturePath) {
-			this.texturePath = texturePath;
-		}
-
-		public String getTexturePath() {
-			return this.texturePath;
-		}
-
-	}
-
 	private Map<TextureType, TiledTextureRegion> texturesCache;
-	private Map<BackgroundType, IBackground> backgroundCache;
 
 	private static TextureLoader singleton;
 
 	private TextureLoader() {
 		this.texturesCache = new HashMap<TextureType, TiledTextureRegion>();
-		this.backgroundCache = new HashMap<BackgroundType, IBackground>();
 	}
 
 	public static TextureLoader getInstance() {
@@ -118,7 +93,7 @@ public class TextureLoader {
 		return TextureLoader.singleton;
 	}
 
-	public void init(final TextureManager textureManager, final Context context, final AssetManager assetManager, final VertexBufferObjectManager vertexBufferObjectManager, final float cameraWidth, final float cameraHeight) {
+	public void init(final TextureManager textureManager, final Context context) {
 		String assetPath = "gfx/";
 		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath(assetPath);
 
@@ -132,10 +107,6 @@ public class TextureLoader {
 			this.texturesCache.put(textureType, textureRegion);
 		}
 
-		for (BackgroundType backgroundType : BackgroundType.values()) {
-			this.backgroundCache.put(backgroundType, new RepeatingSpriteBackground(cameraWidth, cameraHeight, textureManager, AssetBitmapTextureAtlasSource.create(assetManager, assetPath + backgroundType.getTexturePath()), vertexBufferObjectManager));
-		}
-
 	}
 
 	public ITextureRegion getTexture(final TextureType textureType, final int posX, final int posY) {
@@ -146,7 +117,4 @@ public class TextureLoader {
 		return this.texturesCache.get(textureType);
 	}
 
-	public IBackground getBackground(final BackgroundType backgroundType) {
-		return this.backgroundCache.get(backgroundType);
-	}
 }

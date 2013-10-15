@@ -22,9 +22,13 @@ public class FontLoader {
 		 */
 		DROID_48_BLACK("Droid.ttf", 48, Color.BLACK),
 		/**
+		 * Font called DROID with size 48 and color white
+		 */
+		DROID_48_WHITE("Droid.ttf", 48, Color.WHITE),
+		/**
 		 * Font called PLOK with size 48 and color black
 		 */
-		PLOK_48("Plok.ttf", 48, Color.BLACK);
+		PLOK_48_BLACK("Plok.ttf", 48, Color.BLACK);
 
 		private String fontPath;
 		private float fontSize;

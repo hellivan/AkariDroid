@@ -6,6 +6,7 @@ import java.util.List;
 import org.andengine.engine.Engine;
 import org.andengine.engine.LimitedFPSEngine;
 import org.andengine.engine.camera.ZoomCamera;
+import org.andengine.engine.handler.IUpdateHandler;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
@@ -13,20 +14,20 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
-import org.sat4j.specs.ContradictionException;
-import org.sat4j.specs.TimeoutException;
 
 import android.util.Log;
 import android.view.Display;
 import android.widget.Toast;
 import at.ac.uibk.akari.controller.GameController;
 import at.ac.uibk.akari.core.Puzzle;
-import at.ac.uibk.akari.testsolver.Akari;
+import at.ac.uibk.akari.utils.BackgroundLoader;
 import at.ac.uibk.akari.utils.FontLoader;
 import at.ac.uibk.akari.utils.PuzzleLoader;
 import at.ac.uibk.akari.utils.TextureLoader;
 
 public class MainActivity extends SimpleBaseGameActivity {
+
+	private static final String PUZZLE_SYNC_URL = "http://helama.us.to/akari/";
 
 	private static SimpleBaseGameActivity staticActivity;
 
@@ -89,12 +90,19 @@ public class MainActivity extends SimpleBaseGameActivity {
 		Log.d(this.getClass().getName(), "Called create resources");
 
 		// load textures
-		TextureLoader.getInstance().init(this.getTextureManager(), this, this.getAssets(), this.getVertexBufferObjectManager(), this.gameCamera.getWidth(), this.gameCamera.getHeight());
+		Log.d(this.getClass().getName(), "Loading textures");
+		TextureLoader.getInstance().init(this.getTextureManager(), this);
+
+		// load backgrounds
+		Log.d(this.getClass().getName(), "Loading background-textures");
+		BackgroundLoader.getInstance().init(this.getTextureManager(), this.getAssets(), this.getVertexBufferObjectManager(), this.gameCamera.getWidth(), this.gameCamera.getHeight());
 
 		// load fonts
+		Log.d(this.getClass().getName(), "Loading fonts");
 		FontLoader.getInstance().init(this.getTextureManager(), this.getFontManager(), this.getAssets());
 
 		// synchronize levels
+		Log.d(this.getClass().getName(), "Synchronizing levels using url '" + MainActivity.PUZZLE_SYNC_URL + "'");
 		try {
 			int syncedPuzzles = PuzzleLoader.synchronizePuzzleList("http://helama.us.to/akari/", this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
 			Log.i(this.getClass().getName(), "Synchronized " + syncedPuzzles + " puzzles");
@@ -105,6 +113,7 @@ public class MainActivity extends SimpleBaseGameActivity {
 		}
 
 		// load local levels
+		Log.d(this.getClass().getName(), "Loading levels from memory");
 		try {
 			//this.puzzles = PuzzleLoader.loadPuzzles(this.getFilesDir().getAbsolutePath() + File.separator + MainActivity.puzzlesDir);
 			Log.i(this.getClass().getName(), "Loaded " + this.puzzles.size() + " levels...");
@@ -129,22 +138,9 @@ public class MainActivity extends SimpleBaseGameActivity {
 		return this.gameScene;
 
 	}
-
-	public void testSolver() {
-		try {
-			Log.d(this.getClass().getName(), "Starting  solving");
-			long timeStart = System.currentTimeMillis();
-
-			new Akari();
-			long timeStop = System.currentTimeMillis();
-			float secondsNeeded = ((float) (timeStop - timeStart)) / 1000;
-			Log.d(this.getClass().getName(), "Finished solving puzzle  in " + secondsNeeded + " seconds ...");
-		} catch (ContradictionException e) {
-			e.printStackTrace();
-		} catch (TimeoutException e) {
-			e.printStackTrace();
-		}
-
+	
+	public Engine getEngine(){
+		return this.mEngine;
 	}
 
 	public static void showToast(final String text, final int length) {
@@ -165,4 +161,16 @@ public class MainActivity extends SimpleBaseGameActivity {
 		});
 	}
 
+	public static void quit() {
+		Log.d(MainActivity.class.getName(), "Quitting activity");
+		MainActivity.staticActivity.finish();
+	}
+
+	public static void registerUpdateHandler(IUpdateHandler updateHandler){
+		MainActivity.staticActivity.getEngine().registerUpdateHandler(updateHandler);
+	}
+	
+	public static void unregisterUpdateHandler(IUpdateHandler updateHandler){
+		MainActivity.staticActivity.getEngine().unregisterUpdateHandler(updateHandler);
+	}
 }
