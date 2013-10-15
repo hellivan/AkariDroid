@@ -28,7 +28,6 @@ import at.ac.uibk.akari.listener.MenuItemSeletedEvent;
 import at.ac.uibk.akari.listener.MenuItemSeletedEvent.ItemType;
 import at.ac.uibk.akari.listener.MenuListener;
 import at.ac.uibk.akari.solver.AkariSolver;
-import at.ac.uibk.akari.solver.AkariSolverFull;
 import at.ac.uibk.akari.utils.ListenerList;
 import at.ac.uibk.akari.utils.StopClockModel;
 import at.ac.uibk.akari.view.GameField;
