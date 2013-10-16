@@ -136,7 +136,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -145,7 +145,10 @@
      inkscape:groupmode="layer"
      id="layer1">
     <g
-       id="g3921">
+       id="g3921"
+       inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
+       inkscape:export-xdpi="115.2"
+       inkscape:export-ydpi="115.2">
       <rect
          inkscape:export-ydpi="230.38643"
          inkscape:export-xdpi="230.38643"
@@ -248,8 +251,8 @@
        id="g3075"
        transform="translate(19.999999,-120.00001)"
        inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
-       inkscape:export-xdpi="230.39999"
-       inkscape:export-ydpi="230.39999">
+       inkscape:export-xdpi="115.2"
+       inkscape:export-ydpi="115.2">
       <rect
          inkscape:export-ydpi="230.38643"
          inkscape:export-xdpi="230.38643"
@@ -399,10 +402,13 @@
        x="100.2"
        y="152.56219"
        inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
-       inkscape:export-xdpi="230.38643"
-       inkscape:export-ydpi="230.38643" />
+       inkscape:export-xdpi="115.2"
+       inkscape:export-ydpi="115.2" />
     <g
-       id="g3915">
+       id="g3915"
+       inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
+       inkscape:export-xdpi="115.2"
+       inkscape:export-ydpi="115.2">
       <rect
          y="302.56219"
          x="100.2"
@@ -428,7 +434,10 @@
          style="fill:url(#linearGradient3882);fill-opacity:1.0;stroke:none" />
     </g>
     <g
-       id="g3908">
+       id="g3908"
+       inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
+       inkscape:export-xdpi="115.2"
+       inkscape:export-ydpi="115.2">
       <rect
          y="352.56219"
          x="100.2"
@@ -465,7 +474,7 @@
        x="100.2"
        y="202.56218"
        inkscape:export-filename="/home/ivan/git/AkariDroid/source/assets/gfx/cell.png"
-       inkscape:export-xdpi="230.38643"
-       inkscape:export-ydpi="230.38643" />
+       inkscape:export-xdpi="115.2"
+       inkscape:export-ydpi="115.2" />
   </g>
 </svg>

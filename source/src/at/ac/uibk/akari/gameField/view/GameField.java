@@ -22,8 +22,8 @@ import at.ac.uibk.akari.utils.ListenerList;
 
 public class GameField extends Rectangle {
 
-	private static final int CELL_WIDTH = 50;
-	private static final int CELL_HEIGHT = 50;
+	public static final int CELL_WIDTH = 50;
+	public static final int CELL_HEIGHT = 50;
 
 	private GameFieldModel puzzle;
 	private ListenerList listenerList;

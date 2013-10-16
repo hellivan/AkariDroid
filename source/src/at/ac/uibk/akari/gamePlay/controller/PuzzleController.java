@@ -271,23 +271,63 @@ public class PuzzleController extends AbstractController implements MenuListener
 
 	@Override
 	public void onPinchZoom(final PinchZoomDetector arg0, final TouchEvent arg1, final float pZoomFactor) {
-		Log.d(this.getClass().getName(), "MainActivity.onPinchZoom()");
-		this.gameCamera.setZoomFactor(this.mPinchZoomStartedCameraZoomFactor * pZoomFactor);
-
+		this.zoomCamera(pZoomFactor);
 	}
 
 	@Override
 	public void onPinchZoomFinished(final PinchZoomDetector arg0, final TouchEvent arg1, final float pZoomFactor) {
-		Log.d(this.getClass().getName(), "MainActivity.onPinchZoomFinished()");
-		this.gameCamera.setZoomFactor(this.mPinchZoomStartedCameraZoomFactor * pZoomFactor);
+		this.zoomCamera(pZoomFactor);
+	}
+
+	private void zoomCamera(final float pZoomFactor) {
+		float zoomInsetsY = 20;
+		float zoomInsetsX = 20;
+
+		float newZoomFactor = this.mPinchZoomStartedCameraZoomFactor * pZoomFactor;
+
+		float visibleHeight = this.gameCamera.getHeightRaw();
+		visibleHeight -= this.gameHUD.getDesiredHUDHeight();
+		visibleHeight -= zoomInsetsY;
+		float visibleHeightScaled = visibleHeight / newZoomFactor;
+
+		float visibleWidth = this.gameCamera.getWidthRaw();
+		visibleWidth -= zoomInsetsX;
+		float visibleWidthScaled = visibleWidth / newZoomFactor;
+
+		// zooming out
+		if (newZoomFactor < this.mPinchZoomStartedCameraZoomFactor) {
+			// only if not zoomed out to far
+			if ((this.gameField.getWidth() < visibleWidthScaled) && (this.gameField.getHeight() < visibleHeightScaled)) {
+				float zoomFactorFitWidth = visibleWidth / this.gameField.getWidth();
+				float zoomFactorFitHeight = visibleHeight / this.gameField.getHeight();
+				newZoomFactor = Math.min(zoomFactorFitWidth, zoomFactorFitHeight);
+			}
+
+		}
+		// zooming in
+		else {
+			// at least 5 cells are visible
+			float tmpHeight = GameField.CELL_HEIGHT * 5;
+			float tmpWeight = GameField.CELL_WIDTH * 5;
+			// only if not zoomed in to far
+			if ((tmpWeight > visibleWidthScaled) || (tmpHeight > visibleHeightScaled)) {
+				float zoomFactorFitWidth = visibleWidth / tmpWeight;
+				float zoomFactorFitHeight = visibleHeight / tmpHeight;
+				newZoomFactor = Math.min(zoomFactorFitWidth, zoomFactorFitHeight);
+			}
+		}
+
+		Log.d(this.getClass().getName(), "Finished zooming and set zoom-factor to " + newZoomFactor);
+		Log.d(this.getClass().getName(), "Camera-size: " + this.gameCamera.getWidth() + "/" + this.gameCamera.getHeight());
+		Log.d(this.getClass().getName(), "Gamefield-size: " + this.gameField.getWidth() + "/" + this.gameField.getHeight());
+		this.gameCamera.setZoomFactor(newZoomFactor);
 
 	}
 
 	@Override
 	public void onPinchZoomStarted(final PinchZoomDetector arg0, final TouchEvent arg1) {
-		Log.d(this.getClass().getName(), "MainActivity.onPinchZoomStarted()");
 		this.mPinchZoomStartedCameraZoomFactor = this.gameCamera.getZoomFactor();
-
+		Log.d(this.getClass().getName(), "Started zooming with current zoom-factor " + this.mPinchZoomStartedCameraZoomFactor);
 	}
 
 	@Override
