@@ -147,12 +147,14 @@ public class PuzzleController extends AbstractController implements MenuListener
 
 		this.gameField.adaptFieldToModel();
 		SceneManager.getInstance().setCurrentScene(this, this.gameScene, this.gameHUD);
+
 		this.stopClock.setSecondsElapsed(oldSaveState.getSecondsElapsed());
 		this.stopClock.start();
 	}
 
 	private void notResumePuzzle() {
 		SceneManager.getInstance().setCurrentScene(this, this.gameScene, this.gameHUD);
+
 		this.stopClock.reset();
 		this.stopClock.start();
 	}
@@ -318,9 +320,10 @@ public class PuzzleController extends AbstractController implements MenuListener
 		}
 
 		Log.d(this.getClass().getName(), "Finished zooming and set zoom-factor to " + newZoomFactor);
-		Log.d(this.getClass().getName(), "Camera-size: " + this.gameCamera.getWidth() + "/" + this.gameCamera.getHeight());
-		Log.d(this.getClass().getName(), "Gamefield-size: " + this.gameField.getWidth() + "/" + this.gameField.getHeight());
 		this.gameCamera.setZoomFactor(newZoomFactor);
+		// be sure that the game-field is always scrolled to right place after
+		// zooming (game-field is visible on screen)
+		this.scrollGameCamera(0, 0);
 
 	}
 
@@ -332,24 +335,52 @@ public class PuzzleController extends AbstractController implements MenuListener
 
 	@Override
 	public void onScroll(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
-		Log.d(this.getClass().getName(), "MainActivity.onScroll()");
-		final float zoomFactor = this.gameCamera.getZoomFactor();
-		Log.d(this.getClass().getName(), "ZoomFactor=" + zoomFactor + ", PointerID=" + pPointerID + ", pDistanceX=" + pDistanceX + ", pDistanceY=" + pDistanceY);
-		this.gameCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
+		this.scrollGameCamera(pDistanceX, pDistanceY);
+
 	}
 
 	@Override
 	public void onScrollFinished(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
-		Log.d(this.getClass().getName(), "MainActivity.onScrollFinished()");
-		final float zoomFactor = this.gameCamera.getZoomFactor();
-		this.gameCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
+		this.scrollGameCamera(pDistanceX, pDistanceY);
 	}
 
 	@Override
 	public void onScrollStarted(final ScrollDetector pScollDetector, final int pPointerID, final float pDistanceX, final float pDistanceY) {
-		Log.d(this.getClass().getName(), "MainActivity.onScrollStarted()");
-		final float zoomFactor = this.gameCamera.getZoomFactor();
-		this.gameCamera.offsetCenter(-pDistanceX / zoomFactor, -pDistanceY / zoomFactor);
+		this.scrollGameCamera(pDistanceX, pDistanceY);
+	}
+
+	private void scrollGameCamera(final float pDistanceX, final float pDistanceY) {
+		float zoomFactor = this.gameCamera.getZoomFactor();
+		float deltaX = -pDistanceX / zoomFactor;
+		float deltaY = -pDistanceY / zoomFactor;
+
+		Log.d(this.getClass().getName(), "Camera X min/max: " + this.gameCamera.getXMin() + "/" + this.gameCamera.getXMax());
+		Log.d(this.getClass().getName(), "Camera Y min/max: " + this.gameCamera.getYMin() + "/" + this.gameCamera.getYMax());
+
+		float realCameraMinX = this.gameCamera.getXMin() + deltaX;
+		float realCameraMinY = this.gameCamera.getYMin() + deltaY;
+
+		float realCameraMaxX = this.gameCamera.getXMax() + deltaX;
+		float realCameraMaxY = this.gameCamera.getYMax() + deltaY;
+
+		if (realCameraMinX > ((this.gameField.getX() + this.gameField.getWidth()) - (2 * GameField.CELL_WIDTH))) {
+			deltaX = ((this.gameField.getX() + this.gameField.getWidth()) - (2 * GameField.CELL_WIDTH)) - this.gameCamera.getXMin();
+		}
+
+		if (realCameraMinY > ((this.gameField.getY() + this.gameField.getHeight()) - (2 * GameField.CELL_HEIGHT))) {
+			deltaY = ((this.gameField.getY() + this.gameField.getHeight()) - (2 * GameField.CELL_HEIGHT)) - this.gameCamera.getYMin();
+		}
+
+		if (realCameraMaxX < ((this.gameField.getX()) + (2 * GameField.CELL_WIDTH))) {
+			deltaX = ((this.gameField.getX()) + (2 * GameField.CELL_WIDTH)) - this.gameCamera.getXMax();
+		}
+
+		if (realCameraMaxY < ((this.gameField.getY()) + (2 * GameField.CELL_HEIGHT))) {
+			deltaY = ((this.gameField.getY()) + (2 * GameField.CELL_HEIGHT)) - this.gameCamera.getYMax();
+		}
+
+		this.gameCamera.offsetCenter(deltaX, deltaY);
+
 	}
 
 	@Override
